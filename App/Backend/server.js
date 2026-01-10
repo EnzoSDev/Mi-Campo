@@ -1,6 +1,10 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import cookieParser from 'cookie-parser'
+
+// Import Middlewares and Routes
+import { authMiddleware } from './Middlewares/authMiddleware.js'
 
 dotenv.config()
 
@@ -13,6 +17,8 @@ const PORT = process.env.SERVER_PORT
 app.use(cors())
 app.use(express.json())
 app.disable('x-powered-by')
+app.use(cookieParser()) // Permite leer y crear cookies
+app.use(authMiddleware)
 
 /*
     // Configuración de __dirname en ES Modules
