@@ -6,15 +6,19 @@ import cookieParser from 'cookie-parser'
 // Import Middlewares and Routes
 import { authMiddleware } from './Middlewares/authMiddleware.js'
 
-dotenv.config()
-
 // Import routes
+import userRoutes from './Routes/user.routes.js'
+
+dotenv.config()
 
 const app = express()
 const PORT = process.env.SERVER_PORT
 
 // Middlewares
-app.use(cors())
+app.use(cors(), {
+  origin: 'http://localhost:5173', // TODO: Ver puerto de VITE
+  credentials: true
+})
 app.use(express.json())
 app.disable('x-powered-by')
 app.use(cookieParser()) // Permite leer y crear cookies
@@ -42,6 +46,9 @@ app.use(authMiddleware)
         res.sendFile(path.join(__dirname, '..', 'Frontend', 'dist', 'index.html'))
     })
 */
+
+// Routes
+app.use('/user', userRoutes)
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' })
