@@ -7,7 +7,8 @@ dotenv.config()
 
 export default {
   handlerLogin,
-  handlerRegister
+  handlerRegister,
+  handlerLogout
 }
 
 async function handlerLogin (req, res) {
@@ -62,4 +63,13 @@ async function handlerRegister (req, res) {
   } catch (error) {
     res.status(500).json({ message: 'Error interno del servidor' })
   }
+}
+
+async function handlerLogout (req, res) {
+  res.clearCookie('access_token', {
+    httpOnly: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict'
+  })
+  res.status(200).json({ message: 'Logout exitoso' })
 }
