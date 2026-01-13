@@ -30,7 +30,7 @@ async function handlerLogin (req, res) {
       { userId },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
-    ) // TODO: Agregarlo a variables de entorno
+    )
     res.cookie('access_token', token, {
       httpOnly: process.env.NODE_ENV === 'production',
       secure: process.env.NODE_ENV === 'production',
@@ -44,8 +44,8 @@ async function handlerLogin (req, res) {
 }
 
 async function handlerRegister (req, res) {
-  const { username, email, password, passwordConfirm, country } = req.body
-  if (!username || !email || !password || !passwordConfirm || !country) {
+  const { username, email, password, passwordConfirm, countryCode } = req.body
+  if (!username || !email || !password || !passwordConfirm || !countryCode) {
     return res.status(400).json({ message: 'Todos los campos son requeridos' })
   }
   if (password !== passwordConfirm) {
@@ -57,10 +57,11 @@ async function handlerRegister (req, res) {
       return res.status(409).json({ message: 'El email ya está registrado' })
     }
     const hashedPassword = await bcrypt.hash(password, 10)
-    const result = await userModel.createUser({ username, email, password: hashedPassword, country })
+    const result = await userModel.createUser({ username, email, passwordHash: hashedPassword, countryCode })
     if (result) res.status(201).json({ message: 'Usuario registrado exitosamente' })
     else res.status(500).json({ message: 'No se pudo registrar el usuario' })
   } catch (error) {
+    console.error(error)
     res.status(500).json({ message: 'Error interno del servidor' })
   }
 }

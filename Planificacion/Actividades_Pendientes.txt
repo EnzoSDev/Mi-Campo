@@ -1,0 +1,14 @@
+- Cuando haga el formulario de registro, pedir al backend todo el contenido de la tabla "Countries", al enviar el formulario
+se envia el country_code (Ej: AR). Lo hago asi por si tendriamos informacion relevante o diferencial segun el tipo de pais
+Ademas usar esta funcion para obtener los emojis de las banderas
+function countryCodeToFlag(code) {
+  return code
+    .toUpperCase()
+    .replace(/./g, char =>
+      String.fromCodePoint(127397 + char.charCodeAt())
+    );
+}
+
+// uso
+countryCodeToFlag("ar") // 🇦🇷
+countryCodeToFlag("AR") // 🇦🇷

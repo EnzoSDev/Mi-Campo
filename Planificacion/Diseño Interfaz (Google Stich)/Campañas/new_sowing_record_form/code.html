@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>New Sowing Record Form</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#22c3a8",
+                "background-light": "#fafafa",
+                "background-dark": "#16181d",
+                "surface-dark": "#21252b",
+                "border-dark": "#3d514e",
+              },
+              fontFamily: {
+                "display": ["Work Sans", "sans-serif"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>body {
+    font-family: "Work Sans", sans-serif;
+    -webkit-font-smoothing: antialiased
+    }
+.form-input-focus:focus-within {
+    border-color: #22c3a8;
+    box-shadow: 0 0 0 1px #22c3a8
+    }
+select {
+    appearance: none;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuBTizfB8L_xkdzrrX6D_TOTbBteWUZvsEpoYj4neRmGRP7Js-N8Nlb2CYU1rVpeeQZI1aaiNFhzNNMybSEAeUHQRkUT3BNhsCHmGmbanpjZwF9DVNAkIgpiH4VoG6SKJB19Auvpq_qowenDnI1CuLUu-eNoblIfRO3mrXolVZV1bzogTr3P0tsLukAHzWxRxTY4qrtgjNjQIC5-HMvs2qwSPauQL8xcCwoj-Tw8oVjR275HhtQg3tljFq5UtUgOVqjy_JMUuqrX_089);
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem
+    }</style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Header Navigation -->
+<header class="sticky top-0 z-10 bg-background-light dark:bg-background-dark border-b border-slate-200 dark:border-slate-800 px-4 py-4 flex items-center justify-between">
+<button class="text-primary font-medium text-base hover:opacity-80 transition-opacity">Cancel</button>
+<h1 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">New Sowing Record</h1>
+<button class="text-primary font-bold text-base hover:opacity-80 transition-opacity">Save</button>
+</header>
+<main class="flex-1 flex flex-col max-w-md mx-auto w-full px-4 pt-6 pb-24">
+<div class="space-y-6">
+<!-- Plot Selection -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-slate-600 dark:text-slate-400 ml-1">
+                    Plot Selection
+                </label>
+<div class="relative group">
+<select class="form-input block w-full rounded-xl border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark text-slate-900 dark:text-white h-14 px-4 text-base focus:ring-primary focus:border-primary transition-all">
+<option disabled="" selected="" value="">Select a plot...</option>
+<option value="north-field">North Field - A12</option>
+<option value="valley-basin">Valley Basin - B04</option>
+<option value="east-slope">East Slope - C09</option>
+</select>
+</div>
+</div>
+<!-- Crop/Hybrid -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-slate-600 dark:text-slate-400 ml-1">
+                    Crop / Hybrid
+                </label>
+<div class="relative">
+<input class="form-input block w-full rounded-xl border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark text-slate-900 dark:text-white h-14 px-4 text-base placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-primary focus:border-primary transition-all" placeholder="e.g., Corn - Pioneer P0622" type="text"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-xl">
+                        potted_plant
+                    </span>
+</div>
+</div>
+<!-- Sowing Rate / Density -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-slate-600 dark:text-slate-400 ml-1">
+                    Sowing Rate / Density
+                </label>
+<div class="relative">
+<input class="form-input block w-full rounded-xl border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark text-slate-900 dark:text-white h-14 px-4 text-base placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-primary focus:border-primary transition-all" placeholder="seeds/ha or kg/ha" type="text"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-xl">
+                        speed
+                    </span>
+</div>
+</div>
+<!-- Sowing Date List Item -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-slate-600 dark:text-slate-400 ml-1">
+                    Activity Date
+                </label>
+<div class="flex items-center justify-between bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-xl px-4 h-14 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<div class="flex items-center gap-3">
+<div class="flex items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20 text-primary w-10 h-10">
+<span class="material-symbols-outlined">calendar_today</span>
+</div>
+<span class="text-slate-900 dark:text-white font-medium">Sowing Date</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-slate-500 dark:text-slate-400">Today</span>
+<span class="material-symbols-outlined text-slate-400">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Notes Section -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-slate-600 dark:text-slate-400 ml-1">
+                    Notes
+                </label>
+<textarea class="form-input block w-full rounded-xl border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark text-slate-900 dark:text-white p-4 text-base placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-primary focus:border-primary transition-all resize-none" placeholder="Add details (weather, soil condition, equipment used)..." rows="4"></textarea>
+</div>
+<!-- Weather Insight (Bonus Contextual element) -->
+<div class="bg-primary/10 dark:bg-primary/5 border border-primary/20 rounded-xl p-4 flex gap-3">
+<span class="material-symbols-outlined text-primary">info</span>
+<p class="text-sm text-slate-700 dark:text-slate-300">
+                    Expected rainfall in <span class="font-bold">48 hours</span>. Optimal conditions for seed germination in North Field.
+                </p>
+</div>
+</div>
+</main>
+<!-- Fixed Footer Button -->
+<div class="fixed bottom-0 left-0 right-0 p-4 bg-background-light dark:bg-background-dark border-t border-slate-200 dark:border-slate-800">
+<div class="max-w-md mx-auto">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transition-transform active:scale-[0.98]">
+<span class="material-symbols-outlined">task_alt</span>
+                Save Activity
+            </button>
+</div>
+</div>
+</body></html>

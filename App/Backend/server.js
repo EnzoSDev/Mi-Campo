@@ -8,6 +8,7 @@ import { authMiddleware } from './Middlewares/authMiddleware.js'
 
 // Import routes
 import userRoutes from './Routes/user.routes.js'
+import fieldsRoutes from './Routes/fields.routes.js'
 
 dotenv.config()
 
@@ -15,14 +16,14 @@ const app = express()
 const PORT = process.env.SERVER_PORT
 
 // Middlewares
-app.use(cors(), {
-  origin: 'http://localhost:5173', // TODO: Ver puerto de VITE
+app.use(cors({
+  origin: process.env.CLIENT_URL,
   credentials: true
-})
+}))
 app.use(express.json())
 app.disable('x-powered-by')
 app.use(cookieParser()) // Permite leer y crear cookies
-app.use(authMiddleware)
+app.use(authMiddleware) // Si existe el token en las cookies, valida y agrega la info del usuario a req.user
 
 /*
     // Configuración de __dirname en ES Modules
@@ -49,9 +50,10 @@ app.use(authMiddleware)
 
 // Routes
 app.use('/user', userRoutes)
+app.use('/fields', fieldsRoutes)
 
 app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' })
+  res.status(404).json({ message: 'Ruta no encontrada' })
 })
 
 app.listen(PORT, () => {

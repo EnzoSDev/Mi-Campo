@@ -13,7 +13,11 @@ export function authMiddleware (req, res, next) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    req.user_id = decoded.user_id
+    // TODO: Validar que el usuario exista en la base de datos (Seguridad)
+    // Agrego un campo user al objeto req para tener la info del usuario en las rutas protegidas
+    req.user = {
+      id: decoded.id
+    }
     next()
   } catch (error) {
     return res.status(401).json({

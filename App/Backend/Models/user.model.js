@@ -1,4 +1,4 @@
-import connection from '../Database/databaseConfig'
+import connection from '../Database/databaseConfig.js'
 
 export default {
   findUserByEmail,
@@ -11,8 +11,8 @@ async function findUserByEmail (email) {
   return rows[0]
 }
 
-async function createUser ({ username, email, password, country }) {
-  const query = ' INSERT INTO users (username, email, password, country) VALUES (?, ?, ?, ?) '
-  const [result] = await connection.execute(query, [username, email, password, country])
+async function createUser ({ username, email, passwordHash, countryCode }) {
+  const query = ' INSERT INTO users (username, email, password_hashed, country_code, is_active) VALUES (?, ?, ?, ?, ?) '
+  const [result] = await connection.execute(query, [username, email, passwordHash, countryCode, true])
   return result.affectedRows
 }

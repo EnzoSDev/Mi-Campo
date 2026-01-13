@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Farm Selection Screen</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#267366",
+                        "background-light": "#fafaf9",
+                        "background-dark": "#1c1f22",
+                        "surface-dark": "#2d3136",
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Work Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
+<div class="relative flex min-h-screen w-full flex-col max-w-[480px] mx-auto overflow-x-hidden border-x border-transparent dark:border-slate-800 shadow-2xl">
+<!-- Top App Bar -->
+<header class="sticky top-0 z-20 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md p-4 pb-2 justify-between">
+<div class="text-primary flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10" data-icon="account_circle">
+<span class="material-symbols-outlined text-[28px]">account_circle</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 text-center">Select Farm</h2>
+<div class="flex w-10 items-center justify-end">
+<button class="flex size-10 items-center justify-center rounded-full bg-slate-100 dark:bg-surface-dark text-slate-600 dark:text-white transition-colors hover:bg-primary/20">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="flex-1 pb-24">
+<!-- Headline Section -->
+<section class="px-4 pt-8 pb-2">
+<h1 class="text-slate-900 dark:text-white tracking-tight text-[32px] font-bold leading-tight">Welcome, Julian</h1>
+<p class="text-slate-500 dark:text-slate-400 text-base mt-1">Manage your agricultural portfolio</p>
+</section>
+<!-- Search and Add Bar -->
+<section class="px-4 py-6">
+<div class="flex gap-3">
+<label class="flex flex-col flex-1 h-12">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-full shadow-sm">
+<div class="text-slate-400 flex border-none bg-white dark:bg-surface-dark items-center justify-center pl-4 rounded-l-xl" data-icon="search">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border-none bg-white dark:bg-surface-dark placeholder:text-slate-400 px-4 pl-2 text-base font-normal leading-normal" placeholder="Search your farms..." value=""/>
+</div>
+</label>
+<button class="flex size-12 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[24px]">add</span>
+</button>
+</div>
+</section>
+<!-- Farm List -->
+<section class="px-4 space-y-5">
+<!-- Card 1 -->
+<div class="group relative flex flex-col items-stretch justify-start rounded-2xl overflow-hidden shadow-xl shadow-black/5 bg-white dark:bg-surface-dark border border-slate-100 dark:border-white/5 transition-all hover:translate-y-[-2px] hover:shadow-2xl">
+<div class="relative w-full aspect-[16/9] overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10"></div>
+<div class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105" data-alt="Aerial view of a green farm in Argentina" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAtnxaMENPCMuT8VGimRb4qkQ4x4tLikRBEKrbiEf6R4GJD5I7ViZYNBb1g6F-bB8FC8B4oACRCGtXzQF8ga48hYESZWvAsky9tFUIW4N02pZIdJiSUvnBTzEPiMRFVHpQ_E1NgpofH-fHST7EZiYTWTThgSo66mLLqdUjxofMXFRo7hI6J5g9rtvTRAGpo91mvIqRabtGeue5F3LBp3C9ryTxG_bp41Py5gPEvtdXjjHiTVtYRb58ZhjyyYIqKaGVxwVS9DC79w8pB");'></div>
+<div class="absolute top-4 right-4 z-20">
+<span class="px-3 py-1 rounded-full bg-primary/90 text-white text-xs font-semibold backdrop-blur-sm">ACTIVE</span>
+</div>
+</div>
+<div class="flex w-full flex-col items-stretch justify-center gap-1 p-5">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-slate-900 dark:text-white text-xl font-bold leading-tight tracking-tight">Estancia La Serena</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-0.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">location_on</span>
+                                    Chascomús, Buenos Aires
+                                </p>
+</div>
+<div class="text-right">
+<p class="text-primary font-bold text-lg leading-tight">1,200</p>
+<p class="text-slate-400 text-[10px] uppercase font-bold tracking-widest leading-none">Hectares</p>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full border-2 border-surface-dark bg-slate-200 flex items-center justify-center text-[10px] font-bold">JD</div>
+<div class="size-6 rounded-full border-2 border-surface-dark bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">AL</div>
+</div>
+<p class="text-slate-400 text-xs italic">Mixed Production</p>
+</div>
+<button class="flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-primary text-white text-sm font-semibold transition-all hover:bg-primary/90 active:scale-95">
+<span class="truncate">Select</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group relative flex flex-col items-stretch justify-start rounded-2xl overflow-hidden shadow-xl shadow-black/5 bg-white dark:bg-surface-dark border border-slate-100 dark:border-white/5 transition-all hover:translate-y-[-2px] hover:shadow-2xl">
+<div class="relative w-full aspect-[16/9] overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10"></div>
+<div class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105" data-alt="Vast wheat fields in California" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDoa-OrXuNdJATgNk16R4MRDOs7WYmLxuRcYMqAw6bG2-LGNm5AqfoRYiuOxExb0IdzLVxxe-QS9cvkCodpOTjpSRi998YJAQfhQP3I0Y4PesQ8xxk25D0hjeoQ3XoviIavhxn8rheTjL_EuCsKD6d6gc-shE8Cyxdza0das3_wbf4L8m68-BvpVVUcC73ceitzy2RNScx4KK-EID4TllZOQ-2N_9Iyx31Tvm4_6nEsyoZ5wPLk6VV9kZ0KQT0lJAGMHQlFyqbhzZvp");'></div>
+<div class="absolute top-4 right-4 z-20">
+<span class="px-3 py-1 rounded-full bg-orange-500/90 text-white text-xs font-semibold backdrop-blur-sm">2 ALERTS</span>
+</div>
+</div>
+<div class="flex w-full flex-col items-stretch justify-center gap-1 p-5">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-slate-900 dark:text-white text-xl font-bold leading-tight tracking-tight">Green Valley North</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-0.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">location_on</span>
+                                    Sacramento, CA
+                                </p>
+</div>
+<div class="text-right">
+<p class="text-primary font-bold text-lg leading-tight">850</p>
+<p class="text-slate-400 text-[10px] uppercase font-bold tracking-widest leading-none">Hectares</p>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full border-2 border-surface-dark bg-slate-200 flex items-center justify-center text-[10px] font-bold">JD</div>
+</div>
+<p class="text-slate-400 text-xs italic">Organic Wheat</p>
+</div>
+<button class="flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-primary text-white text-sm font-semibold transition-all hover:bg-primary/90 active:scale-95">
+<span class="truncate">Select</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Add New Farm Ghost Card -->
+<button class="w-full py-8 border-2 border-dashed border-slate-200 dark:border-white/10 rounded-2xl flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-primary hover:border-primary/50 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-[32px]">add_circle</span>
+<span class="text-sm font-semibold">Add Another Farm</span>
+</button>
+</section>
+</main>
+<!-- Status Bar Mimic (iOS Style) -->
+<div class="fixed bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-300 dark:bg-white/20 rounded-full z-50"></div>
+</div>
+</body></html>
