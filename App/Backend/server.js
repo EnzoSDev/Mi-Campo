@@ -9,6 +9,7 @@ import { authMiddleware } from './Middlewares/authMiddleware.js'
 // Import routes
 import userRoutes from './Routes/user.routes.js'
 import fieldsRoutes from './Routes/fields.routes.js'
+import plotsRoutes from './Routes/plots.routes.js'
 
 dotenv.config()
 
@@ -51,7 +52,7 @@ app.use(authMiddleware) // Si existe el token en las cookies, valida y agrega la
 // Routes
 app.use('/user', userRoutes)
 app.use('/fields', fieldsRoutes)
-app.use('/plots', fieldsRoutes)
+app.use('/plots', plotsRoutes)
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Ruta no encontrada' })

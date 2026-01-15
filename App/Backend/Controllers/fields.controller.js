@@ -70,6 +70,15 @@ async function handleCreateField (req, res) {
   const areaHa = calculateAreaHa(coordinatesPolygon)
 
   try {
+    const field = await fieldsModel.getFieldByCoordinatesPolygon(coordinatesPolygon)
+    if (field) {
+      return res.status(400).json({ message: 'Coordenadas del campo inválidas' })
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error interno del servidor' })
+  }
+
+  try {
     const result = await fieldsModel.createField({ userId, fieldName, description, locationName, lat, lng, coordinatesPolygon, areaHa })
     if (result) {
       res.status(201).json({ message: 'Campo creado exitosamente' })
@@ -104,6 +113,16 @@ async function handleCreatePlot (req, res) {
 
   if (coordinatesPolygon[0][0] !== coordinatesPolygon[coordinatesPolygon.length - 1][0] || coordinatesPolygon[0][1] !== coordinatesPolygon[coordinatesPolygon.length - 1][1]) {
     return res.status(400).json({ message: 'El lote debe estar cerrado (la primera y última coordenada deben ser iguales)' })
+  }
+
+  try {
+    const plot = await fieldsModel.getPlotByCoordinatesPolygon(coordinatesPolygon)
+    if (plot) {
+      return res.status(400).json({ message: 'Coordenadas del lote inválidas' })
+    }
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Error interno del servidor' })
   }
 
   const areaHa = calculateAreaHa(coordinatesPolygon)
