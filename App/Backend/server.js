@@ -51,6 +51,7 @@ app.use(authMiddleware) // Si existe el token en las cookies, valida y agrega la
 // Routes
 app.use('/user', userRoutes)
 app.use('/fields', fieldsRoutes)
+app.use('/plots', fieldsRoutes)
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Ruta no encontrada' })

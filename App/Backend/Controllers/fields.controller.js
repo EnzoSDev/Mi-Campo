@@ -3,7 +3,9 @@ import { polygon, area } from '@turf/turf'
 
 export default {
   handleGetFields,
-  handleCreateField
+  handleCreateField,
+  handleGetFieldPlots,
+  handleCreatePlot
 }
 
 function calculateAreaHa (coordinatesPolygon) {
@@ -17,7 +19,8 @@ function calculateAreaHa (coordinatesPolygon) {
 
 async function handleGetFields (req, res) {
   try {
-    const userId = req.user.id
+    // const userId = req.user.id
+    const userId = 5
     const fields = await fieldsModel.getFieldsByUserId(userId)
     res.status(200).json({ fields })
   } catch (error) {
@@ -56,6 +59,14 @@ async function handleCreateField (req, res) {
     return res.status(400).json({ message: 'Faltan datos obligatorios' })
   }
 
+  if (!Array.isArray(coordinatesPolygon) || coordinatesPolygon.length < 3) {
+    return res.status(400).json({ message: 'El campo debe tener al menos 3 coordenadas' })
+  }
+
+  if (coordinatesPolygon[0][0] !== coordinatesPolygon[coordinatesPolygon.length - 1][0] || coordinatesPolygon[0][1] !== coordinatesPolygon[coordinatesPolygon.length - 1][1]) {
+    return res.status(400).json({ message: 'El campo debe estar cerrado (la primera y última coordenada deben ser iguales)' })
+  }
+
   const areaHa = calculateAreaHa(coordinatesPolygon)
 
   try {
@@ -63,6 +74,45 @@ async function handleCreateField (req, res) {
     if (result) {
       res.status(201).json({ message: 'Campo creado exitosamente' })
     } else res.status(500).json({ message: 'No se pudo crear el campo' })
+  } catch (error) {
+    res.status(500).json({ message: 'Error interno del servidor' })
+  }
+}
+
+async function handleGetFieldPlots (req, res) {
+  const { fieldId } = req.params
+
+  try {
+    const plots = await fieldsModel.getPlotsByFieldId(fieldId)
+    res.status(200).json({ plots })
+  } catch (error) {
+    res.status(500).json({ message: 'Error interno del servidor' })
+  }
+}
+
+async function handleCreatePlot (req, res) {
+  const { fieldId } = req.params
+  const { plotName, description, coordinatesPolygon } = req.body
+
+  if (!plotName || !coordinatesPolygon || !description) {
+    return res.status(400).json({ message: 'Faltan datos obligatorios' })
+  }
+
+  if (!Array.isArray(coordinatesPolygon) || coordinatesPolygon.length < 3) {
+    return res.status(400).json({ message: 'El lote debe tener al menos 3 coordenadas' })
+  }
+
+  if (coordinatesPolygon[0][0] !== coordinatesPolygon[coordinatesPolygon.length - 1][0] || coordinatesPolygon[0][1] !== coordinatesPolygon[coordinatesPolygon.length - 1][1]) {
+    return res.status(400).json({ message: 'El lote debe estar cerrado (la primera y última coordenada deben ser iguales)' })
+  }
+
+  const areaHa = calculateAreaHa(coordinatesPolygon)
+
+  try {
+    const result = await fieldsModel.createPlot({ fieldId, plotName, description, coordinatesPolygon, areaHa })
+    if (result) {
+      res.status(201).json({ message: 'Lote creado exitosamente' })
+    } else res.status(500).json({ message: 'No se pudo crear el lote' })
   } catch (error) {
     res.status(500).json({ message: 'Error interno del servidor' })
   }
