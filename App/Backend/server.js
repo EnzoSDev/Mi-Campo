@@ -10,6 +10,7 @@ import { authMiddleware } from './Middlewares/authMiddleware.js'
 import userRoutes from './Routes/user.routes.js'
 import fieldsRoutes from './Routes/fields.routes.js'
 import plotsRoutes from './Routes/plots.routes.js'
+import campaignsRoutes from './Routes/campaigns.routes.js'
 
 dotenv.config()
 
@@ -17,10 +18,12 @@ const app = express()
 const PORT = process.env.SERVER_PORT
 
 // Middlewares
-app.use(cors({
-  origin: process.env.CLIENT_URL,
-  credentials: true
-}))
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true
+  })
+)
 app.use(express.json())
 app.disable('x-powered-by')
 app.use(cookieParser()) // Permite leer y crear cookies
@@ -53,6 +56,7 @@ app.use(authMiddleware) // Si existe el token en las cookies, valida y agrega la
 app.use('/user', userRoutes)
 app.use('/fields', fieldsRoutes)
 app.use('/plots', plotsRoutes)
+app.use('/campaigns', campaignsRoutes)
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Ruta no encontrada' })

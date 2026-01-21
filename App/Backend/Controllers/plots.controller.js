@@ -21,14 +21,24 @@ async function handleCreateCampaign (req, res) {
   const { plotId } = req.params
   const { campaignName, startDate, endDate, description } = req.body
 
-  if (!campaignName || !startDate || !description) {
+  if (!campaignName || !startDate || !endDate || !description) {
     return res.status(400).json({ message: 'Faltan datos obligatorios' })
   }
 
-  // TODO: Validar formato de fechas y quizas que no se creen campañas con fechas que se solapen
+  if (new Date(startDate) > new Date(endDate)) {
+    return res.status(400).json({
+      message: 'La fecha de inicio no puede ser posterior a la fecha de fin'
+    })
+  }
 
   try {
-    const result = await plotsModel.createCampaign({ plotId, campaignName, startDate, endDate, description })
+    const result = await plotsModel.createCampaign({
+      plotId,
+      campaignName,
+      startDate,
+      endDate,
+      description
+    })
     if (result) {
       res.status(201).json({ message: 'Campaña creada exitosamente' })
     } else {

@@ -11,7 +11,7 @@ async function getCampaignsByPlotId (plotId) {
   return rows
 }
 
-async function createCampaign ({ plotId, campaignName, startDate, endDate = null, description }) {
+async function createCampaign ({ plotId, campaignName, startDate, endDate, description }) {
   const query = 'INSERT INTO campaigns (plot_id, campaign_name, start_date, end_date, description) VALUES (?, ?, ?, ?, ?)'
   const [result] = await connection.execute(query, [plotId, campaignName, startDate, endDate, description])
   return result.affectedRows === 1
