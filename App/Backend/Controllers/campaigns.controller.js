@@ -10,10 +10,10 @@ export const CampaignController = {
   handlerGetHarvests,
   handlerRegisterHarvest,
   handlerGetObservations,
-  handlerRegisterObservation
+  handlerRegisterObservation,
 }
 
-async function handlerGetSowings (req, res) {
+async function handlerGetSowings(req, res) {
   const { campaignId } = req.params
   try {
     const sowings = await campaignModel.getSowingsByCampaignId(campaignId)
@@ -23,7 +23,7 @@ async function handlerGetSowings (req, res) {
   }
 }
 
-async function handlerRegisterSowing (req, res) {
+async function handlerRegisterSowing(req, res) {
   const { campaignId } = req.params
   const { cropType, variety, sowingDate, density, rowSpacing, method, notes } = req.body
 
@@ -32,7 +32,16 @@ async function handlerRegisterSowing (req, res) {
   }
 
   try {
-    const result = await campaignModel.registerSowing(campaignId, cropType, variety, sowingDate, density, rowSpacing, method, notes)
+    const result = await campaignModel.registerSowing(
+      campaignId,
+      cropType,
+      variety,
+      sowingDate,
+      density,
+      rowSpacing,
+      method,
+      notes
+    )
     if (result) {
       res.status(201).json({ message: 'Siembra registrada con éxito' })
     } else {
@@ -43,7 +52,7 @@ async function handlerRegisterSowing (req, res) {
   }
 }
 
-async function handlerGetFertilizations (req, res) {
+async function handlerGetFertilizations(req, res) {
   const { campaignId } = req.params
   try {
     const fertilizations = await campaignModel.getFertilizationsByCampaignId(campaignId)
@@ -53,7 +62,7 @@ async function handlerGetFertilizations (req, res) {
   }
 }
 
-async function handlerRegisterFertilization (req, res) {
+async function handlerRegisterFertilization(req, res) {
   const { campaignId } = req.params
   const { productName, dose, dateApplied, method, notes } = req.body
 
@@ -62,7 +71,14 @@ async function handlerRegisterFertilization (req, res) {
   }
 
   try {
-    const result = await campaignModel.registerFertilization(campaignId, productName, dose, dateApplied, method, notes)
+    const result = await campaignModel.registerFertilization(
+      campaignId,
+      productName,
+      dose,
+      dateApplied,
+      method,
+      notes
+    )
     if (result) {
       res.status(201).json({ message: 'Fertilización registrada con éxito' })
     } else {
@@ -73,7 +89,7 @@ async function handlerRegisterFertilization (req, res) {
   }
 }
 
-async function handlerGetSprayings (req, res) {
+async function handlerGetSprayings(req, res) {
   const { campaignId } = req.params
   try {
     const sprayings = await campaignModel.getSprayingsByCampaignId(campaignId)
@@ -83,7 +99,7 @@ async function handlerGetSprayings (req, res) {
   }
 }
 
-async function handlerRegisterSpraying (req, res) {
+async function handlerRegisterSpraying(req, res) {
   const { campaignId } = req.params
   const { productName, dose, dateApplied, target, method, notes } = req.body
 
@@ -92,7 +108,15 @@ async function handlerRegisterSpraying (req, res) {
   }
 
   try {
-    const result = await campaignModel.registerSpraying(campaignId, productName, dose, dateApplied, target, method, notes)
+    const result = await campaignModel.registerSpraying(
+      campaignId,
+      productName,
+      dose,
+      dateApplied,
+      target,
+      method,
+      notes
+    )
     if (result) {
       res.status(201).json({ message: 'Pulverización registrada con éxito' })
     } else {
@@ -103,7 +127,7 @@ async function handlerRegisterSpraying (req, res) {
   }
 }
 
-async function handlerGetHarvests (req, res) {
+async function handlerGetHarvests(req, res) {
   const { campaignId } = req.params
   try {
     const harvests = await campaignModel.getHarvestsByCampaignId(campaignId)
@@ -113,7 +137,7 @@ async function handlerGetHarvests (req, res) {
   }
 }
 
-async function handlerRegisterHarvest (req, res) {
+async function handlerRegisterHarvest(req, res) {
   const { campaignId } = req.params
   const { harvestDate, totalYieldKg, moisturePercentage, notes } = req.body
 
@@ -122,7 +146,13 @@ async function handlerRegisterHarvest (req, res) {
   }
 
   try {
-    const result = await campaignModel.registerHarvest(campaignId, harvestDate, totalYieldKg, moisturePercentage, notes)
+    const result = await campaignModel.registerHarvest(
+      campaignId,
+      harvestDate,
+      totalYieldKg,
+      moisturePercentage,
+      notes
+    )
     if (result) {
       res.status(201).json({ message: 'Cosecha registrada con éxito' })
     } else {
@@ -133,7 +163,7 @@ async function handlerRegisterHarvest (req, res) {
   }
 }
 
-async function handlerGetObservations (req, res) {
+async function handlerGetObservations(req, res) {
   const { campaignId } = req.params
   try {
     const observations = await campaignModel.getObservationsByCampaignId(campaignId)
@@ -143,7 +173,7 @@ async function handlerGetObservations (req, res) {
   }
 }
 
-async function handlerRegisterObservation (req, res) {
+async function handlerRegisterObservation(req, res) {
   const { campaignId } = req.params
   const { observationDate, note } = req.body
 

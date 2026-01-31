@@ -2,10 +2,10 @@ import plotsModel from '../Models/plots.model.js'
 
 export default {
   handleGetCampaigns,
-  handleCreateCampaign
+  handleCreateCampaign,
 }
 
-async function handleGetCampaigns (req, res) {
+async function handleGetCampaigns(req, res) {
   const { plotId } = req.params
   try {
     const campaigns = await plotsModel.getCampaignsByPlotId(plotId)
@@ -17,7 +17,7 @@ async function handleGetCampaigns (req, res) {
   }
 }
 
-async function handleCreateCampaign (req, res) {
+async function handleCreateCampaign(req, res) {
   const { plotId } = req.params
   const { campaignName, startDate, endDate, description } = req.body
 
@@ -27,7 +27,7 @@ async function handleCreateCampaign (req, res) {
 
   if (new Date(startDate) > new Date(endDate)) {
     return res.status(400).json({
-      message: 'La fecha de inicio no puede ser posterior a la fecha de fin'
+      message: 'La fecha de inicio no puede ser posterior a la fecha de fin',
     })
   }
 
@@ -37,7 +37,7 @@ async function handleCreateCampaign (req, res) {
       campaignName,
       startDate,
       endDate,
-      description
+      description,
     })
     if (result) {
       res.status(201).json({ message: 'Campaña creada exitosamente' })

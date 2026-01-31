@@ -1,0 +1,32 @@
+Problemas que solucione y como:
+
+Network request failed: Este error lo tuve en mi celular usando expo go, desde la web las peticiones se hacian
+al servidor pero ahi no. La solucion fue cambiar "localhost" en las peticiones por la direccion IP de mi peticiones
+Luego instale "npx expo install expo-build-properties" y en app.json agregue el plugin para que se puedan enviar
+solicitudes HTTP. En produccion LO DEBO SACAR SI O SI
+"plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/Logo.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#fffff",
+          "dark": {
+            "backgroundColor": "#1c1f22",
+            "image": "./assets/images/Logo.png"
+          }
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesClearTextTraffic": true
+          }
+        }
+      ]
+    ],
+
+Con eso y poniendo origin TRUE en CORS del server.js

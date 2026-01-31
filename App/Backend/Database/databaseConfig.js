@@ -10,7 +10,7 @@ const configDB = {
   database: process.env.DB_NAME,
   port: process.env.DB_PORT,
   connectionLimit: 10,
-  waitForConnections: true
+  waitForConnections: true,
 }
 
 const pool = mysql2.createPool(configDB)

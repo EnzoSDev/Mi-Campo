@@ -5,10 +5,10 @@ export default {
   handleGetFields,
   handleCreateField,
   handleGetFieldPlots,
-  handleCreatePlot
+  handleCreatePlot,
 }
 
-function calculateAreaHa (coordinatesPolygon) {
+function calculateAreaHa(coordinatesPolygon) {
   // turf.polygon espera un array de arrays, donde cada array interno es un anillo del polígono
   // Calculamos el área en hectáreas
   const poly = polygon([coordinatesPolygon])
@@ -17,7 +17,7 @@ function calculateAreaHa (coordinatesPolygon) {
   return parseFloat(areaHa.toFixed(2))
 }
 
-async function handleGetFields (req, res) {
+async function handleGetFields(req, res) {
   try {
     // const userId = req.user.id
     const userId = 5
@@ -28,7 +28,7 @@ async function handleGetFields (req, res) {
   }
 }
 
-async function handleCreateField (req, res) {
+async function handleCreateField(req, res) {
   const userId = req.user.id
   // FieldName, description y locationName se reciben del formulario
   // lat, lng y geojson se reciben desde el mapa
@@ -63,8 +63,13 @@ async function handleCreateField (req, res) {
     return res.status(400).json({ message: 'El campo debe tener al menos 3 coordenadas' })
   }
 
-  if (coordinatesPolygon[0][0] !== coordinatesPolygon[coordinatesPolygon.length - 1][0] || coordinatesPolygon[0][1] !== coordinatesPolygon[coordinatesPolygon.length - 1][1]) {
-    return res.status(400).json({ message: 'El campo debe estar cerrado (la primera y última coordenada deben ser iguales)' })
+  if (
+    coordinatesPolygon[0][0] !== coordinatesPolygon[coordinatesPolygon.length - 1][0] ||
+    coordinatesPolygon[0][1] !== coordinatesPolygon[coordinatesPolygon.length - 1][1]
+  ) {
+    return res.status(400).json({
+      message: 'El campo debe estar cerrado (la primera y última coordenada deben ser iguales)',
+    })
   }
 
   const areaHa = calculateAreaHa(coordinatesPolygon)
@@ -79,7 +84,16 @@ async function handleCreateField (req, res) {
   }
 
   try {
-    const result = await fieldsModel.createField({ userId, fieldName, description, locationName, lat, lng, coordinatesPolygon, areaHa })
+    const result = await fieldsModel.createField({
+      userId,
+      fieldName,
+      description,
+      locationName,
+      lat,
+      lng,
+      coordinatesPolygon,
+      areaHa,
+    })
     if (result) {
       res.status(201).json({ message: 'Campo creado exitosamente' })
     } else res.status(500).json({ message: 'No se pudo crear el campo' })
@@ -88,7 +102,7 @@ async function handleCreateField (req, res) {
   }
 }
 
-async function handleGetFieldPlots (req, res) {
+async function handleGetFieldPlots(req, res) {
   const { fieldId } = req.params
 
   try {
@@ -99,7 +113,7 @@ async function handleGetFieldPlots (req, res) {
   }
 }
 
-async function handleCreatePlot (req, res) {
+async function handleCreatePlot(req, res) {
   const { fieldId } = req.params
   const { plotName, description, coordinatesPolygon } = req.body
 
@@ -111,8 +125,13 @@ async function handleCreatePlot (req, res) {
     return res.status(400).json({ message: 'El lote debe tener al menos 3 coordenadas' })
   }
 
-  if (coordinatesPolygon[0][0] !== coordinatesPolygon[coordinatesPolygon.length - 1][0] || coordinatesPolygon[0][1] !== coordinatesPolygon[coordinatesPolygon.length - 1][1]) {
-    return res.status(400).json({ message: 'El lote debe estar cerrado (la primera y última coordenada deben ser iguales)' })
+  if (
+    coordinatesPolygon[0][0] !== coordinatesPolygon[coordinatesPolygon.length - 1][0] ||
+    coordinatesPolygon[0][1] !== coordinatesPolygon[coordinatesPolygon.length - 1][1]
+  ) {
+    return res.status(400).json({
+      message: 'El lote debe estar cerrado (la primera y última coordenada deben ser iguales)',
+    })
   }
 
   try {
@@ -128,7 +147,13 @@ async function handleCreatePlot (req, res) {
   const areaHa = calculateAreaHa(coordinatesPolygon)
 
   try {
-    const result = await fieldsModel.createPlot({ fieldId, plotName, description, coordinatesPolygon, areaHa })
+    const result = await fieldsModel.createPlot({
+      fieldId,
+      plotName,
+      description,
+      coordinatesPolygon,
+      areaHa,
+    })
     if (result) {
       res.status(201).json({ message: 'Lote creado exitosamente' })
     } else res.status(500).json({ message: 'No se pudo crear el lote' })

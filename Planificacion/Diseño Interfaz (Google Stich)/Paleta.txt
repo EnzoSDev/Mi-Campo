@@ -1,0 +1,3 @@
+Color Principal: #267366
+Color Principal de Fondo: #1c1f22
+Color Secundario de Fondo: #2d3136

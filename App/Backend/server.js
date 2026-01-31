@@ -1,35 +1,38 @@
-import express from 'express'
-import cors from 'cors'
-import dotenv from 'dotenv'
-import cookieParser from 'cookie-parser'
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 
 // Import Middlewares and Routes
-import { authMiddleware } from './Middlewares/authMiddleware.js'
+import { authMiddleware } from "./Middlewares/authMiddleware.js";
 
 // Import routes
-import userRoutes from './Routes/user.routes.js'
-import fieldsRoutes from './Routes/fields.routes.js'
-import plotsRoutes from './Routes/plots.routes.js'
-import campaignsRoutes from './Routes/campaigns.routes.js'
+import userRoutes from "./Routes/user.routes.js";
+import fieldsRoutes from "./Routes/fields.routes.js";
+import plotsRoutes from "./Routes/plots.routes.js";
+import campaignsRoutes from "./Routes/campaigns.routes.js";
 
-dotenv.config()
+dotenv.config();
 
-const app = express()
-const PORT = process.env.SERVER_PORT
+const app = express();
+const PORT = process.env.SERVER_PORT;
 
-// Middlewares
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
-    credentials: true
-  })
-)
-app.use(express.json())
-app.disable('x-powered-by')
-app.use(cookieParser()) // Permite leer y crear cookies
-app.use(authMiddleware) // Si existe el token en las cookies, valida y agrega la info del usuario a req.user
+    origin: true,
+    credentials: true,
+  }),
+);
+app.use(express.json());
+app.disable("x-powered-by");
+app.use(cookieParser()); // Permite leer y crear cookies
+// app.use(authMiddleware); // Si existe el token en las cookies, valida y agrega la info del usuario a req.user
 
 /*
+    Cuando llegue el momento de produccion, parece que la configuracion de CORS se debe sacar porque en las
+    app moviles no existe el concepto de CORS, solo en los navegadores.
+
+
     // Configuración de __dirname en ES Modules
     import { fileURLToPath } from 'url'
     const __filename = fileURLToPath(import.meta.url)
@@ -52,16 +55,15 @@ app.use(authMiddleware) // Si existe el token en las cookies, valida y agrega la
     })
 */
 
-// Routes
-app.use('/user', userRoutes)
-app.use('/fields', fieldsRoutes)
-app.use('/plots', plotsRoutes)
-app.use('/campaigns', campaignsRoutes)
+app.use("/user", userRoutes);
+app.use("/fields", fieldsRoutes);
+app.use("/plots", plotsRoutes);
+app.use("/campaigns", campaignsRoutes);
 
 app.use((req, res) => {
-  res.status(404).json({ message: 'Ruta no encontrada' })
-})
+  res.status(404).json({ message: "Ruta no encontrada" });
+});
 
 app.listen(PORT, () => {
-  console.log(`Server running on: http://localhost:${PORT}`)
-})
+  console.log(`Server running on: http://localhost:${PORT}`);
+});

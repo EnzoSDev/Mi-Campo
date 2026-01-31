@@ -3,11 +3,11 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-export function authMiddleware (req, res, next) {
+export function authMiddleware(req, res, next) {
   const token = req.cookies.access_token
   if (!token) {
     return res.status(401).json({
-      error: 'NOT_AUTHORIZED'
+      error: 'NOT_AUTHORIZED',
     })
   }
 
@@ -16,12 +16,12 @@ export function authMiddleware (req, res, next) {
     // TODO: Validar que el usuario exista en la base de datos (Seguridad)
     // Agrego un campo user al objeto req para tener la info del usuario en las rutas protegidas
     req.user = {
-      id: decoded.id
+      id: decoded.id,
     }
     next()
   } catch (error) {
     return res.status(401).json({
-      error: 'SESSION_EXPIRED'
+      error: 'SESSION_EXPIRED',
     })
   }
 }
