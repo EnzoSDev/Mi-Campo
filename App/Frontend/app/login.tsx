@@ -5,9 +5,11 @@ import {
   Pressable,
   Image,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
+import { Link } from "expo-router";
 
 // Services
 import { userAPI } from "../services/userAPI";
@@ -17,16 +19,21 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [secureText, setSecureText] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
+    setIsLoading(true);
     if (!email || !password) {
       setErrorMessage("Por favor, completa todos los campos.");
+      setIsLoading(false);
     } else {
       setErrorMessage("");
       try {
-        const res = await userAPI.login(email, password);
+        await userAPI.login(email, password);
       } catch (error: any) {
         setErrorMessage(error.message);
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -83,7 +90,6 @@ export default function Login() {
               />
             </View>
           </View>
-
           {/* PASSWORD */}
           <View className="h-14 mt-5 ">
             <View className="flex-row items-center bg-[#2d3136] rounded-xl h-full overflow-hidden">
@@ -109,7 +115,6 @@ export default function Login() {
               </Pressable>
             </View>
           </View>
-
           {/* FORGOT */}
           <View className="items-end pt-1">
             <Pressable>
@@ -118,16 +123,21 @@ export default function Login() {
               </Text>
             </Pressable>
           </View>
-
           {/* LOGIN BUTTON */}
-          <View className="pt-6">
-            <Pressable
-              className="h-14 rounded-xl bg-[#267366] items-center justify-center active:scale-95"
-              onPress={handleLogin}
-            >
-              <Text className="text-white text-base font-bold">Ingresar</Text>
-            </Pressable>
-          </View>
+          {isLoading ? (
+            <View className="pt-6 items-center">
+              <ActivityIndicator size="large" color="#267366" />
+            </View>
+          ) : (
+            <View className="pt-6">
+              <Pressable
+                className="h-14 rounded-xl bg-[#267366] items-center justify-center active:scale-95"
+                onPress={handleLogin}
+              >
+                <Text className="text-white text-base font-bold">Ingresar</Text>
+              </Pressable>
+            </View>
+          )}
         </View>
 
         {/* REGISTER */}
@@ -136,10 +146,12 @@ export default function Login() {
             ¿No tienes una cuenta?
           </Text>
 
-          <Pressable className="flex-row items-center gap-2 px-6 py-3 rounded-xl border border-white/10 bg-white/5">
-            <MaterialIcons name="add" size={20} color="#267366" />
-            <Text className="text-white font-semibold">Regístrate</Text>
-          </Pressable>
+          <Link href="/register" asChild>
+            <Pressable className="flex-row items-center gap-2 px-6 py-3 rounded-xl border border-white/10 bg-white/5">
+              <MaterialIcons name="add" size={20} color="#267366" />
+              <Text className="text-white font-semibold">Regístrate</Text>
+            </Pressable>
+          </Link>
         </View>
       </View>
     </ScrollView>

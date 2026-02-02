@@ -8,7 +8,6 @@ dotenv.config();
 export default {
   handlerLogin,
   handlerRegister,
-  handlerLogout,
 };
 
 async function handlerLogin(req, res) {
@@ -35,13 +34,7 @@ async function handlerLogin(req, res) {
     const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
-    res.cookie("access_token", token, {
-      httpOnly: process.env.NODE_ENV === "production",
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 2 * 60 * 60 * 1000, // 2 horas
-    });
-    res.status(200).json({ message: "Inicio de sesión exitoso" });
+    res.status(200).json({ token, message: "Inicio de sesión exitoso" });
   } catch (error) {
     res.status(500).json({ message: "Error interno del servidor" });
   }
@@ -74,13 +67,4 @@ async function handlerRegister(req, res) {
     console.error(error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
-}
-
-async function handlerLogout(req, res) {
-  res.clearCookie("access_token", {
-    httpOnly: process.env.NODE_ENV === "production",
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-  });
-  res.status(200).json({ message: "Logout exitoso" });
 }

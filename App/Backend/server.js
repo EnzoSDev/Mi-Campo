@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import cookieParser from "cookie-parser";
 
 // Import Middlewares and Routes
 import { authMiddleware } from "./Middlewares/authMiddleware.js";
@@ -25,8 +24,6 @@ app.use(
 );
 app.use(express.json());
 app.disable("x-powered-by");
-app.use(cookieParser()); // Permite leer y crear cookies
-// app.use(authMiddleware); // Si existe el token en las cookies, valida y agrega la info del usuario a req.user
 
 /*
     Cuando llegue el momento de produccion, parece que la configuracion de CORS se debe sacar porque en las
@@ -56,6 +53,8 @@ app.use(cookieParser()); // Permite leer y crear cookies
 */
 
 app.use("/user", userRoutes);
+
+app.use(authMiddleware); // Si existe el token en las cookies, valida y agrega la info del usuario a req.user
 app.use("/fields", fieldsRoutes);
 app.use("/plots", plotsRoutes);
 app.use("/campaigns", campaignsRoutes);
