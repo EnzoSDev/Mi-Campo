@@ -40,6 +40,15 @@ async function handlerLogin(req, res) {
   }
 }
 
+async function handlerGetCountryCodes(req, res) {
+  try {
+    const countryCodes = await userModel.getCountryCodes();
+    res.status(200).json({ countryCodes });
+  } catch (error) {
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+}
+
 async function handlerRegister(req, res) {
   const { username, email, password, passwordConfirm, countryCode } = req.body;
   if (!username || !email || !password || !passwordConfirm || !countryCode) {

@@ -28,6 +28,7 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [countryCodes, setCountryCodes] = useState<CountryCode[]>();
 
+  /*
   useEffect(() => {
     const fetchCountryCodes = async () => {
       try {
@@ -40,6 +41,7 @@ export default function Register() {
 
     fetchCountryCodes();
   }, []);
+  */
 
   const handleRegister = async () => {
     setIsLoading(true);
