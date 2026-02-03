@@ -3,13 +3,13 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 // Import Middlewares and Routes
-import { authMiddleware } from "./Middlewares/authMiddleware.js";
+import { authMiddleware } from "./middlewares/authMiddleware.js";
 
 // Import routes
-import userRoutes from "./Routes/user.routes.js";
-import fieldsRoutes from "./Routes/fields.routes.js";
-import plotsRoutes from "./Routes/plots.routes.js";
-import campaignsRoutes from "./Routes/campaigns.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import fieldsRoutes from "./routes/fields.routes.js";
+import plotsRoutes from "./routes/plots.routes.js";
+import campaignsRoutes from "./routes/campaigns.routes.js";
 
 dotenv.config();
 

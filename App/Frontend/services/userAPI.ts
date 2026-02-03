@@ -9,6 +9,7 @@ export const userAPI = {
   getCountryCodes,
   login,
   register,
+  checkSession,
 };
 
 export type CountryCode = {
@@ -21,6 +22,18 @@ function countryCodeToEmoji(code: string) {
   return code
     .toUpperCase()
     .replace(/./g, (char) => String.fromCodePoint(127397 + char.charCodeAt(0)));
+}
+
+async function checkSession() {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function login(email: string, password: string) {

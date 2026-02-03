@@ -1,16 +1,7 @@
-import { Redirect, Slot } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Slot } from "expo-router";
 
-function HomeLayout() {
-  const sessionActive = false;
-  if (!sessionActive) {
-    return <Redirect href="/login" />;
-  }
-  return (
-    <SafeAreaView>
-      <Slot />;
-    </SafeAreaView>
-  );
+function Layout() {
+  return <Slot />;
 }
 
-export default HomeLayout;
+export default Layout;

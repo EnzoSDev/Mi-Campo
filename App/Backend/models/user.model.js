@@ -1,4 +1,4 @@
-import connection from "../Database/databaseConfig.js";
+import connection from "../database/databaseConfig.js";
 
 export default {
   findUserByEmail,
