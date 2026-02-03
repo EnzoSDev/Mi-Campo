@@ -9,12 +9,12 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { Picker } from "@react-native-picker/picker";
-import { Link } from "expo-router";
+import { router } from "expo-router";
 
 // Services
-import { userAPI } from "../services/userAPI";
+import { userAPI } from "../../services/userAPI";
 
-import type { CountryCode } from "../services/userAPI";
+import type { CountryCode } from "../../services/userAPI";
 
 export default function Register() {
   const [username, setUsername] = useState("");
@@ -25,10 +25,10 @@ export default function Register() {
   const [secureText, setSecureText] = useState(true);
   const [secureTextConfirm, setSecureTextConfirm] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [countryCodes, setCountryCodes] = useState<CountryCode[]>();
+  const [countryCodes, setCountryCodes] = useState<CountryCode[] | undefined>();
 
-  /*
   useEffect(() => {
     const fetchCountryCodes = async () => {
       try {
@@ -41,7 +41,6 @@ export default function Register() {
 
     fetchCountryCodes();
   }, []);
-  */
 
   const handleRegister = async () => {
     setIsLoading(true);
@@ -61,6 +60,7 @@ export default function Register() {
           passwordConfirm,
           countryCode,
         );
+        setSuccessMessage("Registro exitoso");
       } catch (error: any) {
         setErrorMessage(error.message);
       } finally {
@@ -94,6 +94,15 @@ export default function Register() {
           {errorMessage ? (
             <Text className="text-red-500 mb-4 text-center">
               {errorMessage}
+            </Text>
+          ) : null}
+        </View>
+
+        {/* SUCCESS */}
+        <View>
+          {successMessage ? (
+            <Text className="text-green-500 mb-4 text-center">
+              {successMessage}
             </Text>
           ) : null}
         </View>
@@ -143,25 +152,29 @@ export default function Register() {
               <View className="mr-2">
                 <MaterialIcons name="public" size={22} color="#94a3b8" />
               </View>
-              <Picker
-                selectedValue={countryCode}
-                onValueChange={(itemValue) => setCountryCode(itemValue)}
-                style={{
-                  flex: 1,
-                  color: "white",
-                  height: 56,
-                }}
-                dropdownIconColor="#94a3b8"
-              >
-                <Picker.Item label="Selecciona tu país" value={undefined} />
-                {(countryCodes as CountryCode[]).map((country) => (
-                  <Picker.Item
-                    key={country.code}
-                    label={country.name}
-                    value={country.code}
-                  />
-                ))}
-              </Picker>
+              {countryCodes === undefined ? (
+                <ActivityIndicator size="small" color="#267366" />
+              ) : (
+                <Picker
+                  selectedValue={countryCode}
+                  onValueChange={(itemValue) => setCountryCode(itemValue)}
+                  style={{
+                    flex: 1,
+                    color: "white",
+                    height: 56,
+                  }}
+                  dropdownIconColor="#94a3b8"
+                >
+                  <Picker.Item label="Selecciona tu país" value={undefined} />
+                  {(countryCodes as CountryCode[]).map((country) => (
+                    <Picker.Item
+                      key={country.code}
+                      label={`${country.flag} ${country.name}`}
+                      value={country.code}
+                    />
+                  ))}
+                </Picker>
+              )}
             </View>
           </View>
 
@@ -242,13 +255,12 @@ export default function Register() {
             ¿Ya tienes una cuenta?
           </Text>
 
-          <Link href="/login" asChild>
-            <Pressable className="flex-row items-center gap-2 px-6 py-3 rounded-xl border border-white/10 bg-white/5">
-              <Text className="text-[#ffffff] font-semibold">
-                Inicia sesión
-              </Text>
-            </Pressable>
-          </Link>
+          <Pressable
+            className="flex-row items-center gap-2 px-6 py-3 rounded-xl border border-white/10 bg-white/5"
+            onPress={() => router.push("/login")}
+          >
+            <Text className="text-[#ffffff] font-semibold">Inicia sesión</Text>
+          </Pressable>
         </View>
       </View>
     </ScrollView>

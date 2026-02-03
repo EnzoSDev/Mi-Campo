@@ -90,9 +90,6 @@ async function register(
     if (!res.ok) {
       throw new Error(data.message);
     }
-    if (data.token) {
-      await SecureStore.setItemAsync("access-token", data.token);
-    }
   } catch (error) {
     throw error;
   }

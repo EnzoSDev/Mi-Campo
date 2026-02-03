@@ -9,10 +9,10 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
-import { Link } from "expo-router";
+import { router } from "expo-router";
 
 // Services
-import { userAPI } from "../services/userAPI";
+import { userAPI } from "../../services/userAPI";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -30,6 +30,7 @@ export default function Login() {
       setErrorMessage("");
       try {
         await userAPI.login(email, password);
+        router.replace("/home");
       } catch (error: any) {
         setErrorMessage(error.message);
       } finally {
@@ -51,7 +52,7 @@ export default function Login() {
         {/* LOGO */}
         <View className="items-center mb-8">
           <Image
-            source={require("../assets/images/Logo.png")}
+            source={require("../../assets/images/Logo.png")}
             className="w-24 h-24"
             resizeMode="contain"
           />
@@ -146,12 +147,13 @@ export default function Login() {
             ¿No tienes una cuenta?
           </Text>
 
-          <Link href="/register" asChild>
-            <Pressable className="flex-row items-center gap-2 px-6 py-3 rounded-xl border border-white/10 bg-white/5">
-              <MaterialIcons name="add" size={20} color="#267366" />
-              <Text className="text-white font-semibold">Regístrate</Text>
-            </Pressable>
-          </Link>
+          <Pressable
+            className="flex-row items-center gap-2 px-6 py-3 rounded-xl border border-white/10 bg-white/5"
+            onPress={() => router.push("/register")}
+          >
+            <MaterialIcons name="add" size={20} color="#267366" />
+            <Text className="text-white font-semibold">Regístrate</Text>
+          </Pressable>
         </View>
       </View>
     </ScrollView>

@@ -7,6 +7,7 @@ dotenv.config();
 
 export default {
   handlerLogin,
+  handlerGetCountryCodes,
   handlerRegister,
 };
 
@@ -24,7 +25,10 @@ async function handlerLogin(req, res) {
         .status(401)
         .json({ message: "Correo o contraseña incorrectos" });
     }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      user.password_hashed,
+    );
     if (!isPasswordValid) {
       return res
         .status(401)
@@ -54,6 +58,11 @@ async function handlerRegister(req, res) {
   if (!username || !email || !password || !passwordConfirm || !countryCode) {
     return res.status(400).json({ message: "Todos los campos son requeridos" });
   }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ message: "El email no es válido" });
+  }
+
   if (password !== passwordConfirm) {
     return res.status(400).json({ message: "Las contraseñas no coinciden" });
   }

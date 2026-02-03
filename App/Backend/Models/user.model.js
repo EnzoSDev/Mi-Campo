@@ -2,6 +2,7 @@ import connection from "../Database/databaseConfig.js";
 
 export default {
   findUserByEmail,
+  getCountryCodes,
   createUser,
 };
 
