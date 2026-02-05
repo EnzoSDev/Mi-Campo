@@ -34,8 +34,7 @@ async function handlerLogin(req, res) {
         .status(401)
         .json({ message: "Correo o contraseña incorrectos" });
     }
-    const userId = user.id;
-    const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
     res.status(200).json({ token, message: "Inicio de sesión exitoso" });
@@ -69,7 +68,15 @@ async function handlerRegister(req, res) {
   try {
     const existingUser = await userModel.findUserByEmail(email);
     if (existingUser) {
-      return res.status(409).json({ message: "El email ya está registrado" });
+      try {
+        const res = await userModel.userActive(existingUser.id);
+        if (!res) {
+          return res.status(403).json({ message: "El usuario está inactivo" }); //TODO: La idea es preguntarle al usuario si quiere reactivar la cuenta
+        }
+        return res.status(409).json({ message: "El email ya está registrado" });
+      } catch (error) {
+        return res.status(500).json({ message: "Error interno del servidor" });
+      }
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await userModel.createUser({

@@ -4,6 +4,7 @@ import { polygon, area } from "@turf/turf";
 export default {
   handleGetFields,
   handleCreateField,
+  handleDeleteField,
   handleGetFieldPlots,
   handleCreatePlot,
 };
@@ -19,9 +20,9 @@ function calculateAreaHa(coordinatesPolygon) {
 
 async function handleGetFields(req, res) {
   try {
-    // const userId = req.user.id
-    const userId = 5;
+    const userId = req.user.id;
     const fields = await fieldsModel.getFieldsByUserId(userId);
+    console.log(fields);
     res.status(200).json({ fields });
   } catch (error) {
     res.status(500).json({ message: "Error interno del servidor" });
@@ -113,6 +114,20 @@ async function handleCreateField(req, res) {
     if (result) {
       res.status(201).json({ message: "Campo creado exitosamente" });
     } else res.status(500).json({ message: "No se pudo crear el campo" });
+  } catch (error) {
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+}
+
+async function handleDeleteField(req, res) {
+  const { fieldId } = req.params;
+  try {
+    const result = await fieldsModel.deleteField(fieldId);
+    if (result) {
+      res.status(200).json({ message: "Campo borrado exitosamente" });
+    } else {
+      res.status(404).json({ message: "Campo no encontrado" });
+    }
   } catch (error) {
     res.status(500).json({ message: "Error interno del servidor" });
   }

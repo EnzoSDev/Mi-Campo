@@ -10,6 +10,7 @@ export const userAPI = {
   login,
   register,
   checkSession,
+  logout,
 };
 
 export type CountryCode = {
@@ -103,6 +104,14 @@ async function register(
     if (!res.ok) {
       throw new Error(data.message);
     }
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function logout() {
+  try {
+    await SecureStore.deleteItemAsync("access-token");
   } catch (error) {
     throw error;
   }

@@ -16,6 +16,7 @@ import { userAPI } from "../../services/userAPI";
 
 import type { CountryCode } from "../../services/userAPI";
 
+// TODO: Componentes mas pequeños y reutilizables
 export default function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");

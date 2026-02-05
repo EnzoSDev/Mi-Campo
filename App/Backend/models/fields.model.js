@@ -3,6 +3,7 @@ import connection from "../database/databaseConfig.js";
 export default {
   getFieldsByUserId,
   createField,
+  deleteField,
   getPlotsByFieldId,
   createPlot,
   getFieldByCoordinatesPolygon,
@@ -48,6 +49,12 @@ async function createField({
     JSON.stringify(coordinatesPolygon),
     areaHa,
   ]);
+  return result.affectedRows === 1;
+}
+
+async function deleteField(fieldId) {
+  const query = "UPDATE fields SET is_active = 0 WHERE id = ?";
+  const [result] = await connection.execute(query, [fieldId]);
   return result.affectedRows === 1;
 }
 

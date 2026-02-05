@@ -1,137 +1,230 @@
-<!DOCTYPE html>
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Updated Add New Farm Form</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#267366",
-                        "background-light": "#fafafa",
-                        "background-dark": "#131518",
-                        "surface-dark": "#25282D",
-                        "border-dark": "#35393F",
-                        "text-muted": "#96999E",
-                        "text-bright": "#E3E4E6"
-                    },
-                    fontFamily: {
-                        "display": ["Work Sans", "sans-serif"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                },
+<!doctype html>
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Updated Add New Farm Form</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#267366",
+              "background-light": "#fafafa",
+              "background-dark": "#131518",
+              "surface-dark": "#25282D",
+              "border-dark": "#35393F",
+              "text-muted": "#96999E",
+              "text-bright": "#E3E4E6",
             },
-        }
+            fontFamily: {
+              display: ["Work Sans", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
     </script>
-<style>
-        body {
-            font-family: 'Work Sans', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #131518;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #35393F;
-            border-radius: 10px;
-        }
+    <style>
+      body {
+        font-family: "Work Sans", sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #131518;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #35393f;
+        border-radius: 10px;
+      }
     </style>
-<style>
-        body {
-            min-height: max(884px, 100dvh);
-        }
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
   </head>
-<body class="bg-background-light dark:bg-background-dark text-gray-900 dark:text-text-bright min-h-screen flex flex-col font-display">
-<header class="sticky top-0 z-50 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-4 border-b border-gray-200 dark:border-border-dark/50">
-<button class="flex items-center justify-center p-2 rounded-full hover:bg-gray-100 dark:hover:bg-surface-dark transition-colors mr-2">
-<span class="material-symbols-outlined text-gray-900 dark:text-white">arrow_back_ios_new</span>
-</button>
-<h1 class="text-lg font-semibold tracking-tight">Add New Farm</h1>
-</header>
-<main class="flex-1 overflow-y-auto px-4 py-6 space-y-8 max-w-[480px] mx-auto w-full">
-<section class="space-y-4">
-<div class="flex flex-col gap-1">
-<h2 class="text-sm font-semibold uppercase tracking-widest text-primary">Information</h2>
-<p class="text-xs text-text-muted">Enter the core details for your agricultural property.</p>
-</div>
-<div class="space-y-4 bg-white dark:bg-surface-dark p-2 rounded-xl">
-<div class="flex flex-col p-3 group">
-<label class="text-xs font-medium text-text-muted mb-1 group-focus-within:text-primary transition-colors">Farm Name</label>
-<input class="form-input w-full bg-transparent border-0 border-b border-gray-200 dark:border-border-dark focus:border-primary focus:ring-0 p-0 py-2 text-base font-normal dark:text-text-bright placeholder:text-text-muted/50" name="fieldName" placeholder="e.g., Estancia La Paz" type="text"/>
-</div>
-<div class="flex flex-col p-3 group">
-<label class="text-xs font-medium text-text-muted mb-1 group-focus-within:text-primary transition-colors">Location/Address</label>
-<div class="flex items-center gap-2">
-<input class="form-input flex-1 bg-transparent border-0 border-b border-gray-200 dark:border-border-dark focus:border-primary focus:ring-0 p-0 py-2 text-base font-normal dark:text-text-bright placeholder:text-text-muted/50" name="locationName" placeholder="e.g., Pergamino, Buenos Aires" type="text"/>
-<span class="material-symbols-outlined text-text-muted text-sm">location_on</span>
-</div>
-</div>
-<div class="flex flex-col p-3 group">
-<label class="text-xs font-medium text-text-muted mb-1 group-focus-within:text-primary transition-colors">Description / Notes</label>
-<textarea class="form-textarea w-full bg-transparent border-0 border-b border-gray-200 dark:border-border-dark focus:border-primary focus:ring-0 p-0 py-2 text-base font-normal dark:text-text-bright placeholder:text-text-muted/50 resize-none" name="description" placeholder="Add any details or notes about the farm property..." rows="3"></textarea>
-</div>
-</div>
-</section>
-<section class="space-y-4">
-<div class="flex flex-col gap-1">
-<h2 class="text-sm font-semibold uppercase tracking-widest text-primary">Boundary Definition</h2>
-<p class="text-xs text-text-muted">Define the spatial limits of your campo.</p>
-</div>
-<div class="grid gap-4">
-<button class="flex items-center gap-4 p-4 bg-white dark:bg-surface-dark border border-gray-100 dark:border-border-dark rounded-xl hover:border-primary/50 transition-all text-left">
-<div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-<span class="material-symbols-outlined">polyline</span>
-</div>
-<div class="flex-1">
-<h4 class="text-sm font-bold dark:text-text-bright">Draw Boundary on Map</h4>
-<p class="text-xs text-text-muted">Manually trace your field borders</p>
-</div>
-<span class="material-symbols-outlined text-text-muted">chevron_right</span>
-</button>
-<button class="flex items-center gap-4 p-4 bg-white dark:bg-surface-dark border border-gray-100 dark:border-border-dark rounded-xl hover:border-primary/50 transition-all text-left">
-<div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-<span class="material-symbols-outlined">cloud_upload</span>
-</div>
-<div class="flex-1">
-<h4 class="text-sm font-bold dark:text-text-bright">Upload KML/Shapefile</h4>
-<p class="text-xs text-text-muted">Import existing spatial data (SHP, KML)</p>
-</div>
-<span class="material-symbols-outlined text-text-muted">chevron_right</span>
-</button>
-</div>
-</section>
-<div class="relative w-full h-32 rounded-xl overflow-hidden border border-gray-100 dark:border-border-dark grayscale opacity-50 contrast-125">
-<img alt="Satellite view of farm land" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzHHfzWrUhTnjHuCJOjvScQS-a3B8sstW_ZrADiRDiOIq1duuOWhGP61LT3qkextAMngsjs5k6HXfFa2laaaN3B4Jw2ypCEepul9ezRobDy8nKkaPNISE8UskRSqFKWjmBhhyQ-MGJtgWIdlRxfOYiybJb8D6APqkxuzQN2ukfz0_e7cVwRKxHfWsDagDEU8B7hmCXXRPBGFL8tZ2hQ2y5I2ox4CJ39sb38DwUg9seRwglk1P6ztFOnSqK8V57UHuBRhY0hOYqE_IH"/>
-<div class="absolute inset-0 bg-primary/10 flex items-center justify-center">
-<p class="text-[10px] font-bold uppercase tracking-widest bg-black/60 px-3 py-1 rounded-full text-white backdrop-blur-sm">Boundary Pending</p>
-</div>
-</div>
-</main>
-<footer class="p-4 bg-background-light dark:bg-background-dark border-t border-gray-200 dark:border-border-dark/50">
-<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2">
-<span>Create Farm</span>
-<span class="material-symbols-outlined text-lg">check_circle</span>
-</button>
-<div class="w-32 h-1 bg-gray-300 dark:bg-border-dark mx-auto mt-6 rounded-full"></div>
-</footer>
-
-</body></html>
+  <body
+    class="bg-background-light dark:bg-background-dark text-gray-900 dark:text-text-bright min-h-screen flex flex-col font-display"
+  >
+    <header
+      class="sticky top-0 z-50 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-4 border-b border-gray-200 dark:border-border-dark/50"
+    >
+      <button
+        class="flex items-center justify-center p-2 rounded-full hover:bg-gray-100 dark:hover:bg-surface-dark transition-colors mr-2"
+      >
+        <span class="material-symbols-outlined text-gray-900 dark:text-white"
+          >arrow_back_ios_new</span
+        >
+      </button>
+      <h1 class="text-lg font-semibold tracking-tight">Add New Farm</h1>
+    </header>
+    <main
+      class="flex-1 overflow-y-auto px-4 py-6 space-y-8 max-w-[480px] mx-auto w-full"
+    >
+      <section class="space-y-4">
+        <div class="flex flex-col gap-1">
+          <h2
+            class="text-sm font-semibold uppercase tracking-widest text-primary"
+          >
+            Information
+          </h2>
+          <p class="text-xs text-text-muted">
+            Enter the core details for your agricultural property.
+          </p>
+        </div>
+        <div class="space-y-4 bg-white dark:bg-surface-dark p-2 rounded-xl">
+          <div class="flex flex-col p-3 group">
+            <label
+              class="text-xs font-medium text-text-muted mb-1 group-focus-within:text-primary transition-colors"
+              >Farm Name</label
+            >
+            <input
+              class="form-input w-full bg-transparent border-0 border-b border-gray-200 dark:border-border-dark focus:border-primary focus:ring-0 p-0 py-2 text-base font-normal dark:text-text-bright placeholder:text-text-muted/50"
+              name="fieldName"
+              placeholder="e.g., Estancia La Paz"
+              type="text"
+            />
+          </div>
+          <div class="flex flex-col p-3 group">
+            <label
+              class="text-xs font-medium text-text-muted mb-1 group-focus-within:text-primary transition-colors"
+              >Location/Address</label
+            >
+            <div class="flex items-center gap-2">
+              <input
+                class="form-input flex-1 bg-transparent border-0 border-b border-gray-200 dark:border-border-dark focus:border-primary focus:ring-0 p-0 py-2 text-base font-normal dark:text-text-bright placeholder:text-text-muted/50"
+                name="locationName"
+                placeholder="e.g., Pergamino, Buenos Aires"
+                type="text"
+              />
+              <span class="material-symbols-outlined text-text-muted text-sm"
+                >location_on</span
+              >
+            </div>
+          </div>
+          <div class="flex flex-col p-3 group">
+            <label
+              class="text-xs font-medium text-text-muted mb-1 group-focus-within:text-primary transition-colors"
+              >Description / Notes</label
+            >
+            <textarea
+              class="form-textarea w-full bg-transparent border-0 border-b border-gray-200 dark:border-border-dark focus:border-primary focus:ring-0 p-0 py-2 text-base font-normal dark:text-text-bright placeholder:text-text-muted/50 resize-none"
+              name="description"
+              placeholder="Add any details or notes about the farm property..."
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+      </section>
+      <section class="space-y-4">
+        <div class="flex flex-col gap-1">
+          <h2
+            class="text-sm font-semibold uppercase tracking-widest text-primary"
+          >
+            Boundary Definition
+          </h2>
+          <p class="text-xs text-text-muted">
+            Define the spatial limits of your campo.
+          </p>
+        </div>
+        <div class="grid gap-4">
+          <button
+            class="flex items-center gap-4 p-4 bg-white dark:bg-surface-dark border border-gray-100 dark:border-border-dark rounded-xl hover:border-primary/50 transition-all text-left"
+          >
+            <div
+              class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+            >
+              <span class="material-symbols-outlined">polyline</span>
+            </div>
+            <div class="flex-1">
+              <h4 class="text-sm font-bold dark:text-text-bright">
+                Draw Boundary on Map
+              </h4>
+              <p class="text-xs text-text-muted">
+                Manually trace your field borders
+              </p>
+            </div>
+            <span class="material-symbols-outlined text-text-muted"
+              >chevron_right</span
+            >
+          </button>
+          <button
+            class="flex items-center gap-4 p-4 bg-white dark:bg-surface-dark border border-gray-100 dark:border-border-dark rounded-xl hover:border-primary/50 transition-all text-left"
+          >
+            <div
+              class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+            >
+              <span class="material-symbols-outlined">cloud_upload</span>
+            </div>
+            <div class="flex-1">
+              <h4 class="text-sm font-bold dark:text-text-bright">
+                Upload KML/Shapefile
+              </h4>
+              <p class="text-xs text-text-muted">
+                Import existing spatial data (SHP, KML)
+              </p>
+            </div>
+            <span class="material-symbols-outlined text-text-muted"
+              >chevron_right</span
+            >
+          </button>
+        </div>
+      </section>
+      <div
+        class="relative w-full h-32 rounded-xl overflow-hidden border border-gray-100 dark:border-border-dark grayscale opacity-50 contrast-125"
+      >
+        <img
+          alt="Satellite view of farm land"
+          class="w-full h-full object-cover"
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzHHfzWrUhTnjHuCJOjvScQS-a3B8sstW_ZrADiRDiOIq1duuOWhGP61LT3qkextAMngsjs5k6HXfFa2laaaN3B4Jw2ypCEepul9ezRobDy8nKkaPNISE8UskRSqFKWjmBhhyQ-MGJtgWIdlRxfOYiybJb8D6APqkxuzQN2ukfz0_e7cVwRKxHfWsDagDEU8B7hmCXXRPBGFL8tZ2hQ2y5I2ox4CJ39sb38DwUg9seRwglk1P6ztFOnSqK8V57UHuBRhY0hOYqE_IH"
+        />
+        <div
+          class="absolute inset-0 bg-primary/10 flex items-center justify-center"
+        >
+          <p
+            class="text-[10px] font-bold uppercase tracking-widest bg-black/60 px-3 py-1 rounded-full text-white backdrop-blur-sm"
+          >
+            Boundary Pending
+          </p>
+        </div>
+      </div>
+    </main>
+    <footer
+      class="p-4 bg-background-light dark:bg-background-dark border-t border-gray-200 dark:border-border-dark/50"
+    >
+      <button
+        class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2"
+      >
+        <span>Create Farm</span>
+        <span class="material-symbols-outlined text-lg">check_circle</span>
+      </button>
+      <div
+        class="w-32 h-1 bg-gray-300 dark:bg-border-dark mx-auto mt-6 rounded-full"
+      ></div>
+    </footer>
+  </body>
+</html>

@@ -14,6 +14,7 @@ import { router } from "expo-router";
 // Services
 import { userAPI } from "../../services/userAPI";
 
+// TODO: Componentes mas pequeños y reutilizables
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
