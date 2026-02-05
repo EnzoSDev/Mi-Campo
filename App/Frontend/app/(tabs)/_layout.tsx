@@ -46,7 +46,7 @@ function Layout() {
         options={{
           title: "Perfil",
           tabBarIcon: ({ focused }) => (
-            <TabBarIcon focused={focused} icon="person" title="Perfil" />
+            <TabBarIcon focused={focused} icon="persong" title="Perfil" />
           ),
         }}
       />
