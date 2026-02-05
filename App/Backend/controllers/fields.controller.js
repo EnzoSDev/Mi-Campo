@@ -22,7 +22,6 @@ async function handleGetFields(req, res) {
   try {
     const userId = req.user.id;
     const fields = await fieldsModel.getFieldsByUserId(userId);
-    console.log(fields);
     res.status(200).json({ fields });
   } catch (error) {
     res.status(500).json({ message: "Error interno del servidor" });

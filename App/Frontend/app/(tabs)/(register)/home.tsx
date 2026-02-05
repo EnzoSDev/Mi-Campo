@@ -8,13 +8,14 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState, useEffect } from "react";
+import { router } from "expo-router";
 
 // Services
-import { fieldAPI } from "../../services/fieldAPI";
-import type { FieldType } from "../../services/fieldAPI";
+import { fieldAPI } from "../../../services/fieldAPI";
+import type { FieldType } from "../../../services/fieldAPI";
 
 // Components
-import Card from "../../components/fieldCard";
+import Card from "../../../components/fieldCard";
 
 export default function Home() {
   const [fields, setFields] = useState<FieldType[]>([]);
@@ -89,7 +90,10 @@ export default function Home() {
               placeholderTextColor="#94a3b8"
             />
           </View>
-          <TouchableOpacity className="w-12 h-12 rounded-xl bg-[#267366] items-center justify-center">
+          <TouchableOpacity
+            className="w-12 h-12 rounded-xl bg-[#267366] items-center justify-center"
+            onPress={() => router.push("/(tabs)/(register)/add-field")}
+          >
             <MaterialIcons name="add" size={24} color="white" />
           </TouchableOpacity>
         </View>

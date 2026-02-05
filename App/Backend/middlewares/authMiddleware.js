@@ -8,7 +8,7 @@ export async function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     return res.status(401).json({
-      error: "NOT_AUTHORIZED",
+      message: "NOT_AUTHORIZED",
     });
   }
 
@@ -20,12 +20,12 @@ export async function authMiddleware(req, res, next) {
       const userActive = await userModel.userActive(decoded.userId);
       if (!userActive) {
         return res.status(401).json({
-          error: "USER_INACTIVE",
+          message: "USER_INACTIVE",
         });
       }
     } catch (error) {
       return res.status(500).json({
-        error: "INTERNAL_SERVER_ERROR",
+        message: "INTERNAL_SERVER_ERROR",
       });
     }
     req.user = {

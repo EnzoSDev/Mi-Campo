@@ -1,6 +1,6 @@
 import { View, Text, Image, Pressable } from "react-native";
 import { router } from "expo-router";
-import { userAPI } from "../../services/userAPI";
+import { userAPI } from "../../../services/userAPI";
 
 function Profile() {
   const handleLogout = async () => {

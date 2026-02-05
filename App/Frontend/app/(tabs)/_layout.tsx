@@ -18,7 +18,7 @@ function Layout() {
       }}
     >
       <Tabs.Screen
-        name="home"
+        name="(register)"
         options={{
           title: "Registro",
           tabBarIcon: ({ focused }) => (
@@ -32,7 +32,7 @@ function Layout() {
       />
 
       <Tabs.Screen
-        name="analytics"
+        name="(analytics)/analytics"
         options={{
           title: "Analisis",
           tabBarIcon: ({ focused }) => (
@@ -42,11 +42,11 @@ function Layout() {
       />
 
       <Tabs.Screen
-        name="profile"
+        name="(profile)/profile"
         options={{
           title: "Perfil",
           tabBarIcon: ({ focused }) => (
-            <TabBarIcon focused={focused} icon="persong" title="Perfil" />
+            <TabBarIcon focused={focused} icon="person" title="Perfil" />
           ),
         }}
       />
