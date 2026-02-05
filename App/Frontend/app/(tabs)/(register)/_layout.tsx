@@ -10,6 +10,7 @@ function Layout() {
     >
       <Stack.Screen name="home" />
       <Stack.Screen name="add-field" />
+      <Stack.Screen name="draw-field-in-map" />
     </Stack>
   );
 }

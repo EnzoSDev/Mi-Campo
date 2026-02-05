@@ -7,6 +7,7 @@ function Layout() {
   return (
     <Tabs
       screenOptions={{
+        sceneStyle: { backgroundColor: "#2d3136" },
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {

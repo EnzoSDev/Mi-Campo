@@ -48,7 +48,13 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(Mi-Campo) to use your location."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

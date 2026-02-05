@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,8 +8,30 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import * as Location from "expo-location";
 
 function AddField() {
+  const [location, setLocation] = useState<Location.LocationObject | null>(
+    null,
+  );
+
+  const handleDrawInMap = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      console.log("Permission to access location was denied");
+      return;
+    }
+    let loc = await Location.getCurrentPositionAsync({});
+    setLocation(loc);
+    router.push({
+      pathname: "/(tabs)/(register)/draw-field-in-map",
+      params: {
+        latitude: String(loc.coords.latitude),
+        longitude: String(loc.coords.longitude),
+      },
+    });
+  };
+
   return (
     <View className="flex-1 bg-background-dark">
       {/* Header */}
@@ -41,7 +63,7 @@ function AddField() {
             {/* Input Farm Name */}
             <View className="p-3">
               <Text className="text-xs font-medium text-text-muted mb-1">
-                Nombre de la Finca
+                Nombre del Campo
               </Text>
               <TextInput
                 className="text-base text-text-bright border-b border-border-dark py-2"
@@ -95,7 +117,10 @@ function AddField() {
 
           <View className="space-y-4">
             {/* Option Draw */}
-            <TouchableOpacity className="flex-row items-center p-4 bg-surface-dark border border-border-dark rounded-xl mb-4">
+            <TouchableOpacity
+              className="flex-row items-center p-4 bg-surface-dark border border-border-dark rounded-xl mb-4"
+              onPress={handleDrawInMap}
+            >
               <View className="w-12 h-12 items-center justify-center rounded-lg bg-primary/10 mr-4">
                 <MaterialIcons name="gesture" size={24} color="#267366" />
               </View>
@@ -115,7 +140,7 @@ function AddField() {
         <View className="p-4 bg-background-dark border-t border-border-dark/50">
           <TouchableOpacity className="w-full bg-primary flex-row items-center justify-center py-4 rounded-xl shadow-lg">
             <Text className="text-white font-bold text-base mr-2">
-              Crear Finca
+              Crear Campo
             </Text>
             <MaterialIcons name="check-circle" size={20} color="white" />
           </TouchableOpacity>
