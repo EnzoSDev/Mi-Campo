@@ -73,18 +73,6 @@ async function handleCreateField(req, res) {
       .json({ message: "El campo debe tener al menos 3 coordenadas" });
   }
 
-  if (
-    coordinatesPolygon[0][0] !==
-      coordinatesPolygon[coordinatesPolygon.length - 1][0] ||
-    coordinatesPolygon[0][1] !==
-      coordinatesPolygon[coordinatesPolygon.length - 1][1]
-  ) {
-    return res.status(400).json({
-      message:
-        "El campo debe estar cerrado (la primera y última coordenada deben ser iguales)",
-    });
-  }
-
   const areaHa = calculateAreaHa(coordinatesPolygon);
 
   try {

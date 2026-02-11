@@ -1,16 +1,17 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { useState, useRef } from "react";
 import {
   View,
-  StyleSheet,
-  Dimensions,
+  Text,
   TextInput,
   TouchableOpacity,
-  Text,
+  StyleSheet,
+  Dimensions,
 } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
 import MapView, { Marker, Polygon } from "react-native-maps";
-import { useState, useRef } from "react";
-import * as Location from "expo-location";
 import { MaterialIcons } from "@expo/vector-icons";
+import * as Location from "expo-location";
+import { fieldAPI } from "@/services/fieldAPI";
 
 interface LatLng {
   latitude: number;
@@ -23,11 +24,81 @@ interface Params {
 }
 
 function DrawFieldInMap() {
-  const { latitude, longitude } = useLocalSearchParams() as unknown as Params;
+  const { latitude, longitude, field_name, location_name, description } =
+    useLocalSearchParams() as unknown as Params & {
+      field_name: string;
+      location_name: string;
+      description: string;
+    };
   const [searchText, setSearchText] = useState("");
   const [points, setPoints] = useState<LatLng[]>([]);
+  const [error, setError] = useState("");
   const mapRef = useRef<MapView>(null);
 
+  // ========== FUNCIONES DE GEOMETRÍA ==========
+  const doSegmentsIntersect = (
+    p1: LatLng,
+    p2: LatLng,
+    p3: LatLng,
+    p4: LatLng,
+  ): boolean => {
+    const ccw = (a: LatLng, b: LatLng, c: LatLng) => {
+      return (
+        (c.longitude - a.longitude) * (b.latitude - a.latitude) >
+        (b.longitude - a.longitude) * (c.latitude - a.latitude)
+      );
+    };
+
+    return (
+      ccw(p1, p3, p4) !== ccw(p2, p3, p4) && ccw(p1, p2, p3) !== ccw(p1, p2, p4)
+    );
+  };
+
+  const hasPolygonSelfIntersection = (points: LatLng[]): boolean => {
+    if (points.length < 4) return false;
+
+    for (let i = 0; i < points.length; i++) {
+      const nextI = (i + 1) % points.length;
+      for (let j = i + 2; j < points.length; j++) {
+        const nextJ = (j + 1) % points.length;
+        if (i === nextJ) continue;
+
+        if (
+          doSegmentsIntersect(
+            points[i],
+            points[nextI],
+            points[j],
+            points[nextJ],
+          )
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  const calculatePolygonCenter = (points: LatLng[]): LatLng => {
+    const avgLat =
+      points.reduce((sum, p) => sum + p.latitude, 0) / points.length;
+    const avgLng =
+      points.reduce((sum, p) => sum + p.longitude, 0) / points.length;
+    return { latitude: avgLat, longitude: avgLng };
+  };
+
+  const validatePolygon = (points: LatLng[]): string | null => {
+    if (points.length < 3) {
+      return "Se requieren al menos 3 puntos para formar un polígono.";
+    }
+
+    if (hasPolygonSelfIntersection(points)) {
+      return "El polígono se cruza consigo mismo. Evita que las líneas se intersecten.";
+    }
+
+    return null;
+  };
+
+  // ========== HANDLERS ==========
   const handleSearch = async () => {
     if (!searchText.trim()) return;
 
@@ -52,45 +123,58 @@ function DrawFieldInMap() {
   const handleMapPress = (e: any) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
     setPoints([...points, { latitude, longitude }]);
+    setError("");
   };
 
   const handleUndo = () => {
     setPoints(points.slice(0, -1));
+    setError("");
   };
 
   const handleClear = () => {
     setPoints([]);
+    setError("");
   };
 
-  const handleFinish = () => {
-    if (points.length >= 3) {
-      const center = calculatePolygonCenter(points);
-      console.log("Polígono finalizado:", { points, center });
-      // Aquí puedes guardar el polígono o hacer algo con él
+  const handleFinish = async () => {
+    const validationError = validatePolygon(points);
+    if (validationError) {
+      setError(validationError);
+      return;
     }
-  };
 
-  const calculatePolygonCenter = (points: LatLng[]): LatLng => {
-    const avgLat =
-      points.reduce((sum, p) => sum + p.latitude, 0) / points.length;
-    const avgLng =
-      points.reduce((sum, p) => sum + p.longitude, 0) / points.length;
-    return { latitude: avgLat, longitude: avgLng };
+    const center = calculatePolygonCenter(points);
+    console.log("Polígono finalizado:", { points, center });
+    setError("");
+
+    try {
+      await fieldAPI.createField(
+        field_name,
+        location_name,
+        description,
+        center.latitude,
+        center.longitude,
+        points,
+      );
+      router.back();
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Error al guardar el campo.",
+      );
+    }
   };
 
   const center = points.length >= 3 ? calculatePolygonCenter(points) : null;
 
   return (
     <View style={styles.container}>
-      {/* Search Bar */}
+      {/* Header con búsqueda */}
       <View className="flex-row items-center gap-2 bg-surface-dark px-4 py-3 border-b border-border-dark/50">
-        <TouchableOpacity className="p-2 rounded-full bg-background-dark mr-2">
-          <MaterialIcons
-            name="arrow-back"
-            size={20}
-            color="white"
-            onPress={() => router.back()}
-          />
+        <TouchableOpacity
+          className="p-2 rounded-full bg-background-dark mr-2"
+          onPress={() => router.back()}
+        >
+          <MaterialIcons name="arrow-back" size={20} color="white" />
         </TouchableOpacity>
         <TextInput
           className="flex-1 px-3 py-2 bg-background-dark text-text-bright border border-border-dark rounded-lg text-sm"
@@ -108,6 +192,7 @@ function DrawFieldInMap() {
         </TouchableOpacity>
       </View>
 
+      {/* Mapa */}
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -150,17 +235,34 @@ function DrawFieldInMap() {
         )}
       </MapView>
 
-      {/* Control Panel */}
+      {/* Panel de Control */}
       <View className="absolute bottom-0 left-0 right-0 bg-surface-dark p-4 border-t border-border-dark/50">
         <Text className="text-text-bright font-bold mb-2">
           Puntos: {points.length}
         </Text>
 
-        {center && (
-          <View className="mb-3 bg-background-dark p-3 rounded-lg border border-border-dark/50">
-            <Text className="text-primary font-bold text-sm mb-1">
-              Centro del Campo
-            </Text>
+        {/* Mensaje de Error */}
+        {error !== "" && (
+          <View className="mb-3 p-3 bg-red-900/20 border border-red-500/50 rounded-lg flex-row items-start">
+            <MaterialIcons name="error-outline" size={18} color="#ef4444" />
+            <View className="flex-1 ml-2">
+              <Text className="text-sm font-semibold text-red-400 mb-1">
+                Error de Validación
+              </Text>
+              <Text className="text-xs text-red-300">{error}</Text>
+            </View>
+          </View>
+        )}
+
+        {/* Información del Centro */}
+        {center && error === "" && (
+          <View className="mb-3 bg-background-dark p-3 rounded-lg border border-primary/50">
+            <View className="flex-row items-center justify-between mb-2">
+              <Text className="text-primary font-bold text-sm">
+                Centro del Campo
+              </Text>
+              <MaterialIcons name="check-circle" size={18} color="#267366" />
+            </View>
             <Text className="text-text-bright text-xs">
               Lat: {center.latitude.toFixed(6)}
             </Text>
@@ -170,6 +272,7 @@ function DrawFieldInMap() {
           </View>
         )}
 
+        {/* Botones de Control */}
         <View className="flex-row gap-2">
           <TouchableOpacity
             className="flex-1 bg-primary py-2 rounded-lg flex-row items-center justify-center gap-2"
@@ -206,10 +309,10 @@ function DrawFieldInMap() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#1c1f22",
   },
   map: {
-    width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height - 130,
+    flex: 1,
   },
 });
 

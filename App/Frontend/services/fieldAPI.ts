@@ -18,6 +18,7 @@ export interface FieldType {
 
 export const fieldAPI = {
   getAllFields,
+  createField,
   deleteField,
 };
 
@@ -46,6 +47,43 @@ async function getAllFields(): Promise<FieldType[]> {
   }
 }
 
+async function createField(
+  field_name: string,
+  location_name: string,
+  description: string,
+  lat: number,
+  lng: number,
+  coordinates_polygon: any,
+) {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+    const response = await fetch(`${API_URL}/fields`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        fieldName: field_name,
+        locationName: location_name,
+        description,
+        lat,
+        lng,
+        coordinates_polygon,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
 async function deleteField(id: number) {
   try {
     const token = await SecureStore.getItemAsync("access-token");
@@ -67,8 +105,3 @@ async function deleteField(id: number) {
     throw error;
   }
 }
-
-export const fieldsAPI = {
-  getAllFields,
-  deleteField,
-};
