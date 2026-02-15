@@ -1,5 +1,6 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useMemo } from "react";
 
 interface Prop {
   id: number;
@@ -10,6 +11,14 @@ interface Prop {
   handleDelete: (id: number) => Promise<void>;
 }
 
+const fieldImages = [
+  require("../assets/images/campos/1.jpg"),
+  require("../assets/images/campos/2.jpg"),
+  require("../assets/images/campos/3.jpg"),
+  require("../assets/images/campos/4.jpg"),
+  require("../assets/images/campos/5.jpg"),
+];
+
 function FieldCard({
   id,
   name,
@@ -18,14 +27,15 @@ function FieldCard({
   description,
   handleDelete,
 }: Prop) {
-  // TODO: Seleccionar
+  const randomImage = useMemo(() => {
+    return fieldImages[id % fieldImages.length];
+  }, [id]);
+
   return (
     <View className="bg-white dark:bg-[#2d3136] rounded-2xl overflow-hidden">
       <View className="w-full h-[200px]">
         <Image
-          source={{
-            uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuAtnxaMENPCMuT8VGimRb4qkQ4x4tLikRBEKrbiEf6R4GJD5I7ViZYNBb1g6F-bB8FC8B4oACRCGtXzQF8ga48hYESZWvAsky9tFUIW4N02pZIdJiSUvnBTzEPiMRFVHpQ_E1NgpofH-fHST7EZiYTWTThgSo66mLLqdUjxofMXFRo7hI6J5g9rtvTRAGpo91mvIqRabtGeue5F3LBp3C9ryTxG_bp41Py5gPEvtdXjjHiTVtYRb58ZhjyyYIqKaGVxwVS9DC79w8pB",
-          }}
+          source={randomImage}
           className="w-full h-full"
           resizeMode="cover"
         />

@@ -4,7 +4,8 @@ export interface CreateFieldType {
   description: string;
   lat: number;
   lng: number;
-  coordinatesPolygon: string;
+  coordinatesPolygon: { latitude: number; longitude: number }[];
+  areaHa: number;
 }
 
 export interface ResponseFieldType {

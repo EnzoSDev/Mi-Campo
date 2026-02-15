@@ -11,7 +11,7 @@ import MapView, { Marker, Polygon } from "react-native-maps";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { fieldAPI } from "../../../services/fieldAPI";
-import { CreateFieldType } from "@/types/fieldType";
+import { CreateFieldType } from "@/types/fieldTypes";
 
 interface LatLng {
   latitude: number;
@@ -74,6 +74,20 @@ function DrawFieldInMap() {
       }
     }
     return false;
+  };
+
+  const calculatePolygonAreaHa = (points: LatLng[]): number => {
+    let area = 0;
+    const n = points.length;
+
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      area +=
+        points[i].longitude * points[j].latitude -
+        points[j].longitude * points[i].latitude;
+    }
+
+    return Math.abs(area / 2) * 12365.1613; // Conversión a hectáreas
   };
 
   const calculatePolygonCenter = (points: LatLng[]): LatLng => {
@@ -142,6 +156,7 @@ function DrawFieldInMap() {
     }
 
     const center = calculatePolygonCenter(coordinatesPolygon);
+    const areaHa = calculatePolygonAreaHa(coordinatesPolygon);
     setError("");
 
     try {
@@ -151,7 +166,8 @@ function DrawFieldInMap() {
         description,
         lat: center.latitude,
         lng: center.longitude,
-        coordinatesPolygon: JSON.stringify(coordinatesPolygon),
+        coordinatesPolygon,
+        areaHa,
       };
       console.log("Creando campo con datos:", field);
       await fieldAPI.createField(field);

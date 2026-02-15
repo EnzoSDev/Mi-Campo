@@ -9,15 +9,6 @@ export default {
   handleCreatePlot,
 };
 
-function calculateAreaHa(coordinatesPolygon) {
-  // turf.polygon espera un array de arrays, donde cada array interno es un anillo del polígono
-  // Calculamos el área en hectáreas
-  const poly = polygon([coordinatesPolygon]);
-  const areaM2 = area(poly); // area() devuelve m²
-  const areaHa = areaM2 / 10000; // 1 hectárea = 10,000 m²
-  return parseFloat(areaHa.toFixed(2));
-}
-
 async function handleGetFields(req, res) {
   try {
     const userId = req.user.id;
@@ -53,8 +44,15 @@ async function handleCreateField(req, res) {
 
     */
 
-  const { fieldName, description, locationName, lat, lng, coordinatesPolygon } =
-    req.body;
+  const {
+    fieldName,
+    description,
+    locationName,
+    lat,
+    lng,
+    coordinatesPolygon,
+    areaHa,
+  } = req.body;
 
   console.log("Datos recibidos para crear campo:", {
     fieldName,
@@ -63,6 +61,7 @@ async function handleCreateField(req, res) {
     lat,
     lng,
     coordinatesPolygon,
+    areaHa,
   });
 
   if (
@@ -71,7 +70,8 @@ async function handleCreateField(req, res) {
     !description ||
     !lat ||
     !lng ||
-    !coordinatesPolygon
+    !coordinatesPolygon ||
+    !areaHa
   ) {
     return res.status(400).json({ message: "Faltan datos obligatorios" });
   }
@@ -80,20 +80,6 @@ async function handleCreateField(req, res) {
     return res
       .status(400)
       .json({ message: "El campo debe tener al menos 3 coordenadas" });
-  }
-
-  const areaHa = calculateAreaHa(coordinatesPolygon);
-
-  try {
-    const field =
-      await fieldsModel.getFieldByCoordinatesPolygon(coordinatesPolygon);
-    if (field) {
-      return res
-        .status(400)
-        .json({ message: "Coordenadas del campo inválidas" });
-    }
-  } catch (error) {
-    res.status(500).json({ message: "Error interno del servidor" });
   }
 
   try {
