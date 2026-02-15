@@ -1,6 +1,7 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useMemo } from "react";
+import { router } from "expo-router";
 
 interface Prop {
   id: number;
@@ -67,10 +68,11 @@ function FieldCard({
             <Text className="text-[#94a3b8] text-xs italic">{description}</Text>
           </View>
           <View className="flex-row gap-2">
-            <TouchableOpacity className="px-6 h-10 rounded-xl bg-[#267366] items-center justify-center">
-              <Text className="text-white text-sm font-semibold">
-                Seleccionar
-              </Text>
+            <TouchableOpacity
+              className="px-6 h-10 rounded-xl bg-[#267366] items-center justify-center"
+              onPress={() => router.replace("/(tabs)/(register)/(field)/lots")}
+            >
+              <Text className="text-white text-sm font-semibold">Ver</Text>
             </TouchableOpacity>
             <TouchableOpacity
               className="w-10 h-10 rounded-xl bg-red-500/20 items-center justify-center"

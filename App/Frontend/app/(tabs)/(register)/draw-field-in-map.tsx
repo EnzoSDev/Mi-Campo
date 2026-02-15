@@ -173,9 +173,7 @@ function DrawFieldInMap() {
       await fieldAPI.createField(field);
       router.replace("/(tabs)/(register)/home");
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Error al guardar el campo.",
-      );
+      setError("Error al guardar el campo.");
     }
   };
 
