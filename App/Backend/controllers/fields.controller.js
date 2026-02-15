@@ -56,6 +56,15 @@ async function handleCreateField(req, res) {
   const { fieldName, description, locationName, lat, lng, coordinatesPolygon } =
     req.body;
 
+  console.log("Datos recibidos para crear campo:", {
+    fieldName,
+    description,
+    locationName,
+    lat,
+    lng,
+    coordinatesPolygon,
+  });
+
   if (
     !fieldName ||
     !locationName ||

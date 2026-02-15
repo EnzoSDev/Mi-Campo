@@ -12,13 +12,13 @@ import { router } from "expo-router";
 
 // Services
 import { fieldAPI } from "../../../services/fieldAPI";
-import type { FieldType } from "../../../services/fieldAPI";
+import type { ResponseFieldType } from "@/types/fieldTypes";
 
 // Components
 import Card from "../../../components/fieldCard";
 
 export default function Home() {
-  const [fields, setFields] = useState<FieldType[]>([]);
+  const [fields, setFields] = useState<ResponseFieldType[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
@@ -123,9 +123,9 @@ export default function Home() {
         <View className="px-4 mb-4">
           <Card
             id={item.id}
-            name={item.field_name}
-            location={item.location_name}
-            areaHectares={item.area_ha}
+            name={item.fieldName}
+            location={item.locationName}
+            areaHa={item.areaHa}
             description={item.description}
             handleDelete={handleDelete}
           />

@@ -1,20 +1,10 @@
 import * as SecureStore from "expo-secure-store";
+import { ResponseFieldType, CreateFieldType } from "@/types/fieldTypes";
 
 const API_URL =
   process.env.NODE_ENV === "development"
     ? process.env.EXPO_PUBLIC_API_URL
     : process.env.EXPO_PUBLIC_PROD_API_URL;
-
-export interface FieldType {
-  id: number;
-  field_name: string;
-  description: string;
-  location_name: string;
-  area_ha: number;
-  lat: number;
-  lng: number;
-  coordinates_polygon: string;
-}
 
 export const fieldAPI = {
   getAllFields,
@@ -22,13 +12,13 @@ export const fieldAPI = {
   deleteField,
 };
 
-async function getAllFields(): Promise<FieldType[]> {
+async function getAllFields(): Promise<ResponseFieldType[]> {
   try {
     const token = await SecureStore.getItemAsync("access-token");
     if (!token) {
       throw new Error("No se encontró el token de autenticación");
     }
-    const fields = await fetch(`${API_URL}/fields`, {
+    const res = await fetch(`${API_URL}/fields`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -36,25 +26,28 @@ async function getAllFields(): Promise<FieldType[]> {
       },
     });
 
-    if (!fields.ok) {
+    if (!res.ok) {
       throw new Error("Error al obtener los campos");
     }
 
-    const data = await fields.json();
-    return data.fields;
+    const data = (await res.json()).fields;
+    const fields: ResponseFieldType[] = data.map((field: any) => ({
+      id: field.id,
+      fieldName: field.field_name,
+      locationName: field.location_name,
+      description: field.description,
+      areaHa: field.area_ha,
+      lat: field.lat,
+      lng: field.lng,
+      coordinatesPolygon: field.coordinates_polygon,
+    }));
+    return fields;
   } catch (error) {
     throw error;
   }
 }
 
-async function createField(
-  field_name: string,
-  location_name: string,
-  description: string,
-  lat: number,
-  lng: number,
-  coordinates_polygon: any,
-) {
+async function createField(field: CreateFieldType) {
   try {
     const token = await SecureStore.getItemAsync("access-token");
     if (!token) {
@@ -66,14 +59,7 @@ async function createField(
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        fieldName: field_name,
-        locationName: location_name,
-        description,
-        lat,
-        lng,
-        coordinates_polygon,
-      }),
+      body: JSON.stringify(field),
     });
 
     if (!response.ok) {

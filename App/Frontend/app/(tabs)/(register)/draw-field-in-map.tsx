@@ -5,33 +5,31 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import MapView, { Marker, Polygon } from "react-native-maps";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as Location from "expo-location";
-import { fieldAPI } from "@/services/fieldAPI";
+import { fieldAPI } from "../../../services/fieldAPI";
+import { CreateFieldType } from "@/types/fieldType";
 
 interface LatLng {
   latitude: number;
   longitude: number;
 }
 
-interface Params {
-  latitude: string;
-  longitude: string;
-}
-
 function DrawFieldInMap() {
-  const { latitude, longitude, field_name, location_name, description } =
-    useLocalSearchParams() as unknown as Params & {
-      field_name: string;
-      location_name: string;
+  const { latUser, lngUser, fieldName, locationName, description } =
+    useLocalSearchParams() as {
+      latUser: string;
+      lngUser: string;
+      fieldName: string;
+      locationName: string;
       description: string;
     };
+
   const [searchText, setSearchText] = useState("");
-  const [points, setPoints] = useState<LatLng[]>([]);
+  const [coordinatesPolygon, setCoordinatesPolygon] = useState<LatLng[]>([]);
   const [error, setError] = useState("");
   const mapRef = useRef<MapView>(null);
 
@@ -122,41 +120,42 @@ function DrawFieldInMap() {
 
   const handleMapPress = (e: any) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
-    setPoints([...points, { latitude, longitude }]);
+    setCoordinatesPolygon([...coordinatesPolygon, { latitude, longitude }]);
     setError("");
   };
 
   const handleUndo = () => {
-    setPoints(points.slice(0, -1));
+    setCoordinatesPolygon(coordinatesPolygon.slice(0, -1));
     setError("");
   };
 
   const handleClear = () => {
-    setPoints([]);
+    setCoordinatesPolygon([]);
     setError("");
   };
 
   const handleFinish = async () => {
-    const validationError = validatePolygon(points);
+    const validationError = validatePolygon(coordinatesPolygon);
     if (validationError) {
       setError(validationError);
       return;
     }
 
-    const center = calculatePolygonCenter(points);
-    console.log("Polígono finalizado:", { points, center });
+    const center = calculatePolygonCenter(coordinatesPolygon);
     setError("");
 
     try {
-      await fieldAPI.createField(
-        field_name,
-        location_name,
+      const field: CreateFieldType = {
+        fieldName,
+        locationName,
         description,
-        center.latitude,
-        center.longitude,
-        points,
-      );
-      router.back();
+        lat: center.latitude,
+        lng: center.longitude,
+        coordinatesPolygon: JSON.stringify(coordinatesPolygon),
+      };
+      console.log("Creando campo con datos:", field);
+      await fieldAPI.createField(field);
+      router.replace("/(tabs)/(register)/home");
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Error al guardar el campo.",
@@ -164,7 +163,10 @@ function DrawFieldInMap() {
     }
   };
 
-  const center = points.length >= 3 ? calculatePolygonCenter(points) : null;
+  const center =
+    coordinatesPolygon.length >= 3
+      ? calculatePolygonCenter(coordinatesPolygon)
+      : null;
 
   return (
     <View style={styles.container}>
@@ -199,14 +201,14 @@ function DrawFieldInMap() {
         mapType="hybrid"
         onPress={handleMapPress}
         initialRegion={{
-          latitude: latitude ? parseFloat(latitude) : 37.78825,
-          longitude: longitude ? parseFloat(longitude) : -122.4324,
+          latitude: parseFloat(latUser) || -34.6037,
+          longitude: parseFloat(lngUser) || -58.3816,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
       >
         {/* Marcadores de los puntos */}
-        {points.map((point, index) => (
+        {coordinatesPolygon.map((point, index) => (
           <Marker
             key={index}
             coordinate={point}
@@ -216,9 +218,9 @@ function DrawFieldInMap() {
         ))}
 
         {/* Polígono */}
-        {points.length >= 3 && (
+        {coordinatesPolygon.length >= 3 && (
           <Polygon
-            coordinates={points}
+            coordinates={coordinatesPolygon}
             fillColor="rgba(38, 115, 102, 0.3)"
             strokeColor="#267366"
             strokeWidth={2}
@@ -238,7 +240,7 @@ function DrawFieldInMap() {
       {/* Panel de Control */}
       <View className="absolute bottom-0 left-0 right-0 bg-surface-dark p-4 border-t border-border-dark/50">
         <Text className="text-text-bright font-bold mb-2">
-          Puntos: {points.length}
+          Puntos: {coordinatesPolygon.length}
         </Text>
 
         {/* Mensaje de Error */}
@@ -276,7 +278,7 @@ function DrawFieldInMap() {
         <View className="flex-row gap-2">
           <TouchableOpacity
             className="flex-1 bg-primary py-2 rounded-lg flex-row items-center justify-center gap-2"
-            disabled={points.length === 0}
+            disabled={coordinatesPolygon.length === 0}
             onPress={handleUndo}
           >
             <MaterialIcons name="undo" size={18} color="white" />
@@ -285,7 +287,7 @@ function DrawFieldInMap() {
 
           <TouchableOpacity
             className="flex-1 bg-red-600 py-2 rounded-lg flex-row items-center justify-center gap-2"
-            disabled={points.length === 0}
+            disabled={coordinatesPolygon.length === 0}
             onPress={handleClear}
           >
             <MaterialIcons name="delete" size={18} color="white" />
@@ -294,7 +296,7 @@ function DrawFieldInMap() {
 
           <TouchableOpacity
             className="flex-1 bg-green-600 py-2 rounded-lg flex-row items-center justify-center gap-2"
-            disabled={points.length < 3}
+            disabled={coordinatesPolygon.length < 3}
             onPress={handleFinish}
           >
             <MaterialIcons name="check" size={18} color="white" />

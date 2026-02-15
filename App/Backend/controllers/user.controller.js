@@ -9,7 +9,26 @@ export default {
   handlerLogin,
   handlerGetCountryCodes,
   handlerRegister,
+  handlerValidateSession,
 };
+
+async function handlerValidateSession(req, res) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ message: "Token de autenticación requerido" });
+  }
+  const token = authHeader.split(" ")[1];
+  try {
+    jwt.verify(token, process.env.JWT_SECRET);
+    res.status(200).json({ sessionActive: true });
+  } catch (error) {
+    res
+      .status(401)
+      .json({ sessionActive: false, message: "Token inválido o expirado" });
+  }
+}
 
 async function handlerLogin(req, res) {
   const { email, password } = req.body;

@@ -26,14 +26,24 @@ function countryCodeToEmoji(code: string) {
 }
 
 async function checkSession() {
+  const token = await SecureStore.getItemAsync("access-token");
+  if (!token) {
+    return false;
+  }
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
+    const res = await fetch(`${API_URL}/user/validate-session`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    if (!data.sessionActive) {
+      await SecureStore.deleteItemAsync("access-token");
       return false;
     }
     return true;
   } catch (error) {
-    throw error;
+    await SecureStore.deleteItemAsync("access-token");
+    return false;
   }
 }
 

@@ -12,9 +12,9 @@ import { router } from "expo-router";
 import * as Location from "expo-location";
 
 function AddField() {
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [description, setDescription] = useState("");
+  const [fieldName, setFieldName] = useState<string>("");
+  const [locationName, setLocationName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null,
   );
@@ -27,7 +27,7 @@ function AddField() {
 
     try {
       // Validar campos obligatorios
-      if (name === "" || address === "" || description === "") {
+      if (fieldName === "" || locationName === "" || description === "") {
         setError("Por favor, completa todos los campos antes de continuar.");
         return;
       }
@@ -42,10 +42,10 @@ function AddField() {
       router.push({
         pathname: "/(tabs)/(register)/draw-field-in-map",
         params: {
-          latitude: String(loc.coords.latitude),
-          longitude: String(loc.coords.longitude),
-          field_name: name,
-          location_name: address,
+          latUser: String(loc.coords.latitude), // Convertir a string para pasar como parámetro
+          lngUser: String(loc.coords.longitude), // Convertir a string para pasar como parámetro
+          fieldName,
+          locationName,
           description,
         },
       });
@@ -74,9 +74,6 @@ function AddField() {
         <View className="mx-4 mt-4 p-4 bg-red-900/20 border border-red-500/50 rounded-xl flex-row items-start">
           <MaterialIcons name="error-outline" size={20} color="#ef4444" />
           <View className="flex-1 ml-3">
-            <Text className="text-sm font-semibold text-red-400 mb-1">
-              Error
-            </Text>
             <Text className="text-sm text-red-300">{error}</Text>
           </View>
           <TouchableOpacity onPress={() => setError("")}>
@@ -107,7 +104,7 @@ function AddField() {
                 className="text-base text-text-bright border-b border-border-dark py-2"
                 placeholder="Ej: Estancia La Paz"
                 placeholderTextColor="#96999E66"
-                onChangeText={setName}
+                onChangeText={setFieldName}
               />
             </View>
 
@@ -121,7 +118,7 @@ function AddField() {
                   className="flex-1 text-base text-text-bright py-2"
                   placeholder="Ej: Pergamino, Buenos Aires"
                   placeholderTextColor="#96999E66"
-                  onChangeText={setAddress}
+                  onChangeText={setLocationName}
                 />
                 <MaterialIcons name="location-on" size={20} color="#96999E" />
               </View>
@@ -187,15 +184,6 @@ function AddField() {
               )}
             </TouchableOpacity>
           </View>
-        </View>
-
-        <View className="p-4 bg-background-dark border-t border-border-dark/50">
-          <TouchableOpacity className="w-full bg-primary flex-row items-center justify-center py-4 rounded-xl shadow-lg">
-            <Text className="text-white font-bold text-base mr-2">
-              Crear Campo
-            </Text>
-            <MaterialIcons name="check-circle" size={20} color="white" />
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>

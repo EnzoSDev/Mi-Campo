@@ -16,7 +16,7 @@ export default function Index() {
         const res = await userAPI.checkSession();
         setSessionActive(res);
       } catch (error) {
-        alert("Error interno del servidor");
+        setSessionActive(false);
       } finally {
         setIsLoading(false);
       }

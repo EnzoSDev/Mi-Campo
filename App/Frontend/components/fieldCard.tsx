@@ -5,7 +5,7 @@ interface Prop {
   id: number;
   name: string;
   location: string;
-  areaHectares: number;
+  areaHa: number;
   description: string;
   handleDelete: (id: number) => Promise<void>;
 }
@@ -14,7 +14,7 @@ function FieldCard({
   id,
   name,
   location,
-  areaHectares,
+  areaHa,
   description,
   handleDelete,
 }: Prop) {
@@ -45,7 +45,7 @@ function FieldCard({
           </View>
           <View className="items-end ml-2">
             <Text className="text-[#267366] font-bold text-lg">
-              {areaHectares.toLocaleString()}
+              {areaHa.toLocaleString()}
             </Text>
             <Text className="text-[#94a3b8] text-[10px] uppercase font-bold tracking-widest">
               Hectareas
