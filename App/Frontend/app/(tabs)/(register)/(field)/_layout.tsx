@@ -2,12 +2,13 @@ import { Tabs, router } from "expo-router";
 import { View, Text, Pressable, TouchableOpacity } from "react-native";
 import { useState } from "react";
 import MaterialIcons from "@expo/vector-icons/build/MaterialIcons";
+import MapButton from "../../../../components/MapButton";
 
 function Layout() {
   const [activeTab, setActiveTab] = useState("lots");
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "#1c1f22" }}>
       {/* Header */}
       <View
         style={{
@@ -127,6 +128,7 @@ function Layout() {
       </View>
 
       {/* Content */}
+      <MapButton onPress={() => console.log("No pasa nada")} />
       <Tabs
         screenOptions={{
           sceneStyle: { backgroundColor: "#1c1f22" },
