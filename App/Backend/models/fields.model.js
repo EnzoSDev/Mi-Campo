@@ -6,11 +6,12 @@ export default {
   deleteField,
   getPlotsByFieldId,
   createPlot,
+  getFieldGeometry,
 };
 
 async function getFieldsByUserId(userId) {
   const query =
-    "SELECT id, field_name, description, location_name, area_ha, lat, lng, coordinates_polygon FROM fields WHERE user_id = ? and is_active = 1";
+    "SELECT id, field_name, description, location_name, area_ha, lat, lng FROM fields WHERE user_id = ? and is_active = 1";
   const [rows] = await connection.execute(query, [userId]);
   return rows;
 }
@@ -26,7 +27,7 @@ async function createField({
   areaHa,
 }) {
   const query =
-    "INSERT INTO fields (user_id, field_name, description, location_name, lat, lng, coordinates_polygon, area_ha) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO fields (user_id, field_name, description, location_name, lat, lng, area_ha) VALUES (?, ?, ?, ?, ?, ?, ?)";
   const [result] = await connection.execute(query, [
     userId,
     fieldName,
@@ -34,10 +35,33 @@ async function createField({
     locationName,
     lat,
     lng,
-    JSON.stringify(coordinatesPolygon),
     areaHa,
   ]);
-  return result.affectedRows === 1;
+
+  // Si el campo se creo, inserto las coordenadas del poligono
+  if (result.affectedRows === 1) {
+    try {
+      let order = 1;
+      for (const coord of coordinatesPolygon) {
+        const insertCoordQuery =
+          "INSERT INTO field_coordinates (field_id, latitude, longitude, point_order) VALUES (?, ?, ?, ?)";
+        await connection.execute(insertCoordQuery, [
+          result.insertId,
+          coord.latitude,
+          coord.longitude,
+          order,
+        ]);
+        order++;
+      }
+      return true;
+    } catch (error) {
+      // Si hay un error al insertar las coordenadas, elimino el campo creado para evitar datos inconsistentes
+      const deleteQuery = "DELETE FROM fields WHERE id = ?";
+      await connection.execute(deleteQuery, [result.insertId]);
+      throw error;
+    }
+  }
+  return false;
 }
 
 async function deleteField(fieldId) {
@@ -70,4 +94,30 @@ async function createPlot({
     areaHa,
   ]);
   return result.affectedRows === 1;
+}
+
+async function getFieldGeometry(fieldId) {
+  const centerCoordQuery =
+    "SELECT lat, lng FROM fields WHERE id = ? and is_active = 1";
+  const [center] = await connection.execute(centerCoordQuery, [fieldId]);
+
+  if (center.length === 0) {
+    throw new Error("Campo no encontrado");
+  }
+
+  const coordinatesPolygonQuery =
+    "SELECT latitude, longitude FROM field_coordinates WHERE field_id = ? ORDER BY point_order ASC";
+  const [coordinatesPolygon] = await connection.execute(
+    coordinatesPolygonQuery,
+    [fieldId],
+  );
+
+  return {
+    lat: center[0].lat,
+    lng: center[0].lng,
+    coordinatesPolygon: coordinatesPolygon.map((coord) => ({
+      latitude: coord.latitude,
+      longitude: coord.longitude,
+    })),
+  };
 }

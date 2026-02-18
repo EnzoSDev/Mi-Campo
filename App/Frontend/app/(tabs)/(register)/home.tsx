@@ -15,7 +15,7 @@ import { fieldAPI } from "../../../services/fieldAPI";
 import type { ResponseFieldType } from "@/types/fieldTypes";
 
 // Components
-import Card from "../../../components/fieldCard";
+import FieldCard from "../../../components/FieldCard";
 
 export default function Home() {
   const [fields, setFields] = useState<ResponseFieldType[]>([]);
@@ -121,11 +121,14 @@ export default function Home() {
       }
       renderItem={({ item }) => (
         <View className="px-4 mb-4">
-          <Card
+          <FieldCard
             id={item.id}
             name={item.fieldName}
             location={item.locationName}
             areaHa={item.areaHa}
+            coordinatesPolygon={item.coordinatesPolygon}
+            latitude={item.lat}
+            longitude={item.lng}
             description={item.description}
             handleDelete={handleDelete}
           />

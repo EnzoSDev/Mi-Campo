@@ -13,7 +13,7 @@ export default function MapButton({ onPress }: { onPress: () => void }) {
             transform: [{ scale: pressed ? 0.99 : 1 }],
           },
         ]}
-        className="h-[90px] rounded-[20px] justify-center px-4 bg-[#1E293B] border border-white/5"
+        className="h-[90px] rounded-[20px] justify-center px-4 bg-surface-dark border border-white/5"
       >
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
@@ -24,10 +24,10 @@ export default function MapButton({ onPress }: { onPress: () => void }) {
 
             <View className="ml-4">
               <Text className="text-white text-[16px] font-bold mb-0.5">
-                View Interactive Map
+                Ver en el mapa
               </Text>
               <Text className="text-[#94A3B8] text-[14px] font-normal">
-                Satellite view & field boundaries
+                Visualiza la ubicación de tu campo
               </Text>
             </View>
           </View>

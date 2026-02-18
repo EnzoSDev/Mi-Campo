@@ -1,13 +1,16 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, Pressable } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useMemo } from "react";
-import { router } from "expo-router";
+import { Link } from "expo-router";
 
 interface Prop {
   id: number;
   name: string;
   location: string;
   areaHa: number;
+  coordinatesPolygon: { latitude: number; longitude: number }[];
+  latitude: number;
+  longitude: number;
   description: string;
   handleDelete: (id: number) => Promise<void>;
 }
@@ -25,6 +28,7 @@ function FieldCard({
   name,
   location,
   areaHa,
+  coordinatesPolygon,
   description,
   handleDelete,
 }: Prop) {
@@ -68,12 +72,21 @@ function FieldCard({
             <Text className="text-[#94a3b8] text-xs italic">{description}</Text>
           </View>
           <View className="flex-row gap-2">
-            <TouchableOpacity
-              className="px-6 h-10 rounded-xl bg-[#267366] items-center justify-center"
-              onPress={() => router.replace("/(tabs)/(register)/(field)/lots")}
+            <Link
+              href={{
+                pathname: "/(tabs)/(register)/(field)/[id]",
+                params: {
+                  id,
+                  name,
+                  location,
+                },
+              }}
+              asChild
             >
-              <Text className="text-white text-sm font-semibold">Ver</Text>
-            </TouchableOpacity>
+              <Pressable className="px-6 h-10 rounded-xl bg-[#267366] items-center justify-center">
+                <Text className="text-white text-sm font-semibold">Ver</Text>
+              </Pressable>
+            </Link>
             <TouchableOpacity
               className="w-10 h-10 rounded-xl bg-red-500/20 items-center justify-center"
               onPress={() => handleDelete(id)}

@@ -10,6 +10,7 @@ export const fieldAPI = {
   getAllFields,
   createField,
   deleteField,
+  getFieldGeometry,
 };
 
 async function getAllFields(): Promise<ResponseFieldType[]> {
@@ -27,6 +28,7 @@ async function getAllFields(): Promise<ResponseFieldType[]> {
     });
 
     if (!res.ok) {
+      console.error("Error al obtener los campos:", await res.text());
       throw new Error("Error al obtener los campos");
     }
 
@@ -87,6 +89,28 @@ async function deleteField(id: number) {
     if (!response.ok) {
       throw new Error("Error al borrar el campo");
     }
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getFieldGeometry(id: number) {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+    const response = await fetch(`${API_URL}/fields/${id}/geometry`, {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Error al obtener la geometría del campo");
+    }
+    const data = await response.json();
+    return data;
   } catch (error) {
     throw error;
   }

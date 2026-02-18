@@ -7,6 +7,7 @@ export default {
   handleDeleteField,
   handleGetFieldPlots,
   handleCreatePlot,
+  handleGetFieldGeometry,
 };
 
 async function handleGetFields(req, res) {
@@ -21,29 +22,6 @@ async function handleGetFields(req, res) {
 
 async function handleCreateField(req, res) {
   const userId = req.user.id;
-  // FieldName, description y locationName se reciben del formulario
-  // lat, lng y geojson se reciben desde el mapa
-
-  /*
-
-        Ejemplo de body esperado:
-        {
-            "fieldName": "Campo 1",
-            "description": "Descripcion del campo 1",
-            "locationName": "Ubicación del campo 1",
-            "lat": -34.6037,
-            "lng": -58.3816,
-            "coordinatesPolygon":
-                        [
-                            [-59.12, -37.32],
-                            [-59.13, -37.33],
-                            [-59.11, -37.34],
-                            [-100.12, -37.32]
-                        ]
-        }
-
-    */
-
   const {
     fieldName,
     description,
@@ -178,6 +156,24 @@ async function handleCreatePlot(req, res) {
     if (result) {
       res.status(201).json({ message: "Lote creado exitosamente" });
     } else res.status(500).json({ message: "No se pudo crear el lote" });
+  } catch (error) {
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+}
+
+async function handleGetFieldGeometry(req, res) {
+  const { fieldId } = req.params;
+  try {
+    const geometry = await fieldsModel.getFieldGeometry(fieldId);
+    if (geometry) {
+      res.status(200).json({
+        lat: geometry.lat,
+        lng: geometry.lng,
+        coordinatesPolygon: geometry.coordinatesPolygon,
+      });
+    } else {
+      res.status(404).json({ message: "Campo no encontrado" });
+    }
   } catch (error) {
     res.status(500).json({ message: "Error interno del servidor" });
   }

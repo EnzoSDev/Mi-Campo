@@ -16,5 +16,5 @@ export interface ResponseFieldType {
   areaHa: number;
   lat: number;
   lng: number;
-  coordinatesPolygon: string;
+  coordinatesPolygon: { latitude: number; longitude: number }[];
 }
