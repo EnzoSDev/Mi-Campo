@@ -75,7 +75,7 @@ function Field() {
         }
       />
 
-      {activeTab === "lots" && <Lots />}
+      {activeTab === "lots" && <Lots fieldId={id as string} />}
       {activeTab === "paddocks" && <Paddocks />}
     </View>
   );

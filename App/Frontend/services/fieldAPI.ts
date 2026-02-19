@@ -1,5 +1,10 @@
 import * as SecureStore from "expo-secure-store";
-import { ResponseFieldType, CreateFieldType } from "@/types/fieldTypes";
+import {
+  ResponseFieldType,
+  CreateFieldType,
+  CreateLotType,
+  ResponseLotType,
+} from "@/types/fieldTypes";
 
 const API_URL =
   process.env.NODE_ENV === "development"
@@ -11,6 +16,9 @@ export const fieldAPI = {
   createField,
   deleteField,
   getFieldGeometry,
+  getAllLotsGeometryData,
+  getAllLots,
+  createLot,
 };
 
 async function getAllFields(): Promise<ResponseFieldType[]> {
@@ -28,7 +36,6 @@ async function getAllFields(): Promise<ResponseFieldType[]> {
     });
 
     if (!res.ok) {
-      console.error("Error al obtener los campos:", await res.text());
       throw new Error("Error al obtener los campos");
     }
 
@@ -39,9 +46,6 @@ async function getAllFields(): Promise<ResponseFieldType[]> {
       locationName: field.location_name,
       description: field.description,
       areaHa: field.area_ha,
-      lat: field.lat,
-      lng: field.lng,
-      coordinatesPolygon: field.coordinates_polygon,
     }));
     return fields;
   } catch (error) {
@@ -111,6 +115,84 @@ async function getFieldGeometry(id: number) {
     }
     const data = await response.json();
     return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getAllLotsGeometryData(fieldId: number) {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+    const response = await fetch(`${API_URL}/fields/${fieldId}/lots/geometry`, {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al obtener la geometría de los lotes");
+    }
+
+    const data = await response.json();
+    console.log("Datos de geometría de los lotes:", data);
+    return data.lotsGeometryData;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function createLot(lot: CreateLotType) {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+    const response = await fetch(`${API_URL}/fields/${lot.fieldId}/lots`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(lot),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al crear el lote");
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getAllLots(fieldId: number): Promise<ResponseLotType[]> {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+    const res = await fetch(`${API_URL}/fields/${fieldId}/lots`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error("Error al obtener los lotes");
+    }
+    const data = (await res.json()).lots;
+    const lots: ResponseLotType[] = data.map((lot: any) => ({
+      id: lot.id,
+      lotName: lot.lot_name,
+      description: lot.description,
+      areaHa: lot.area_ha,
+    }));
+    return lots;
   } catch (error) {
     throw error;
   }

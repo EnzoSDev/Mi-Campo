@@ -1,4 +1,4 @@
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import MapView, { Marker, Polygon } from "react-native-maps";
@@ -15,6 +15,9 @@ function Map() {
   const [lat, setLat] = useState<number>(0);
   const [lng, setLng] = useState<number>(0);
   const [coordinatesPolygon, setCoordinatesPolygon] = useState<LatLng[]>([]);
+  const [lotsCoordinates, setLotsCoordinates] = useState<
+    { id: number; lotName: string; coordinatesPolygon: LatLng[] }[]
+  >([]);
   const mapRef = useRef<MapView>(null);
   /*
 
@@ -53,7 +56,37 @@ function Map() {
       }
     };
     fetchFieldGeometryData();
+
+    const fetchLotsGeometryData = async () => {
+      try {
+        const data = await fieldAPI.getAllLotsGeometryData(Number(id));
+        setLotsCoordinates(data);
+      } catch (error) {
+        console.error("Error fetching lots geometry data:", error);
+      }
+    };
+
+    fetchLotsGeometryData();
   }, [id]);
+
+  // TODO: fetchPaddocksGeometryData
+
+  function calculateCentroid(coordinates: LatLng[]) {
+    const totalPoints = coordinates.length;
+    const sum = coordinates.reduce(
+      (acc, point) => {
+        return {
+          latitude: acc.latitude + point.latitude,
+          longitude: acc.longitude + point.longitude,
+        };
+      },
+      { latitude: 0, longitude: 0 },
+    );
+    return {
+      latitude: sum.latitude / totalPoints,
+      longitude: sum.longitude / totalPoints,
+    };
+  }
 
   return (
     <>
@@ -81,9 +114,9 @@ function Map() {
           // El componente Polygon espera un array de tipo LatLng
           <Polygon
             coordinates={coordinatesPolygon}
-            strokeColor="#267366"
-            fillColor="rgba(38, 115, 102, 0.3)"
-            strokeWidth={2}
+            strokeColor="#F97316"
+            fillColor="rgba(249, 115, 22, 0.25)"
+            strokeWidth={3}
           />
         )}
 
@@ -93,7 +126,49 @@ function Map() {
             title="Centro del campo"
           />
         )}
+        {lotsCoordinates.map((lot) => (
+          <Polygon
+            key={lot.id}
+            coordinates={lot.coordinatesPolygon}
+            strokeColor="#3B82F6"
+            fillColor="rgba(59, 130, 246, 0.35)"
+            strokeWidth={3}
+          />
+        ))}
+        {lotsCoordinates.map((lot) => (
+          <Marker
+            key={lot.id}
+            coordinate={calculateCentroid(lot.coordinatesPolygon)} // Coloco el marcador en la primera coordenada del polígono del lote
+            title={lot.lotName}
+          />
+        ))}
       </MapView>
+
+      <View className="absolute bottom-6 left-0 right-0 items-center">
+        <View className="bg-gray-900/90 rounded-full px-4 py-2.5 flex-row items-center gap-4">
+          <View className="flex-row items-center gap-1.5">
+            <View
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: "#F97316" }}
+            />
+            <Text className="text-white text-xs font-medium">Campo</Text>
+          </View>
+          <View className="flex-row items-center gap-1.5">
+            <View
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: "#3B82F6" }}
+            />
+            <Text className="text-white text-xs font-medium">Lotes</Text>
+          </View>
+          <View className="flex-row items-center gap-1.5">
+            <View
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: "#10B981" }}
+            />
+            <Text className="text-white text-xs font-medium">Potreros</Text>
+          </View>
+        </View>
+      </View>
     </>
   );
 }

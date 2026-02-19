@@ -5,9 +5,10 @@ export default {
   handleGetFields,
   handleCreateField,
   handleDeleteField,
-  handleGetFieldPlots,
-  handleCreatePlot,
+  handleGetFieldLots,
+  handleCreateLot,
   handleGetFieldGeometry,
+  handleGetFieldLotsGeometry,
 };
 
 async function handleGetFields(req, res) {
@@ -93,24 +94,31 @@ async function handleDeleteField(req, res) {
   }
 }
 
-async function handleGetFieldPlots(req, res) {
+async function handleGetFieldLots(req, res) {
   const { fieldId } = req.params;
 
   try {
-    const plots = await fieldsModel.getPlotsByFieldId(fieldId);
-    res.status(200).json({ plots });
+    const lots = await fieldsModel.getLotsByFieldId(fieldId);
+    res.status(200).json({ lots });
   } catch (error) {
     res.status(500).json({ message: "Error interno del servidor" });
   }
 }
 
-async function handleCreatePlot(req, res) {
+async function handleCreateLot(req, res) {
   const { fieldId } = req.params;
-  const { plotName, description, coordinatesPolygon } = req.body;
+  const { lotName, description, coordinatesPolygon, areaHa } = req.body;
 
-  if (!plotName || !coordinatesPolygon || !description) {
+  if (!lotName || !coordinatesPolygon || !description || !areaHa) {
     return res.status(400).json({ message: "Faltan datos obligatorios" });
   }
+
+  console.log("Datos recibidos para crear lote:", {
+    lotName,
+    description,
+    coordinatesPolygon,
+    areaHa,
+  });
 
   if (!Array.isArray(coordinatesPolygon) || coordinatesPolygon.length < 3) {
     return res
@@ -118,41 +126,21 @@ async function handleCreatePlot(req, res) {
       .json({ message: "El lote debe tener al menos 3 coordenadas" });
   }
 
-  if (
-    coordinatesPolygon[0][0] !==
-      coordinatesPolygon[coordinatesPolygon.length - 1][0] ||
-    coordinatesPolygon[0][1] !==
-      coordinatesPolygon[coordinatesPolygon.length - 1][1]
-  ) {
-    return res.status(400).json({
-      message:
-        "El lote debe estar cerrado (la primera y última coordenada deben ser iguales)",
-    });
+  if (coordinatesPolygon.length < 3) {
+    return res
+      .status(400)
+      .json({ message: "El lote debe tener al menos 3 coordenadas" });
   }
 
   try {
-    const plot =
-      await fieldsModel.getPlotByCoordinatesPolygon(coordinatesPolygon);
-    if (plot) {
-      return res
-        .status(400)
-        .json({ message: "Coordenadas del lote inválidas" });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error interno del servidor" });
-  }
-
-  const areaHa = calculateAreaHa(coordinatesPolygon);
-
-  try {
-    const result = await fieldsModel.createPlot({
+    const result = await fieldsModel.createLot({
       fieldId,
-      plotName,
+      lotName,
       description,
       coordinatesPolygon,
       areaHa,
     });
+    console.log("Resultado de creación de lote:", result);
     if (result) {
       res.status(201).json({ message: "Lote creado exitosamente" });
     } else res.status(500).json({ message: "No se pudo crear el lote" });
@@ -171,6 +159,21 @@ async function handleGetFieldGeometry(req, res) {
         lng: geometry.lng,
         coordinatesPolygon: geometry.coordinatesPolygon,
       });
+    } else {
+      res.status(404).json({ message: "Campo no encontrado" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+}
+
+async function handleGetFieldLotsGeometry(req, res) {
+  const { fieldId } = req.params;
+  try {
+    const lotsGeometryData = await fieldsModel.getFieldLotsGeometry(fieldId);
+    console.log("Datos de geometría de los lotes:", lotsGeometryData);
+    if (lotsGeometryData) {
+      res.status(200).json({ lotsGeometryData });
     } else {
       res.status(404).json({ message: "Campo no encontrado" });
     }

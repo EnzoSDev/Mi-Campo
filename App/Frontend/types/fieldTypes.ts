@@ -14,7 +14,19 @@ export interface ResponseFieldType {
   description: string;
   locationName: string;
   areaHa: number;
-  lat: number;
-  lng: number;
+}
+
+export interface CreateLotType {
+  fieldId: number;
+  lotName: string;
+  description: string;
   coordinatesPolygon: { latitude: number; longitude: number }[];
+  areaHa: number;
+}
+
+export interface ResponseLotType {
+  id: number;
+  lotName: string;
+  description: string;
+  areaHa: number;
 }

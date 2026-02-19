@@ -10,7 +10,7 @@ SET NAMES utf8mb4;
 DROP TABLE IF EXISTS `campaigns`;
 CREATE TABLE `campaigns` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `plot_id` int(11) NOT NULL,
+  `lot_id` int(11) NOT NULL,
   `campaign_name` varchar(100) NOT NULL,
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
@@ -18,12 +18,10 @@ CREATE TABLE `campaigns` (
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
-  KEY `plot_id` (`plot_id`),
-  CONSTRAINT `campaigns_ibfk_1` FOREIGN KEY (`plot_id`) REFERENCES `plots` (`id`)
+  KEY `lot_id` (`lot_id`),
+  CONSTRAINT `campaigns_ibfk_1` FOREIGN KEY (`lot_id`) REFERENCES `lots` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `campaigns` (`id`, `plot_id`, `campaign_name`, `start_date`, `end_date`, `description`, `is_active`, `created_at`) VALUES
-(1,	4,	'Camapaña 1',	'0000-00-00',	'0000-00-00',	'Descripcion del lote 1',	1,	'2026-01-15 20:30:36');
 
 DROP TABLE IF EXISTS `countries`;
 CREATE TABLE `countries` (
@@ -35,7 +33,7 @@ CREATE TABLE `countries` (
 INSERT INTO `countries` (`code`, `name`) VALUES
 ('AR',	'Argentina'),
 ('BO',	'Bolivia'),
-('BR',	'Brazil'),
+('BR',	'Brasil'),
 ('CL',	'Chile'),
 ('CO',	'Colombia'),
 ('EC',	'Ecuador'),
@@ -59,8 +57,6 @@ CREATE TABLE `fertilizations` (
   CONSTRAINT `fertilizations_ibfk_1` FOREIGN KEY (`campaign_id`) REFERENCES `campaigns` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `fertilizations` (`id`, `campaign_id`, `product_name`, `dose`, `date_applied`, `method`, `notes`, `created_at`) VALUES
-(1,	1,	'Urea',	150.00,	'2026-01-20',	'Aspersión',	'Aplicada en etapa V4',	'2026-01-20 20:14:58');
 
 DROP TABLE IF EXISTS `fields`;
 CREATE TABLE `fields` (
@@ -70,19 +66,40 @@ CREATE TABLE `fields` (
   `description` text NOT NULL,
   `lat` decimal(10,8) NOT NULL,
   `lng` decimal(10,8) NOT NULL,
-  `coordinates_polygon` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`coordinates_polygon`)),
   `location_name` varchar(100) NOT NULL,
   `area_ha` double NOT NULL,
   `is_active` tinyint(4) NOT NULL DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
-  UNIQUE KEY `coordinates_polygon` (`coordinates_polygon`) USING HASH,
   KEY `user_id` (`user_id`),
   CONSTRAINT `fields_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `fields` (`id`, `user_id`, `field_name`, `description`, `lat`, `lng`, `coordinates_polygon`, `location_name`, `area_ha`, `is_active`, `created_at`) VALUES
-(4,	5,	'Campo 1',	'Descripcion del campo 1',	-34.60370000,	-58.38160000,	'[[-59.12,-37.32],[-59.13,-37.33],[-59.11,-37.34],[-59.12,-37.32]]',	'Ubicación del campo 1',	147.48,	1,	'2026-01-13 23:03:37');
+INSERT INTO `fields` (`id`, `user_id`, `field_name`, `description`, `lat`, `lng`, `location_name`, `area_ha`, `is_active`, `created_at`) VALUES
+(24,	15,	'Campo 1',	'No pasa nada',	-5.91853135,	34.05019954,	'Mar del Plata Argentina',	178598.74127899113,	1,	'2026-02-18 12:05:14'),
+(25,	15,	'Estancia ',	'Ruta 226 - \n- 15,6 km',	-37.90287529,	-57.75548964,	'Mar del Plata,  Provincia de Buenos Aires ',	0.15195613192758606,	1,	'2026-02-18 12:38:44');
+
+DROP TABLE IF EXISTS `field_coordinates`;
+CREATE TABLE `field_coordinates` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `field_id` int(11) NOT NULL,
+  `latitude` float NOT NULL,
+  `longitude` float NOT NULL,
+  `point_order` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `field_id` (`field_id`),
+  CONSTRAINT `field_coordinates_ibfk_1` FOREIGN KEY (`field_id`) REFERENCES `fields` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `field_coordinates` (`id`, `field_id`, `latitude`, `longitude`, `point_order`) VALUES
+(2,	24,	-4.05611,	31.503,	1),
+(3,	24,	-7.00163,	31.9397,	2),
+(4,	24,	-7.97973,	36.4195,	3),
+(5,	24,	-4.63665,	36.3386,	4),
+(6,	25,	-37.9008,	-57.755,	1),
+(7,	25,	-37.9019,	-57.7522,	2),
+(8,	25,	-37.9051,	-57.7563,	3),
+(9,	25,	-37.9037,	-57.7585,	4);
 
 DROP TABLE IF EXISTS `harvests`;
 CREATE TABLE `harvests` (
@@ -98,8 +115,50 @@ CREATE TABLE `harvests` (
   CONSTRAINT `harvests_ibfk_1` FOREIGN KEY (`campaign_id`) REFERENCES `campaigns` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `harvests` (`id`, `campaign_id`, `harvest_date`, `total_yield_kg`, `moisture_percentage`, `notes`, `created_at`) VALUES
-(1,	1,	'2026-05-15',	4500.00,	14.50,	'Cosecha mecánica en condiciones óptimas',	'2026-01-20 20:19:52');
+
+DROP TABLE IF EXISTS `lots`;
+CREATE TABLE `lots` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `field_id` int(11) NOT NULL,
+  `lot_name` varchar(100) NOT NULL,
+  `area_ha` double NOT NULL,
+  `description` text NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `field_id` (`field_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `lots` (`id`, `field_id`, `lot_name`, `area_ha`, `description`, `is_active`, `created_at`) VALUES
+(20,	24,	'Bsbdbd',	8610.819676416146,	'Bdbdbd',	1,	'2026-02-19 18:37:37'),
+(21,	24,	'Wsbz',	10869.12698707786,	'Bzbsbs',	1,	'2026-02-19 19:28:02'),
+(22,	25,	'Lote 1',	0.03071248944690135,	'Soja',	1,	'2026-02-19 19:49:27');
+
+DROP TABLE IF EXISTS `lot_coordinates`;
+CREATE TABLE `lot_coordinates` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `lot_id` int(11) NOT NULL,
+  `latitude` float NOT NULL,
+  `longitude` float NOT NULL,
+  `point_order` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `lot_id` (`lot_id`),
+  CONSTRAINT `lot_coordinates_ibfk_1` FOREIGN KEY (`lot_id`) REFERENCES `lots` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `lot_coordinates` (`id`, `lot_id`, `latitude`, `longitude`, `point_order`) VALUES
+(9,	20,	-4.64557,	32.0285,	1),
+(10,	20,	-5.4556,	32.078,	2),
+(11,	20,	-5.48484,	32.8647,	3),
+(12,	20,	-4.56794,	32.8531,	4),
+(13,	21,	-4.81547,	32.5198,	1),
+(14,	21,	-5.60805,	32.3995,	2),
+(15,	21,	-5.6746,	33.3893,	3),
+(16,	21,	-4.78881,	33.6167,	4),
+(17,	22,	-37.901,	-57.755,	1),
+(18,	22,	-37.9013,	-57.7542,	2),
+(19,	22,	-37.9038,	-57.7573,	3),
+(20,	22,	-37.9033,	-57.7578,	4);
 
 DROP TABLE IF EXISTS `observations`;
 CREATE TABLE `observations` (
@@ -113,27 +172,6 @@ CREATE TABLE `observations` (
   CONSTRAINT `observations_ibfk_1` FOREIGN KEY (`campaign_id`) REFERENCES `campaigns` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `observations` (`id`, `campaign_id`, `observation_date`, `note`, `created_at`) VALUES
-(1,	1,	'2026-02-10',	'Plantas con buen desarrollo, sin síntomas de plagas',	'2026-01-20 20:21:57');
-
-DROP TABLE IF EXISTS `plots`;
-CREATE TABLE `plots` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `field_id` int(11) NOT NULL,
-  `plot_name` varchar(100) NOT NULL,
-  `coordinates_polygon` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`coordinates_polygon`)),
-  `area_ha` double NOT NULL,
-  `description` text NOT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT 1,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `coordinates_polygon` (`coordinates_polygon`) USING HASH,
-  KEY `field_id` (`field_id`),
-  CONSTRAINT `plots_ibfk_1` FOREIGN KEY (`field_id`) REFERENCES `fields` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-INSERT INTO `plots` (`id`, `field_id`, `plot_name`, `coordinates_polygon`, `area_ha`, `description`, `is_active`, `created_at`) VALUES
-(4,	4,	'Lote 1',	'[[-59.12,-37.32],[-59.13,-20.41],[-59.11,-37.34],[-59.12,-37.32]]',	91122.15,	'Descripcion del lote 1',	1,	'2026-01-15 19:25:49');
 
 DROP TABLE IF EXISTS `sowings`;
 CREATE TABLE `sowings` (
@@ -152,8 +190,6 @@ CREATE TABLE `sowings` (
   CONSTRAINT `sowings_ibfk_1` FOREIGN KEY (`campaign_id`) REFERENCES `campaigns` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `sowings` (`id`, `campaign_id`, `crop_type`, `variety`, `sowing_date`, `density`, `row_spacing`, `method`, `notes`, `created_at`) VALUES
-(1,	1,	'Maíz',	'DK 7010',	'2026-01-15',	75000,	0.75,	'Siembra directa',	'Siembra realizada en condiciones óptimas',	'2026-01-20 20:13:10');
 
 DROP TABLE IF EXISTS `sprayings`;
 CREATE TABLE `sprayings` (
@@ -171,8 +207,6 @@ CREATE TABLE `sprayings` (
   CONSTRAINT `sprayings_ibfk_1` FOREIGN KEY (`campaign_id`) REFERENCES `campaigns` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `sprayings` (`id`, `campaign_id`, `product_name`, `dose`, `date_applied`, `target`, `method`, `notes`, `created_at`) VALUES
-(4,	1,	'Glifosato',	2.50,	'2026-01-22',	'Malezas',	'Pulverizador terrestre',	'Control de malezas de hoja ancha',	'2026-01-20 20:19:24');
 
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
@@ -191,6 +225,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `username`, `email`, `password_hashed`, `country_code`, `is_active`, `created_at`) VALUES
 (5,	'enzodev',	'enzo@mail.com',	'$2b$10$hzzZRDGcOxSQbhxS80T4S.OnPzswlRQj3COUTte4XkcUnILOjGB0y',	'AR',	1,	'2026-01-13 22:58:27'),
-(15,	'Enzo',	'enzosorrenti5@gmail.com',	'$2b$10$gaR4cGmhG81K9iUOI8pBX.sSIGiBKmcS3r/EK1L4sMRQmofzfZQdi',	'AR',	1,	'2026-02-03 11:04:58');
+(15,	'Enzo',	'enzosorrenti5@gmail.com',	'$2b$10$gaR4cGmhG81K9iUOI8pBX.sSIGiBKmcS3r/EK1L4sMRQmofzfZQdi',	'AR',	1,	'2026-02-03 11:04:58'),
+(16,	'Matías ',	'matisorrenti@gmail..com',	'$2b$10$3PNrxaq1YOY4teh7XpcAjOkVOs00myb8DsB15gBUU5o6dzlIMipFW',	'AR',	1,	'2026-02-04 18:30:09');
 
--- 2026-02-03 14:12:52 UTC
+-- 2026-02-19 23:43:46 UTC

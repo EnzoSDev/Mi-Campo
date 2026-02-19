@@ -4,9 +4,10 @@ export default {
   getFieldsByUserId,
   createField,
   deleteField,
-  getPlotsByFieldId,
-  createPlot,
+  getLotsByFieldId,
+  createLot,
   getFieldGeometry,
+  getFieldLotsGeometry,
 };
 
 async function getFieldsByUserId(userId) {
@@ -70,30 +71,55 @@ async function deleteField(fieldId) {
   return result.affectedRows === 1;
 }
 
-async function getPlotsByFieldId(fieldId) {
+async function getLotsByFieldId(fieldId) {
   const query =
-    "SELECT id, plot_name, coordinates_polygon, area_ha, description FROM plots WHERE field_id = ? and is_active = 1";
+    "SELECT id, lot_name, area_ha, description FROM lots WHERE field_id = ? and is_active = 1";
   const [rows] = await connection.execute(query, [fieldId]);
   return rows;
 }
 
-async function createPlot({
+async function createLot({
   fieldId,
-  plotName,
+  lotName,
   description,
   coordinatesPolygon,
   areaHa,
 }) {
   const query =
-    "INSERT INTO plots (field_id, plot_name, description, coordinates_polygon, area_ha) VALUES (?, ?, ?, ?, ?)";
+    "INSERT INTO lots (field_id, lot_name, description, area_ha) VALUES (?, ?, ?, ?)";
   const [result] = await connection.execute(query, [
     fieldId,
-    plotName,
+    lotName,
     description,
-    JSON.stringify(coordinatesPolygon),
     areaHa,
   ]);
-  return result.affectedRows === 1;
+
+  console.log(result);
+
+  // Si el lote se creo, inserto las coordenadas del poligono
+  if (result.affectedRows === 1) {
+    try {
+      let order = 1;
+      for (const coord of coordinatesPolygon) {
+        const insertCoordQuery =
+          "INSERT INTO lot_coordinates (lot_id, latitude, longitude, point_order) VALUES (?, ?, ?, ?)";
+        await connection.execute(insertCoordQuery, [
+          result.insertId,
+          coord.latitude,
+          coord.longitude,
+          order,
+        ]);
+        order++;
+      }
+      return true;
+    } catch (error) {
+      // Si hay un error al insertar las coordenadas, elimino el lote creado para evitar datos inconsistentes
+      const deleteQuery = "DELETE FROM lots WHERE id = ?";
+      await connection.execute(deleteQuery, [result.insertId]);
+      throw error;
+    }
+  }
+  return false;
 }
 
 async function getFieldGeometry(fieldId) {
@@ -120,4 +146,32 @@ async function getFieldGeometry(fieldId) {
       longitude: coord.longitude,
     })),
   };
+}
+
+async function getFieldLotsGeometry(fieldId) {
+  // REVISAR
+  const query =
+    "SELECT l.id, l.lot_name, lc.latitude, lc.longitude, lc.point_order FROM lot_coordinates as lc JOIN lots as l ON l.id = lc.lot_id JOIN fields as f ON f.id = l.field_id WHERE field_id = ? AND l.is_active = 1 ORDER BY l.id, lc.point_order ASC";
+  const [rows] = await connection.execute(query, [fieldId]);
+
+  const lotsGeometry = {};
+  rows.forEach((row) => {
+    // Recorro cada fila del resultado
+    if (!lotsGeometry[row.id]) {
+      // Si el lote no existe en el objeto, lo inicializo con un array vacío
+      lotsGeometry[row.id] = [];
+    }
+    lotsGeometry[row.id].push({
+      // Agrego las coordenadas al array del lote correspondiente
+      latitude: row.latitude,
+      longitude: row.longitude,
+    });
+  });
+
+  return Object.entries(lotsGeometry).map(([id, coordinatesPolygon]) => ({
+    // Transformo el objeto en un array de objetos con id y coordinatesPolygon
+    id: Number(id),
+    lotName: rows.find((row) => row.id == id)?.lot_name || null,
+    coordinatesPolygon,
+  }));
 }

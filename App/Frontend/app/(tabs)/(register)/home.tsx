@@ -126,9 +126,6 @@ export default function Home() {
             name={item.fieldName}
             location={item.locationName}
             areaHa={item.areaHa}
-            coordinatesPolygon={item.coordinatesPolygon}
-            latitude={item.lat}
-            longitude={item.lng}
             description={item.description}
             handleDelete={handleDelete}
           />

@@ -3,10 +3,14 @@ import fieldsController from "../controllers/fields.controller.js";
 
 const router = express.Router();
 
-router.get("/:fieldId/plots", fieldsController.handleGetFieldPlots);
-router.post("/:fieldId/plots", fieldsController.handleCreatePlot);
+router.get("/:fieldId/lots", fieldsController.handleGetFieldLots);
+router.post("/:fieldId/lots", fieldsController.handleCreateLot);
 router.delete("/:fieldId", fieldsController.handleDeleteField);
 router.get("/:fieldId/geometry", fieldsController.handleGetFieldGeometry);
+router.get(
+  "/:fieldId/lots/geometry",
+  fieldsController.handleGetFieldLotsGeometry,
+);
 router.get("/", fieldsController.handleGetFields);
 router.post("/", fieldsController.handleCreateField);
 
