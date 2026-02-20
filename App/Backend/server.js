@@ -8,7 +8,7 @@ import { authMiddleware } from "./middlewares/authMiddleware.js";
 // Import routes
 import userRoutes from "./routes/user.routes.js";
 import fieldsRoutes from "./routes/fields.routes.js";
-import plotsRoutes from "./routes/plots.routes.js";
+import lotsRoutes from "./routes/lots.routes.js";
 import campaignsRoutes from "./routes/campaigns.routes.js";
 
 dotenv.config();
@@ -56,7 +56,7 @@ app.use("/user", userRoutes);
 
 app.use(authMiddleware); // Si existe el token en las cookies, valida y agrega la info del usuario a req.user
 app.use("/fields", fieldsRoutes);
-app.use("/plots", plotsRoutes);
+app.use("/lots", lotsRoutes);
 app.use("/campaigns", campaignsRoutes);
 
 app.use((req, res) => {

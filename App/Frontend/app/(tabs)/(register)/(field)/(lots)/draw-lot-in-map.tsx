@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import MapView, { Marker, Polygon } from "react-native-maps";
 import { MaterialIcons } from "@expo/vector-icons";
 import { fieldAPI } from "@/services/fieldAPI";
+import { lotAPI } from "@/services/lotAPI";
 import type { CreateLotType } from "@/types/fieldTypes";
 
 interface LatLng {
@@ -27,6 +28,11 @@ function DrawLotInMap() {
 
   const [coordinatesPolygon, setCoordinatesPolygon] = useState<LatLng[]>([]);
   const [error, setError] = useState("");
+
+  const [lotsCoordinates, setLotsCoordinates] = useState<
+    { id: number; lotName: string; coordinatesPolygon: LatLng[] }[]
+  >([]);
+
   const mapRef = useRef<MapView>(null);
 
   useEffect(() => {
@@ -58,6 +64,19 @@ function DrawLotInMap() {
       }
     };
     fetchFieldGeometryData();
+
+    const fetchLotsGeometryData = async () => {
+      try {
+        const data = await lotAPI.getAllLotsGeometryData(Number(fieldId));
+        setLotsCoordinates(data);
+      } catch (error) {
+        console.error("Error fetching lots geometry data:", error);
+      }
+    };
+
+    fetchLotsGeometryData();
+
+    // TODO: fetchPaddocksGeometryData
   }, [fieldId]);
 
   // ========== FUNCIONES DE GEOMETRÍA ==========
@@ -133,6 +152,46 @@ function DrawLotInMap() {
     return false;
   };
 
+  // Verifica si dos polígonos se intersectan
+  const doPolygonsIntersect = (
+    polygon1: LatLng[],
+    polygon2: LatLng[],
+  ): boolean => {
+    // Verificar si algún vértice de polygon1 está dentro de polygon2
+    for (const point of polygon1) {
+      if (isPointInsidePolygon(point, polygon2)) {
+        return true;
+      }
+    }
+
+    // Verificar si algún vértice de polygon2 está dentro de polygon1
+    for (const point of polygon2) {
+      if (isPointInsidePolygon(point, polygon1)) {
+        return true;
+      }
+    }
+
+    // Verificar si alguna arista de polygon1 intersecta con alguna arista de polygon2
+    for (let i = 0; i < polygon1.length; i++) {
+      const nextI = (i + 1) % polygon1.length;
+      for (let j = 0; j < polygon2.length; j++) {
+        const nextJ = (j + 1) % polygon2.length;
+        if (
+          doSegmentsIntersect(
+            polygon1[i],
+            polygon1[nextI],
+            polygon2[j],
+            polygon2[nextJ],
+          )
+        ) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
+
   const calculatePolygonAreaHa = (points: LatLng[]): number => {
     let area = 0;
     const n = points.length;
@@ -146,6 +205,23 @@ function DrawLotInMap() {
 
     return Math.abs(area / 2) * 12365.1613; // Conversión a hectáreas
   };
+
+  function calculateCentroid(coordinates: LatLng[]) {
+    const totalPoints = coordinates.length;
+    const sum = coordinates.reduce(
+      (acc, point) => {
+        return {
+          latitude: acc.latitude + point.latitude,
+          longitude: acc.longitude + point.longitude,
+        };
+      },
+      { latitude: 0, longitude: 0 },
+    );
+    return {
+      latitude: sum.latitude / totalPoints,
+      longitude: sum.longitude / totalPoints,
+    };
+  }
 
   const validatePolygon = (points: LatLng[]): string | null => {
     if (points.length < 3) {
@@ -162,6 +238,13 @@ function DrawLotInMap() {
       !isLotInsideField(points, coordinatesPolygonField)
     ) {
       return "El lote debe estar completamente dentro del campo. Revisa los puntos que están fuera.";
+    }
+
+    // Validar que el nuevo lote no se cruce con lotes existentes
+    for (const existingLot of lotsCoordinates) {
+      if (doPolygonsIntersect(points, existingLot.coordinatesPolygon)) {
+        return `El lote se cruza con el lote existente "${existingLot.lotName}". Ajusta los límites para evitar la superposición.`;
+      }
     }
 
     return null;
@@ -204,7 +287,7 @@ function DrawLotInMap() {
         areaHa,
       };
       console.log("Creando lote con datos:", lot);
-      await fieldAPI.createLot(lot);
+      await lotAPI.createLot(lot);
       router.back();
     } catch (error) {
       setError("Error al guardar el lote.");
@@ -241,7 +324,7 @@ function DrawLotInMap() {
             key={index}
             coordinate={point}
             title={`Punto ${index + 1}`}
-            pinColor="#22c55e"
+            pinColor="#3B82F6"
           />
         ))}
 
@@ -249,8 +332,8 @@ function DrawLotInMap() {
         {coordinatesPolygon.length >= 3 && (
           <Polygon
             coordinates={coordinatesPolygon}
-            fillColor="rgba(34, 197, 94, 0.5)"
-            strokeColor="#22c55e"
+            fillColor="rgba(59, 130, 246, 0.35)"
+            strokeColor="#3B82F6"
             strokeWidth={3}
           />
         )}
@@ -260,8 +343,8 @@ function DrawLotInMap() {
           // El componente Polygon espera un array de tipo LatLng
           <Polygon
             coordinates={coordinatesPolygonField}
-            strokeColor="#60a5fa"
-            fillColor="rgba(96, 165, 250, 0.15)"
+            strokeColor="#F97316"
+            fillColor="rgba(249, 115, 22, 0.25)"
             strokeWidth={2}
           />
         )}
@@ -272,6 +355,24 @@ function DrawLotInMap() {
             title="Centro del campo"
           />
         )}
+
+        {/* Polígonos y marcadores de los lotes existentes */}
+        {lotsCoordinates.map((lot) => (
+          <Polygon
+            key={lot.id}
+            coordinates={lot.coordinatesPolygon}
+            strokeColor="#3B82F6"
+            fillColor="rgba(59, 130, 246, 0.35)"
+            strokeWidth={3}
+          />
+        ))}
+        {lotsCoordinates.map((lot) => (
+          <Marker
+            key={lot.id}
+            coordinate={calculateCentroid(lot.coordinatesPolygon)} // Coloco el marcador en la primera coordenada del polígono del lote
+            title={lot.lotName}
+          />
+        ))}
       </MapView>
 
       {/* Panel de Control */}

@@ -4,12 +4,13 @@ import {
   Pressable,
   FlatList,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import LotCard from "@/components/LotCard";
 import { useEffect, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
-import { fieldAPI } from "@/services/fieldAPI";
+import { lotAPI } from "@/services/lotAPI";
 import { ResponseLotType } from "@/types/fieldTypes";
 
 interface LotsProps {
@@ -19,15 +20,17 @@ interface LotsProps {
 function Lots({ fieldId }: LotsProps) {
   const [lots, setLots] = useState<ResponseLotType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchLots = async () => {
       setIsLoading(true);
       try {
-        const data = await fieldAPI.getAllLots(Number(fieldId));
+        const data = await lotAPI.getAllLots(Number(fieldId));
         setLots(data);
       } catch (error) {
         console.error("Error al obtener los lotes:", error);
+        setErrorMsg("Error al obtener los lotes.");
       } finally {
         setIsLoading(false);
       }
@@ -43,9 +46,41 @@ function Lots({ fieldId }: LotsProps) {
     });
   };
 
+  const handleDelete = async (id: number) => {
+    Alert.alert(
+      "Confirmar eliminación",
+      "¿Estás seguro de que deseas borrar este lote?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Borrar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await lotAPI.deleteLot(id);
+              setLots((prevLots) => prevLots.filter((lot) => lot.id !== id));
+              setErrorMsg(null);
+            } catch (error) {
+              console.error(error);
+              setErrorMsg("Error al borrar el lote.");
+            }
+          },
+        },
+      ],
+    );
+  };
+
   return (
     <View className="flex-1 p-4">
       <Text className="text-2xl font-bold mb-4 text-white">Mis Lotes</Text>
+      {errorMsg && (
+        <View className="mb-4 rounded-xl border border-red-500/30 bg-red-500/15 px-4 py-3">
+          <Text className="text-red-300 text-sm font-semibold">{errorMsg}</Text>
+        </View>
+      )}
       <FlatList
         data={lots}
         keyExtractor={(item) => String(item.id)}
@@ -71,6 +106,7 @@ function Lots({ fieldId }: LotsProps) {
             lotName={item.lotName}
             areaHa={item.areaHa}
             description={item.description}
+            handleDelete={handleDelete}
           />
         )}
         showsVerticalScrollIndicator={false}

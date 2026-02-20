@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import MapView, { Marker, Polygon } from "react-native-maps";
 import { useEffect, useRef, useState } from "react";
 import { fieldAPI } from "@/services/fieldAPI";
+import { lotAPI } from "@/services/lotAPI";
 
 interface LatLng {
   latitude: number;
@@ -59,7 +60,7 @@ function Map() {
 
     const fetchLotsGeometryData = async () => {
       try {
-        const data = await fieldAPI.getAllLotsGeometryData(Number(id));
+        const data = await lotAPI.getAllLotsGeometryData(Number(id));
         setLotsCoordinates(data);
       } catch (error) {
         console.error("Error fetching lots geometry data:", error);

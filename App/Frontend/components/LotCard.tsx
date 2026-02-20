@@ -14,9 +14,16 @@ interface LotCardProps {
   lotName: string;
   areaHa: number;
   description: string;
+  handleDelete: (id: number) => void;
 }
 
-function LotCard({ id, lotName, areaHa, description }: LotCardProps) {
+function LotCard({
+  id,
+  lotName,
+  areaHa,
+  description,
+  handleDelete,
+}: LotCardProps) {
   const imageUrl =
     "https://lh3.googleusercontent.com/aida-public/AB6AXuAvH9zY17rUUVHCDpOx89TybToAqyo0riOR9kEMsSK0Kvxv6fB2NSIGCRr-kIoON-84KlThKPJTBD0ReCjvRHsFINpqypwwu_JEnE3p006b050sLoTGV7XN2hwDVl6g6B2osLuJ2QirqKawlZlLCCMqLqkfWexL10qiuBOBv-im5VkYiMRPcUFKqoESQUdN8GNNpKwmUAOzaGjddWwdzlqSjCPKMDxkR08OavkBGTEIO673qL9FztqMqhQDsFj8n-ymVr6JMM8lUR-G";
 
@@ -60,7 +67,10 @@ function LotCard({ id, lotName, areaHa, description }: LotCardProps) {
                 </Text>
               </View>
               <View className="flex-row gap-2">
-                <TouchableOpacity className="w-10 h-10 rounded-xl bg-red-500/20 items-center justify-center">
+                <TouchableOpacity
+                  className="w-10 h-10 rounded-xl bg-red-500/20 items-center justify-center"
+                  onPress={() => handleDelete(id)}
+                >
                   <MaterialIcons name="delete" size={20} color="#ef4444" />
                 </TouchableOpacity>
               </View>

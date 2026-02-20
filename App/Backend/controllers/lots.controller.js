@@ -1,14 +1,29 @@
-import plotsModel from "../models/plots.model.js";
+import lotsModel from "../models/lots.model.js";
 
 export default {
+  handleDeleteLot,
   handleGetCampaigns,
   handleCreateCampaign,
 };
 
-async function handleGetCampaigns(req, res) {
-  const { plotId } = req.params;
+async function handleDeleteLot(req, res) {
+  const { lotId } = req.params;
   try {
-    const campaigns = await plotsModel.getCampaignsByPlotId(plotId);
+    const result = await lotsModel.deleteLot(lotId);
+    if (result) {
+      res.status(200).json({ message: "Lote borrado exitosamente" });
+    } else {
+      res.status(404).json({ message: "Lote no encontrado" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+}
+
+async function handleGetCampaigns(req, res) {
+  const { lotId } = req.params;
+  try {
+    const campaigns = await lotsModel.getCampaignsByLotId(lotId);
     // La fecha de fin que este en null sera la que se ponga como "Current"
     res.status(200).json({ campaigns });
   } catch (error) {
@@ -18,7 +33,7 @@ async function handleGetCampaigns(req, res) {
 }
 
 async function handleCreateCampaign(req, res) {
-  const { plotId } = req.params;
+  const { lotId } = req.params;
   const { campaignName, startDate, endDate, description } = req.body;
 
   if (!campaignName || !startDate || !endDate || !description) {
@@ -32,8 +47,8 @@ async function handleCreateCampaign(req, res) {
   }
 
   try {
-    const result = await plotsModel.createCampaign({
-      plotId,
+    const result = await lotsModel.createCampaign({
+      lotId,
       campaignName,
       startDate,
       endDate,
