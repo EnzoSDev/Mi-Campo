@@ -9,6 +9,7 @@ export default {
   handleCreateLot,
   handleGetFieldGeometry,
   handleGetFieldLotsGeometry,
+  handleGetActiveCampaignsByField,
 };
 
 async function handleGetFields(req, res) {
@@ -177,6 +178,25 @@ async function handleGetFieldLotsGeometry(req, res) {
     } else {
       res.status(404).json({ message: "Campo no encontrado" });
     }
+  } catch (error) {
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+}
+
+async function handleGetActiveCampaignsByField(req, res) {
+  const { fieldId } = req.params;
+  try {
+    const activeCampaigns =
+      await fieldsModel.getActiveCampaignsByField(fieldId);
+    res.status(200).json(
+      activeCampaigns.map((campaign) => ({
+        id: campaign.id,
+        campaignName: campaign.campaign_name,
+        description: campaign.description,
+        startDate: campaign.start_date,
+        endDate: campaign.end_date,
+      })),
+    );
   } catch (error) {
     res.status(500).json({ message: "Error interno del servidor" });
   }

@@ -1,5 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import { ResponseLotType, CreateLotType } from "@/types/fieldTypes";
+import { CreateCampaignType } from "@/types/lotTypes";
 
 const API_URL =
   process.env.NODE_ENV === "development"
@@ -11,6 +12,8 @@ export const lotAPI = {
   getAllLots,
   createLot,
   deleteLot,
+  getCampaignActive,
+  createCampaign,
 };
 
 async function getAllLotsGeometryData(fieldId: number) {
@@ -107,6 +110,56 @@ async function deleteLot(id: number) {
 
     if (!response.ok) {
       throw new Error("Error al borrar el lote");
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getCampaignActive(lotId: number) {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+
+    const response = await fetch(`${API_URL}/lots/${lotId}/campaigns/active`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al obtener la campaña activa");
+    }
+
+    const data = await response.json();
+    return data.activeCampaign;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function createCampaign(lotId: number, campaign: CreateCampaignType) {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+
+    const response = await fetch(`${API_URL}/lots/${lotId}/campaigns/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(campaign),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al crear la campaña");
     }
   } catch (error) {
     throw error;

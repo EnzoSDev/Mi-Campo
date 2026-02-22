@@ -1,14 +1,24 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { View, Text, Pressable, TouchableOpacity } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/build/MaterialIcons";
 import MapButton from "../../../../components/MapButton";
 import Lots from "../../../../components/Lots";
 import Paddocks from "../../../../components/Paddocks";
+import { useField } from "@/context/FieldContext";
 
 function Field() {
   const [activeTab, setActiveTab] = useState("lots");
-  const { id, name, location } = useLocalSearchParams();
+  const { fieldId: id, name, location } = useLocalSearchParams();
+  // Para poder usar el fieldId en los componentes hijos, lo guardamos en el contexto
+  const setFieldId = useField().setFieldId;
+  console.log(id, name, location);
+
+  useEffect(() => {
+    if (id) {
+      setFieldId(Number(id));
+    }
+  }, [id, setFieldId]);
 
   return (
     <View className="flex-1 bg-[#1c1f22]">
@@ -75,7 +85,7 @@ function Field() {
         }
       />
 
-      {activeTab === "lots" && <Lots fieldId={id as string} />}
+      {activeTab === "lots" && <Lots />}
       {activeTab === "paddocks" && <Paddocks />}
     </View>
   );

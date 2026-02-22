@@ -12,15 +12,13 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
 import { lotAPI } from "@/services/lotAPI";
 import { ResponseLotType } from "@/types/fieldTypes";
+import { useField } from "@/context/FieldContext";
 
-interface LotsProps {
-  fieldId: string;
-}
-
-function Lots({ fieldId }: LotsProps) {
+function Lots() {
   const [lots, setLots] = useState<ResponseLotType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const fieldId = useField().fieldId;
 
   useEffect(() => {
     const fetchLots = async () => {

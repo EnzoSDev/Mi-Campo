@@ -2,8 +2,10 @@ import connection from "../database/databaseConfig.js";
 
 export default {
   deleteLot,
-  getCampaignsByLotId,
+  getActiveCampaignByLotId,
+  getCampaignsCompletedByLotId,
   createCampaign,
+  handleJoinCampaign,
 };
 
 async function deleteLot(lotId) {
@@ -12,9 +14,16 @@ async function deleteLot(lotId) {
   return result.affectedRows === 1;
 }
 
-async function getCampaignsByLotId(lotId) {
+async function getActiveCampaignByLotId(lotId) {
   const query =
-    "SELECT id, campaign_name, start_date, end_date, description FROM campaigns WHERE lot_id = ? and is_active = 1";
+    "SELECT c.id, c.campaign_name, c.start_date, c.end_date, c.description FROM campaigns c JOIN campaign_lots cl ON c.id = cl.campaign_id WHERE cl.lot_id = ? AND c.is_active = 1 AND c.status = 'active'";
+  const [rows] = await connection.execute(query, [lotId]);
+  return rows.length > 0 ? rows[0] : null;
+}
+
+async function getCampaignsCompletedByLotId(lotId) {
+  const query =
+    "SELECT id, campaign_name, start_date, end_date, description FROM campaigns WHERE lot_id = ? and is_active = 1 and status = 'completed'";
   const [rows] = await connection.execute(query, [lotId]);
   return rows;
 }
@@ -27,13 +36,33 @@ async function createCampaign({
   description,
 }) {
   const query =
-    "INSERT INTO campaigns (lot_id, campaign_name, start_date, end_date, description) VALUES (?, ?, ?, ?, ?)";
+    "INSERT INTO campaigns (campaign_name, start_date, end_date, description) VALUES (?, ?, ?, ?)";
   const [result] = await connection.execute(query, [
-    lotId,
     campaignName,
     startDate,
     endDate,
     description,
   ]);
+  console.log("Create Campaign Result:", result);
+  console.log("Lot ID:", lotId);
+  if (result.affectedRows === 1) {
+    const campaignId = result.insertId;
+    const linkQuery =
+      "INSERT into campaign_lots (campaign_id, lot_id) VALUES (?, ?)";
+    const [linkResult] = await connection.execute(linkQuery, [
+      campaignId,
+      lotId,
+    ]);
+    return linkResult.affectedRows === 1;
+  } else {
+    const deleteQuery = "DELETE FROM campaigns WHERE id = ?";
+    await connection.execute(deleteQuery, [result.insertId]);
+    return false;
+  }
+}
+
+async function handleJoinCampaign(lotId, campaignId) {
+  const query = "INSERT INTO campaign_lots (campaign_id, lot_id) VALUES (?, ?)";
+  const [result] = await connection.execute(query, [campaignId, lotId]);
   return result.affectedRows === 1;
 }

@@ -1,5 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import { ResponseFieldType, CreateFieldType } from "@/types/fieldTypes";
+import { CampaignType } from "@/types/campaignTypes";
 
 const API_URL =
   process.env.NODE_ENV === "development"
@@ -11,6 +12,7 @@ export const fieldAPI = {
   createField,
   deleteField,
   getFieldGeometry,
+  getAllActiveCampaigns,
 };
 
 async function getAllFields(): Promise<ResponseFieldType[]> {
@@ -105,6 +107,35 @@ async function getFieldGeometry(id: number) {
     if (!response.ok) {
       throw new Error("Error al obtener la geometría del campo");
     }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getAllActiveCampaigns(fieldId: number): Promise<CampaignType[]> {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+
+    const response = await fetch(
+      `${API_URL}/fields/${fieldId}/campaigns/all-active`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Error al obtener las campañas activas");
+    }
+
     const data = await response.json();
     return data;
   } catch (error) {

@@ -30,3 +30,7 @@ export interface ResponseLotType {
   description: string;
   areaHa: number;
 }
+
+export interface FieldContextType {
+  fieldId: number;
+}

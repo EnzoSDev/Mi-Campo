@@ -35,9 +35,9 @@ function FieldCard({
   return (
     <Link
       href={{
-        pathname: "/(tabs)/(register)/(field)/[id]",
+        pathname: "/(tabs)/(register)/(field)/[fieldId]",
         params: {
-          id,
+          fieldId: id.toString(),
           name,
           location,
         },

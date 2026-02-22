@@ -30,8 +30,8 @@ function LotCard({
   return (
     <Link
       href={{
-        pathname: "/(tabs)/(register)/(field)/(lots)/[id]",
-        params: { id: id },
+        pathname: "/(tabs)/(register)/(field)/(lots)/[lotId]",
+        params: { lotId: id, lotName },
       }}
       asChild
     >

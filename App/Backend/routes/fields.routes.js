@@ -11,6 +11,11 @@ router.get(
   "/:fieldId/lots/geometry",
   fieldsController.handleGetFieldLotsGeometry,
 );
+router.get(
+  // Ruta para obtener campañas activas por campo
+  "/:fieldId/campaigns/all-active",
+  fieldsController.handleGetActiveCampaignsByField,
+);
 router.get("/", fieldsController.handleGetFields);
 router.post("/", fieldsController.handleCreateField);
 
