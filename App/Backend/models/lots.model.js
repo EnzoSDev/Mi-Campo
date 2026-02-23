@@ -23,7 +23,7 @@ async function getActiveCampaignByLotId(lotId) {
 
 async function getCompletedCampaignsByLotId(lotId) {
   const query =
-    "SELECT c.id, c.campaign_name, c.start_date, c.end_date, c.description FROM campaigns c JOIN campaign_lots cl ON c.id = cl.campaign_id WHERE cl.lot_id = ? and c.is_active = 1 and c.status = 'completed'";
+    "SELECT c.id, c.campaign_name, c.start_date, c.end_date, c.description FROM campaigns c JOIN campaign_lots cl ON c.id = cl.campaign_id WHERE cl.lot_id = ? AND c.is_active = 1 AND c.status = 'completed'";
   const [rows] = await connection.execute(query, [lotId]);
   return rows;
 }

@@ -12,7 +12,6 @@ function Field() {
   const { fieldId: id, name, location } = useLocalSearchParams();
   // Para poder usar el fieldId en los componentes hijos, lo guardamos en el contexto
   const setFieldId = useField().setFieldId;
-  console.log(id, name, location);
 
   useEffect(() => {
     if (id) {

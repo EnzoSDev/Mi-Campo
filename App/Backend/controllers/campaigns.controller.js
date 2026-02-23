@@ -1,6 +1,7 @@
 import { campaignModel } from "../models/campaigns.model.js";
 
 export const CampaignController = {
+  handlerCompleteCampaign,
   handlerGetSowings,
   handlerRegisterSowing,
   handlerGetFertilizations,
@@ -12,6 +13,20 @@ export const CampaignController = {
   handlerGetObservations,
   handlerRegisterObservation,
 };
+
+async function handlerCompleteCampaign(req, res) {
+  const { campaignId } = req.params;
+  try {
+    const result = await campaignModel.completeCampaign(campaignId);
+    if (result) {
+      res.status(200).json({ message: "Campaña finalizada con éxito" });
+    } else {
+      res.status(500).json({ message: "Error al finalizar la campaña" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+}
 
 async function handlerGetSowings(req, res) {
   const { campaignId } = req.params;

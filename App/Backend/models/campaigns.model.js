@@ -1,6 +1,7 @@
 import connection from "../database/databaseConfig.js";
 
 export const campaignModel = {
+  completeCampaign,
   getSowingsByCampaignId,
   registerSowing,
   getFertilizationsByCampaignId,
@@ -12,6 +13,12 @@ export const campaignModel = {
   getObservationsByCampaignId,
   registerObservation,
 };
+
+async function completeCampaign(campaignId) {
+  const query = "UPDATE campaigns SET status = 'completed' WHERE id = ?";
+  const [result] = await connection.execute(query, [campaignId]);
+  return result.affectedRows === 1;
+}
 
 async function getSowingsByCampaignId(campaignId) {
   const query =

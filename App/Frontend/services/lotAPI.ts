@@ -119,7 +119,7 @@ async function deleteLot(id: number) {
   }
 }
 
-async function getCampaignActive(lotId: number): Promise<CampaignType> {
+async function getCampaignActive(lotId: number): Promise<CampaignType | null> {
   try {
     const token = await SecureStore.getItemAsync("access-token");
     if (!token) {
@@ -134,11 +134,17 @@ async function getCampaignActive(lotId: number): Promise<CampaignType> {
       },
     });
 
+    // Si no hay campaña activa (404), retornar null
+    if (response.status === 404) {
+      return null;
+    }
+
     if (!response.ok) {
       throw new Error("Error al obtener la campaña activa");
     }
 
     const data = await response.json();
+
     return {
       id: data.activeCampaign.id,
       campaignName: data.activeCampaign.campaign_name,
@@ -237,17 +243,21 @@ async function getCampaignsCompleted(lotId: number): Promise<CampaignType[]> {
 
     // Validar que completedCampaigns existe y es un array
     if (!data.completedCampaigns || !Array.isArray(data.completedCampaigns)) {
+      console.log("No hay campaña completada o formato incorrecto");
       return [];
     }
 
-    return data.completedCampaigns.map((campaign: any) => ({
+    const campaigns = data.completedCampaigns.map((campaign: any) => ({
       id: campaign.id,
       campaignName: campaign.campaign_name,
       startDate: campaign.start_date,
       endDate: campaign.end_date,
       description: campaign.description,
     }));
+
+    return campaigns;
   } catch (error) {
+    console.error("Error en getCampaignsCompleted:", error);
     throw error;
   }
 }

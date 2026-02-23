@@ -179,7 +179,7 @@ async function getFieldLotsGeometry(fieldId) {
 
 async function getActiveCampaignsByField(fieldId) {
   const query =
-    "SELECT c.id, c.campaign_name, c.description, c.start_date, c.end_date FROM campaigns as c JOIN campaign_lots as cl ON c.id = cl.campaign_id JOIN lots as l ON l.id = cl.lot_id WHERE l.field_id = ? AND c.is_active = 1 AND l.is_active = 1 GROUP BY c.id";
+    "SELECT c.id, c.campaign_name, c.description, c.start_date, c.end_date FROM campaigns as c JOIN campaign_lots as cl ON c.id = cl.campaign_id JOIN lots as l ON l.id = cl.lot_id WHERE l.field_id = ? AND c.is_active = 1 AND l.is_active = 1 AND c.status = 'active' GROUP BY c.id";
   const [rows] = await connection.execute(query, [fieldId]);
   return rows;
 }

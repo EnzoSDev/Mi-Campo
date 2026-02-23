@@ -27,7 +27,6 @@ function Lots() {
         const data = await lotAPI.getAllLots(Number(fieldId));
         setLots(data);
       } catch (error) {
-        console.error("Error al obtener los lotes:", error);
         setErrorMsg("Error al obtener los lotes.");
       } finally {
         setIsLoading(false);
@@ -62,7 +61,6 @@ function Lots() {
               setLots((prevLots) => prevLots.filter((lot) => lot.id !== id));
               setErrorMsg(null);
             } catch (error) {
-              console.error(error);
               setErrorMsg("Error al borrar el lote.");
             }
           },

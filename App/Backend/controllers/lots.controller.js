@@ -41,8 +41,9 @@ async function handleGetActiveCampaign(req, res) {
 async function handleGetCompletedCampaigns(req, res) {
   const { lotId } = req.params;
   try {
-    const campaigns = await lotsModel.getCompletedCampaignsByLotId(lotId);
-    res.status(200).json({ campaigns });
+    const completedCampaigns =
+      await lotsModel.getCompletedCampaignsByLotId(lotId);
+    res.status(200).json({ completedCampaigns });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error interno del servidor" });
