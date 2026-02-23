@@ -10,18 +10,37 @@ SET NAMES utf8mb4;
 DROP TABLE IF EXISTS `campaigns`;
 CREATE TABLE `campaigns` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `lot_id` int(11) NOT NULL,
   `campaign_name` varchar(100) NOT NULL,
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
   `description` varchar(100) NOT NULL,
+  `status` enum('active','completed') NOT NULL DEFAULT 'active',
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `lot_id` (`lot_id`),
-  CONSTRAINT `campaigns_ibfk_1` FOREIGN KEY (`lot_id`) REFERENCES `lots` (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+INSERT INTO `campaigns` (`id`, `campaign_name`, `start_date`, `end_date`, `description`, `status`, `is_active`, `created_at`) VALUES
+(29,	'Campaña Enzo',	'2026-02-01',	'2026-02-02',	'Ndnssn',	'completed',	1,	'2026-02-23 11:45:18'),
+(30,	'Campaña Enzo',	'2026-02-01',	'2026-02-02',	'Sjsjs',	'active',	1,	'2026-02-23 17:16:54');
+
+DROP TABLE IF EXISTS `campaign_lots`;
+CREATE TABLE `campaign_lots` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `campaign_id` int(11) NOT NULL,
+  `lot_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `campaign_id` (`campaign_id`),
+  KEY `lot_id` (`lot_id`),
+  CONSTRAINT `campaign_lots_ibfk_1` FOREIGN KEY (`campaign_id`) REFERENCES `campaigns` (`id`),
+  CONSTRAINT `campaign_lots_ibfk_2` FOREIGN KEY (`lot_id`) REFERENCES `lots` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `campaign_lots` (`id`, `campaign_id`, `lot_id`, `created_at`) VALUES
+(29,	29,	26,	'2026-02-23 11:45:18'),
+(30,	30,	26,	'2026-02-23 17:16:54'),
+(31,	30,	22,	'2026-02-23 17:17:19');
 
 DROP TABLE IF EXISTS `countries`;
 CREATE TABLE `countries` (
@@ -130,9 +149,8 @@ CREATE TABLE `lots` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `lots` (`id`, `field_id`, `lot_name`, `area_ha`, `description`, `is_active`, `created_at`) VALUES
-(20,	24,	'Bsbdbd',	8610.819676416146,	'Bdbdbd',	1,	'2026-02-19 18:37:37'),
-(21,	24,	'Wsbz',	10869.12698707786,	'Bzbsbs',	1,	'2026-02-19 19:28:02'),
-(22,	25,	'Lote 1',	0.03071248944690135,	'Soja',	1,	'2026-02-19 19:49:27');
+(22,	25,	'Lote 1',	0.03071248944690135,	'Soja',	1,	'2026-02-19 19:49:27'),
+(26,	25,	'Lote 2',	0.0386575163907949,	'Nsnssb',	1,	'2026-02-22 21:37:13');
 
 DROP TABLE IF EXISTS `lot_coordinates`;
 CREATE TABLE `lot_coordinates` (
@@ -147,18 +165,14 @@ CREATE TABLE `lot_coordinates` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `lot_coordinates` (`id`, `lot_id`, `latitude`, `longitude`, `point_order`) VALUES
-(9,	20,	-4.64557,	32.0285,	1),
-(10,	20,	-5.4556,	32.078,	2),
-(11,	20,	-5.48484,	32.8647,	3),
-(12,	20,	-4.56794,	32.8531,	4),
-(13,	21,	-4.81547,	32.5198,	1),
-(14,	21,	-5.60805,	32.3995,	2),
-(15,	21,	-5.6746,	33.3893,	3),
-(16,	21,	-4.78881,	33.6167,	4),
 (17,	22,	-37.901,	-57.755,	1),
 (18,	22,	-37.9013,	-57.7542,	2),
 (19,	22,	-37.9038,	-57.7573,	3),
-(20,	22,	-37.9033,	-57.7578,	4);
+(20,	22,	-37.9033,	-57.7578,	4),
+(33,	26,	-37.9042,	-57.7567,	1),
+(34,	26,	-37.9018,	-57.7542,	2),
+(35,	26,	-37.9021,	-57.7531,	3),
+(36,	26,	-37.9045,	-57.7559,	4);
 
 DROP TABLE IF EXISTS `observations`;
 CREATE TABLE `observations` (
@@ -228,4 +242,4 @@ INSERT INTO `users` (`id`, `username`, `email`, `password_hashed`, `country_code
 (15,	'Enzo',	'enzosorrenti5@gmail.com',	'$2b$10$gaR4cGmhG81K9iUOI8pBX.sSIGiBKmcS3r/EK1L4sMRQmofzfZQdi',	'AR',	1,	'2026-02-03 11:04:58'),
 (16,	'Matías ',	'matisorrenti@gmail..com',	'$2b$10$3PNrxaq1YOY4teh7XpcAjOkVOs00myb8DsB15gBUU5o6dzlIMipFW',	'AR',	1,	'2026-02-04 18:30:09');
 
--- 2026-02-19 23:43:46 UTC
+-- 2026-02-23 23:43:00 UTC
