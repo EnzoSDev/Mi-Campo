@@ -27,9 +27,9 @@ export default function Index() {
   useEffect(() => {
     if (!isLoading) {
       if (sessionActive) {
-        router.replace("/home");
+        router.replace("/(tabs)/(register)/home");
       } else {
-        router.replace("/login");
+        router.replace("/(auth)/login");
       }
     }
   }, [isLoading, sessionActive]);

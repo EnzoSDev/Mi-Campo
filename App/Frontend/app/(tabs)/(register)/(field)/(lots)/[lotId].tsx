@@ -11,13 +11,16 @@ import { router, useLocalSearchParams } from "expo-router";
 import CampaignActive from "@/components/CampaignActive";
 import { lotAPI } from "@/services/lotAPI";
 import NewCampaignModal from "@/components/CreateOrAddCampaignModal";
+import { CampaignType } from "@/types/campaignTypes";
 
 function Lot() {
   const { lotId, lotName } = useLocalSearchParams();
-  const [campaignActive, setCampaignActive] = useState<{
-    id: number;
-    name: string;
-  } | null>(null);
+  const [campaignActive, setCampaignActive] = useState<CampaignType | null>(
+    null,
+  );
+  const [campaignsCompleted, setCampaignsCompleted] = useState<CampaignType[]>(
+    [],
+  );
   const [showNewCampaignModal, setShowNewCampaignModal] = useState(false);
 
   useEffect(() => {
@@ -30,6 +33,16 @@ function Lot() {
       }
     };
     fetchActiveCampaign();
+
+    const fetchCompletedCampaigns = async () => {
+      try {
+        const res = await lotAPI.getCampaignsCompleted(Number(lotId));
+        setCampaignsCompleted(res);
+      } catch (error) {
+        console.error("Error fetching completed campaigns:", error);
+      }
+    };
+    fetchCompletedCampaigns();
   }, [lotId]);
 
   return (
@@ -51,47 +64,45 @@ function Lot() {
         contentContainerStyle={{ paddingBottom: 140 }}
         showsVerticalScrollIndicator={false}
       >
-        <CampaignActive />
+        <CampaignActive campaign={campaignActive} />
 
         <View className="px-4 pt-8">
           <Text className="text-[10px] font-bold tracking-widest text-gray-500 mb-3 uppercase">
             CAMPAÑAS ANTERIORES
           </Text>
 
-          {[
-            { year: "Campaña 2022/2023", ha: "445.8 ha" },
-            { year: "Campaña 2021/2022", ha: "412.0 ha" },
-            { year: "Campaña 2020/2021", ha: "398.5 ha" },
-          ].map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              className="bg-white dark:bg-[#16181A] border border-gray-200 dark:border-gray-800 rounded-xl p-4 mb-3 flex-row items-center justify-between shadow-sm"
-            >
-              <View className="flex-row items-center gap-4">
-                <View className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 items-center justify-center">
-                  <MaterialIcons
-                    name="calendar-today"
-                    size={18}
-                    color="#9ca3af"
-                  />
-                </View>
-                <View>
-                  <Text className="font-bold text-sm text-black dark:text-white">
-                    {item.year}
-                  </Text>
-                  <View className="flex-row items-center mt-1">
-                    <Text className="text-[10px] font-bold uppercase bg-gray-100 dark:bg-gray-800 text-gray-500 px-2 py-0.5 rounded">
-                      Completada
+          {campaignsCompleted &&
+            campaignsCompleted.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                className="bg-white dark:bg-[#16181A] border border-gray-200 dark:border-gray-800 rounded-xl p-4 mb-3 flex-row items-center justify-between shadow-sm"
+              >
+                <View className="flex-row items-center gap-4">
+                  <View className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 items-center justify-center">
+                    <MaterialIcons
+                      name="calendar-today"
+                      size={18}
+                      color="#9ca3af"
+                    />
+                  </View>
+                  <View>
+                    <Text className="font-bold text-sm text-black dark:text-white">
+                      {item.campaignName}
                     </Text>
-                    <Text className="text-[10px] text-gray-500 ml-2">
-                      • {item.ha}
-                    </Text>
+                    <View className="flex-row items-center mt-1">
+                      <Text className="text-[10px] font-bold uppercase bg-gray-100 dark:bg-gray-800 text-gray-500 px-2 py-0.5 rounded">
+                        Completada
+                      </Text>
+                      <Text className="text-[10px] text-gray-500 ml-2">
+                        Finalizada el{" "}
+                        {new Date(item.endDate).toLocaleDateString()}
+                      </Text>
+                    </View>
                   </View>
                 </View>
-              </View>
-              <MaterialIcons name="chevron-right" size={22} color="#6b7280" />
-            </TouchableOpacity>
-          ))}
+                <MaterialIcons name="chevron-right" size={22} color="#6b7280" />
+              </TouchableOpacity>
+            ))}
         </View>
       </ScrollView>
 

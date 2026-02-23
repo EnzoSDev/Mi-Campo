@@ -31,7 +31,7 @@ export default function Login() {
       setErrorMessage("");
       try {
         await userAPI.login(email, password);
-        router.replace("/home");
+        router.replace("/(tabs)/(register)/home");
       } catch (error: any) {
         setErrorMessage(error.message);
       } finally {

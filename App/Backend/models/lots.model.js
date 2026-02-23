@@ -3,9 +3,9 @@ import connection from "../database/databaseConfig.js";
 export default {
   deleteLot,
   getActiveCampaignByLotId,
-  getCampaignsCompletedByLotId,
+  getCompletedCampaignsByLotId,
   createCampaign,
-  handleJoinCampaign,
+  JoinCampaign,
 };
 
 async function deleteLot(lotId) {
@@ -21,9 +21,9 @@ async function getActiveCampaignByLotId(lotId) {
   return rows.length > 0 ? rows[0] : null;
 }
 
-async function getCampaignsCompletedByLotId(lotId) {
+async function getCompletedCampaignsByLotId(lotId) {
   const query =
-    "SELECT id, campaign_name, start_date, end_date, description FROM campaigns WHERE lot_id = ? and is_active = 1 and status = 'completed'";
+    "SELECT c.id, c.campaign_name, c.start_date, c.end_date, c.description FROM campaigns c JOIN campaign_lots cl ON c.id = cl.campaign_id WHERE cl.lot_id = ? and c.is_active = 1 and c.status = 'completed'";
   const [rows] = await connection.execute(query, [lotId]);
   return rows;
 }
@@ -43,8 +43,6 @@ async function createCampaign({
     endDate,
     description,
   ]);
-  console.log("Create Campaign Result:", result);
-  console.log("Lot ID:", lotId);
   if (result.affectedRows === 1) {
     const campaignId = result.insertId;
     const linkQuery =
@@ -61,7 +59,7 @@ async function createCampaign({
   }
 }
 
-async function handleJoinCampaign(lotId, campaignId) {
+async function JoinCampaign(lotId, campaignId) {
   const query = "INSERT INTO campaign_lots (campaign_id, lot_id) VALUES (?, ?)";
   const [result] = await connection.execute(query, [campaignId, lotId]);
   return result.affectedRows === 1;

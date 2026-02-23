@@ -5,7 +5,10 @@ const router = express.Router();
 
 router.delete("/:lotId", lotController.handleDeleteLot);
 router.get("/:lotId/campaigns/active", lotController.handleGetActiveCampaign);
-router.get("/:lotId/campaigns", lotController.handleGetCampaigns);
+router.get(
+  "/:lotId/campaigns/completed",
+  lotController.handleGetCompletedCampaigns,
+);
 router.post("/:lotId/campaigns/create", lotController.handleCreateCampaign); // Endpoint para crear una campaña
 router.post("/:lotId/campaigns/join", lotController.handleJoinCampaign); // Endpoint para unirse a una campaña existente
 

@@ -11,6 +11,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { fieldAPI } from "@/services/fieldAPI";
 import { CampaignType } from "@/types/campaignTypes";
 import { useField } from "@/context/FieldContext";
+import { lotAPI } from "@/services/lotAPI";
 
 function JoinCampaign() {
   const { lotId } = useLocalSearchParams();
@@ -53,11 +54,10 @@ function JoinCampaign() {
     setLoading(true);
 
     try {
-      // Call API to join campaign
-      // await fieldAPI.joinCampaign(Number(fieldId), selectedCampaignId);
+      await lotAPI.joinCampaign(Number(lotId), selectedCampaignId);
       router.back();
-    } catch (error) {
-      setError("Error al unirse a la campaña.");
+    } catch (error: any) {
+      setError(error.message || "Error al unirse a la campaña.");
     } finally {
       setLoading(false);
     }

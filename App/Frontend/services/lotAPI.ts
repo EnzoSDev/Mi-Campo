@@ -1,6 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 import { ResponseLotType, CreateLotType } from "@/types/fieldTypes";
 import { CreateCampaignType } from "@/types/lotTypes";
+import { CampaignType } from "@/types/campaignTypes";
 
 const API_URL =
   process.env.NODE_ENV === "development"
@@ -14,6 +15,8 @@ export const lotAPI = {
   deleteLot,
   getCampaignActive,
   createCampaign,
+  joinCampaign,
+  getCampaignsCompleted,
 };
 
 async function getAllLotsGeometryData(fieldId: number) {
@@ -116,7 +119,7 @@ async function deleteLot(id: number) {
   }
 }
 
-async function getCampaignActive(lotId: number) {
+async function getCampaignActive(lotId: number): Promise<CampaignType> {
   try {
     const token = await SecureStore.getItemAsync("access-token");
     if (!token) {
@@ -136,7 +139,13 @@ async function getCampaignActive(lotId: number) {
     }
 
     const data = await response.json();
-    return data.activeCampaign;
+    return {
+      id: data.activeCampaign.id,
+      campaignName: data.activeCampaign.campaign_name,
+      startDate: data.activeCampaign.start_date,
+      endDate: data.activeCampaign.end_date,
+      description: data.activeCampaign.description,
+    };
   } catch (error) {
     throw error;
   }
@@ -159,8 +168,85 @@ async function createCampaign(lotId: number, campaign: CreateCampaignType) {
     });
 
     if (!response.ok) {
-      throw new Error("Error al crear la campaña");
+      const mensaje = await response.json();
+      if (mensaje.message === "CAMPAIGN_ACTIVE_EXISTS") {
+        throw new Error(
+          "Ya existe una campaña activa para este lote. No se puede crear una nueva campaña hasta que la campaña activa actual termine.",
+        );
+      } else {
+        throw new Error("Error al crear la campaña");
+      }
     }
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function joinCampaign(lotId: number, campaignId: number) {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+    const response = await fetch(`${API_URL}/lots/${lotId}/campaigns/join`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ campaignId }),
+    });
+
+    if (!response.ok) {
+      const mensaje = await response.json();
+      if (mensaje.message === "CAMPAIGN_ACTIVE_EXISTS") {
+        throw new Error(
+          "Ya existe una campaña activa para este lote. No se puede crear una nueva campaña hasta que la campaña activa actual termine.",
+        );
+      } else {
+        throw new Error("Error al unirse a la campaña");
+      }
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getCampaignsCompleted(lotId: number): Promise<CampaignType[]> {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+    const response = await fetch(
+      `${API_URL}/lots/${lotId}/campaigns/completed`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Error al obtener las campañas completadas");
+    }
+
+    const data = await response.json();
+
+    // Validar que completedCampaigns existe y es un array
+    if (!data.completedCampaigns || !Array.isArray(data.completedCampaigns)) {
+      return [];
+    }
+
+    return data.completedCampaigns.map((campaign: any) => ({
+      id: campaign.id,
+      campaignName: campaign.campaign_name,
+      startDate: campaign.start_date,
+      endDate: campaign.end_date,
+      description: campaign.description,
+    }));
   } catch (error) {
     throw error;
   }

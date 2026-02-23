@@ -3,7 +3,7 @@ import lotsModel from "../models/lots.model.js";
 export default {
   handleDeleteLot,
   handleGetActiveCampaign,
-  handleGetCampaigns,
+  handleGetCompletedCampaigns,
   handleCreateCampaign,
   handleJoinCampaign,
 };
@@ -38,11 +38,10 @@ async function handleGetActiveCampaign(req, res) {
   }
 }
 
-async function handleGetCampaigns(req, res) {
+async function handleGetCompletedCampaigns(req, res) {
   const { lotId } = req.params;
   try {
-    const campaigns = await lotsModel.getCampaignsByLotId(lotId);
-    // La fecha de fin que este en null sera la que se ponga como "Current"
+    const campaigns = await lotsModel.getCompletedCampaignsByLotId(lotId);
     res.status(200).json({ campaigns });
   } catch (error) {
     console.error(error);
@@ -53,8 +52,6 @@ async function handleGetCampaigns(req, res) {
 async function handleCreateCampaign(req, res) {
   const { lotId } = req.params;
   const { campaignName, startDate, endDate, description } = req.body;
-
-  console.log("Datos");
 
   if (!campaignName || !startDate || !endDate || !description) {
     return res.status(400).json({ message: "Faltan datos obligatorios" });
@@ -67,6 +64,13 @@ async function handleCreateCampaign(req, res) {
   }
 
   try {
+    const campaignExists = await lotsModel.getActiveCampaignByLotId(lotId);
+
+    if (campaignExists) {
+      return res.status(400).json({
+        message: "CAMPAIGN_ACTIVE_EXISTS",
+      });
+    }
     const result = await lotsModel.createCampaign({
       lotId,
       campaignName,
@@ -88,6 +92,7 @@ async function handleCreateCampaign(req, res) {
 async function handleJoinCampaign(req, res) {
   const { lotId } = req.params;
   const { campaignId } = req.body;
+
   if (!lotId || !campaignId) {
     return res
       .status(400)
@@ -95,7 +100,13 @@ async function handleJoinCampaign(req, res) {
   }
 
   try {
-    const result = await lotsModel.joinCampaign({ lotId, campaignId });
+    const campaignExists = await lotsModel.getActiveCampaignByLotId(lotId);
+    if (campaignExists) {
+      return res.status(400).json({
+        message: "CAMPAIGN_ACTIVE_EXISTS",
+      });
+    }
+    const result = await lotsModel.JoinCampaign(lotId, campaignId);
     if (result) {
       res.status(200).json({ message: "Unido a la campaña exitosamente" });
     } else {

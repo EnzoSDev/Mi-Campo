@@ -54,8 +54,8 @@ function AddCampaign() {
     try {
       await lotAPI.createCampaign(Number(lotId), campaignData);
       router.back();
-    } catch (error) {
-      setError("Error al crear la campaña.");
+    } catch (error: any) {
+      setError(error.message || "Error al crear la campaña.");
     } finally {
       setLoading(false);
     }
