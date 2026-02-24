@@ -13,20 +13,19 @@ import { MaterialIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useLocalSearchParams } from "expo-router";
 import { campaignAPI } from "@/services/campaignAPI";
-import { SowingType } from "@/types/campaignTypes";
+import { SprayingType } from "@/types/campaignTypes";
 
-function AddSowingModal({
+function AddSprayingModal({
   setShowAddModal,
 }: {
   setShowAddModal: (value: boolean) => void;
 }) {
   const { campaignId } = useLocalSearchParams();
-  const [cropType, setCropType] = useState<string>("");
-  const [variety, setVariety] = useState<string>("");
-  const [sowingDate, setSowingDate] = useState<Date | null>(null);
-  const [showSowingPicker, setShowSowingPicker] = useState(false);
-  const [density, setDensity] = useState<string>("");
-  const [rowSpacing, setRowSpacing] = useState<string>("");
+  const [productName, setProductName] = useState<string>("");
+  const [dose, setDose] = useState<string>("");
+  const [dateApplied, setDateApplied] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [target, setTarget] = useState<string>("");
   const [method, setMethod] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
   const [error, setError] = useState("");
@@ -37,41 +36,33 @@ function AddSowingModal({
     return value.toLocaleDateString("es-AR");
   };
 
-  const handleSaveSowing = async () => {
+  const handleSave = async () => {
     setError("");
     setLoading(true);
 
-    if (
-      !cropType ||
-      !variety ||
-      !sowingDate ||
-      !density ||
-      !rowSpacing ||
-      !method
-    ) {
+    if (!productName || !dose || !dateApplied || !target || !method) {
       setError("Por favor, completa todos los campos obligatorios.");
       setLoading(false);
       return;
     }
 
     try {
-      const sowingData: SowingType = {
+      const sprayingData: SprayingType = {
         campaignId: parseInt(campaignId as string),
-        cropType,
-        variety,
-        sowingDate: sowingDate,
-        density: parseFloat(density),
-        rowSpacing: parseFloat(rowSpacing),
+        productName,
+        dose: parseFloat(dose),
+        dateApplied: dateApplied,
+        target,
         method,
         notes: notes === "" ? null : notes,
       };
-      const createdSowing = await campaignAPI.createSowing(
+      await campaignAPI.createSpraying(
         parseInt(campaignId as string),
-        sowingData,
+        sprayingData,
       );
       setShowAddModal(false);
     } catch (error: any) {
-      setError(error.message || "Error al crear el registro de siembra.");
+      setError(error.message || "Error al crear el registro de pulverización.");
     } finally {
       setLoading(false);
     }
@@ -94,7 +85,7 @@ function AddSowingModal({
             <MaterialIcons name="arrow-back" size={20} color="white" />
           </TouchableOpacity>
           <Text className="text-lg font-bold text-white">
-            Registrar Siembra
+            Registrar Pulverización
           </Text>
         </View>
 
@@ -112,130 +103,101 @@ function AddSowingModal({
         )}
 
         <ScrollView className="flex-1 px-4 py-6">
-          {/* Section: Cultivo */}
+          {/* Section: Producto */}
           <View className="mb-8">
             <View className="mb-4">
               <Text className="text-sm font-bold uppercase tracking-widest text-[#3FA39B]">
-                Cultivo
+                Producto
               </Text>
               <Text className="text-xs text-white/50">
-                Información del tipo de cultivo.
+                Información del producto aplicado.
               </Text>
             </View>
 
             <View className="bg-[#16181A] p-2 rounded-xl border border-white/10">
-              {/* Crop Type */}
+              {/* Product Name */}
               <View className="p-3">
                 <Text className="text-xs font-medium text-white/70 mb-1">
-                  Tipo de Cultivo *
+                  Nombre del Producto *
                 </Text>
                 <TextInput
                   className="text-base text-white border-b border-white/10 py-2"
-                  placeholder="Ej: Maíz, Soja, Trigo"
+                  placeholder="Ej: Glifosato, Insecticida, Fungicida"
                   placeholderTextColor="#ffffff40"
-                  value={cropType}
-                  onChangeText={setCropType}
+                  value={productName}
+                  onChangeText={setProductName}
                 />
               </View>
 
-              {/* Variety */}
+              {/* Dose */}
               <View className="p-3">
                 <Text className="text-xs font-medium text-white/70 mb-1">
-                  Variedad *
+                  Dosis (L/ha o kg/ha) *
                 </Text>
                 <TextInput
                   className="text-base text-white border-b border-white/10 py-2"
-                  placeholder="Ej: P1197, AG36, Skyfall"
+                  placeholder="Ej: 2.5, 3, 4"
                   placeholderTextColor="#ffffff40"
-                  value={variety}
-                  onChangeText={setVariety}
+                  keyboardType="numeric"
+                  value={dose}
+                  onChangeText={setDose}
                 />
               </View>
 
-              {/* Sowing Date */}
+              {/* Date Applied */}
               <View className="p-3">
                 <Text className="text-xs font-medium text-white/70 mb-1">
-                  Fecha de Siembra *
+                  Fecha de Aplicación *
                 </Text>
                 <TouchableOpacity
                   className="border-b border-white/10 py-2"
-                  onPress={() => setShowSowingPicker(true)}
+                  onPress={() => setShowDatePicker(true)}
                 >
                   <Text
                     className={
-                      sowingDate
+                      dateApplied
                         ? "text-base text-white"
                         : "text-base text-white/50"
                     }
                   >
-                    {formatDate(sowingDate)}
+                    {formatDate(dateApplied)}
                   </Text>
                 </TouchableOpacity>
-                {showSowingPicker && (
+                {showDatePicker && (
                   <DateTimePicker
-                    value={sowingDate ?? new Date()}
+                    value={dateApplied ?? new Date()}
                     mode="date"
                     display={Platform.OS === "ios" ? "spinner" : "default"}
                     onChange={(_, selected) => {
-                      setShowSowingPicker(false);
-                      if (selected) setSowingDate(selected);
+                      setShowDatePicker(false);
+                      if (selected) setDateApplied(selected);
                     }}
                   />
                 )}
               </View>
-            </View>
-          </View>
 
-          {/* Section: Parámetros */}
-          <View className="mb-8">
-            <View className="mb-4">
-              <Text className="text-sm font-bold uppercase tracking-widest text-[#3FA39B]">
-                Parámetros de Siembra
-              </Text>
-              <Text className="text-xs text-white/50">
-                Detalles técnicos de la siembra.
-              </Text>
-            </View>
-
-            <View className="bg-[#16181A] p-2 rounded-xl border border-white/10">
-              {/* Density */}
+              {/* Target */}
               <View className="p-3">
                 <Text className="text-xs font-medium text-white/70 mb-1">
-                  Densidad (semillas/m²) *
+                  Objetivo *
                 </Text>
                 <TextInput
                   className="text-base text-white border-b border-white/10 py-2"
-                  placeholder="Ej: 8, 10, 12"
+                  placeholder="Ej: Malezas, Plagas, Enfermedades"
                   placeholderTextColor="#ffffff40"
-                  keyboardType="numeric"
-                  value={density}
-                  onChangeText={setDensity}
-                />
-              </View>
-
-              {/* Row Spacing */}
-              <View className="p-3">
-                <Text className="text-xs font-medium text-white/70 mb-1">
-                  Distancia entre Filas (m) *
-                </Text>
-                <TextInput
-                  className="text-base text-white border-b border-white/10 py-2"
-                  placeholder="Ej: 0.52, 0.70, 0.35"
-                  placeholderTextColor="#ffffff40"
-                  keyboardType="decimal-pad"
-                  value={rowSpacing}
-                  onChangeText={setRowSpacing}
+                  value={target}
+                  onChangeText={setTarget}
                 />
               </View>
 
               {/* Method */}
               <View className="p-3">
                 <Text className="text-xs font-medium text-white/70 mb-1">
-                  Método de Siembra *
+                  Método de Aplicación *
                 </Text>
                 <TextInput
                   className="text-base text-white border-b border-white/10 py-2"
-                  placeholder="Ej: Directa, Convencional"
+                  placeholder="Ej: Terrestre, Aérea"
                   placeholderTextColor="#ffffff40"
                   value={method}
                   onChangeText={setMethod}
@@ -251,12 +213,11 @@ function AddSowingModal({
                 Notas
               </Text>
               <Text className="text-xs text-white/50">
-                Notas adicionales sobre la siembra.
+                Notas adicionales sobre la pulverización.
               </Text>
             </View>
 
             <View className="bg-[#16181A] p-2 rounded-xl border border-white/10">
-              {/* Notes */}
               <View className="p-3">
                 <Text className="text-xs font-medium text-white/70 mb-1">
                   Notas
@@ -281,10 +242,10 @@ function AddSowingModal({
           ) : (
             <TouchableOpacity
               className="w-full bg-[#3FA39B] py-4 rounded-xl shadow-lg flex items-center justify-center"
-              onPress={handleSaveSowing}
+              onPress={handleSave}
             >
               <Text className="text-base text-[#0F1113] font-bold">
-                Guardar Siembra
+                Guardar Pulverización
               </Text>
             </TouchableOpacity>
           )}
@@ -294,4 +255,4 @@ function AddSowingModal({
   );
 }
 
-export default AddSowingModal;
+export default AddSprayingModal;

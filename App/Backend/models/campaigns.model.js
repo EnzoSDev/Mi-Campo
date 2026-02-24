@@ -39,6 +39,7 @@ async function registerSowing(
 ) {
   const query =
     "INSERT INTO sowings (campaign_id, crop_type, variety, sowing_date, density, row_spacing, method, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
   const [result] = await connection.execute(query, [
     campaignId,
     cropType,

@@ -13,21 +13,18 @@ import { MaterialIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useLocalSearchParams } from "expo-router";
 import { campaignAPI } from "@/services/campaignAPI";
-import { SowingType } from "@/types/campaignTypes";
+import { HarvestType } from "@/types/campaignTypes";
 
-function AddSowingModal({
+function AddHarvestModal({
   setShowAddModal,
 }: {
   setShowAddModal: (value: boolean) => void;
 }) {
   const { campaignId } = useLocalSearchParams();
-  const [cropType, setCropType] = useState<string>("");
-  const [variety, setVariety] = useState<string>("");
-  const [sowingDate, setSowingDate] = useState<Date | null>(null);
-  const [showSowingPicker, setShowSowingPicker] = useState(false);
-  const [density, setDensity] = useState<string>("");
-  const [rowSpacing, setRowSpacing] = useState<string>("");
-  const [method, setMethod] = useState<string>("");
+  const [harvestDate, setHarvestDate] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [totalYieldKg, setTotalYieldKg] = useState<string>("");
+  const [moisturePercentage, setMoisturePercentage] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,41 +34,31 @@ function AddSowingModal({
     return value.toLocaleDateString("es-AR");
   };
 
-  const handleSaveSowing = async () => {
+  const handleSave = async () => {
     setError("");
     setLoading(true);
 
-    if (
-      !cropType ||
-      !variety ||
-      !sowingDate ||
-      !density ||
-      !rowSpacing ||
-      !method
-    ) {
+    if (!harvestDate || !totalYieldKg || !moisturePercentage) {
       setError("Por favor, completa todos los campos obligatorios.");
       setLoading(false);
       return;
     }
 
     try {
-      const sowingData: SowingType = {
+      const harvestData: HarvestType = {
         campaignId: parseInt(campaignId as string),
-        cropType,
-        variety,
-        sowingDate: sowingDate,
-        density: parseFloat(density),
-        rowSpacing: parseFloat(rowSpacing),
-        method,
+        harvestDate: harvestDate,
+        totalYieldKg: parseFloat(totalYieldKg),
+        moisturePercentage: parseFloat(moisturePercentage),
         notes: notes === "" ? null : notes,
       };
-      const createdSowing = await campaignAPI.createSowing(
+      await campaignAPI.createHarvest(
         parseInt(campaignId as string),
-        sowingData,
+        harvestData,
       );
       setShowAddModal(false);
     } catch (error: any) {
-      setError(error.message || "Error al crear el registro de siembra.");
+      setError(error.message || "Error al crear el registro de cosecha.");
     } finally {
       setLoading(false);
     }
@@ -94,7 +81,7 @@ function AddSowingModal({
             <MaterialIcons name="arrow-back" size={20} color="white" />
           </TouchableOpacity>
           <Text className="text-lg font-bold text-white">
-            Registrar Siembra
+            Registrar Cosecha
           </Text>
         </View>
 
@@ -112,133 +99,77 @@ function AddSowingModal({
         )}
 
         <ScrollView className="flex-1 px-4 py-6">
-          {/* Section: Cultivo */}
+          {/* Section: Datos de Cosecha */}
           <View className="mb-8">
             <View className="mb-4">
               <Text className="text-sm font-bold uppercase tracking-widest text-[#3FA39B]">
-                Cultivo
+                Datos de Cosecha
               </Text>
               <Text className="text-xs text-white/50">
-                Información del tipo de cultivo.
+                Información de la cosecha realizada.
               </Text>
             </View>
 
             <View className="bg-[#16181A] p-2 rounded-xl border border-white/10">
-              {/* Crop Type */}
+              {/* Harvest Date */}
               <View className="p-3">
                 <Text className="text-xs font-medium text-white/70 mb-1">
-                  Tipo de Cultivo *
-                </Text>
-                <TextInput
-                  className="text-base text-white border-b border-white/10 py-2"
-                  placeholder="Ej: Maíz, Soja, Trigo"
-                  placeholderTextColor="#ffffff40"
-                  value={cropType}
-                  onChangeText={setCropType}
-                />
-              </View>
-
-              {/* Variety */}
-              <View className="p-3">
-                <Text className="text-xs font-medium text-white/70 mb-1">
-                  Variedad *
-                </Text>
-                <TextInput
-                  className="text-base text-white border-b border-white/10 py-2"
-                  placeholder="Ej: P1197, AG36, Skyfall"
-                  placeholderTextColor="#ffffff40"
-                  value={variety}
-                  onChangeText={setVariety}
-                />
-              </View>
-
-              {/* Sowing Date */}
-              <View className="p-3">
-                <Text className="text-xs font-medium text-white/70 mb-1">
-                  Fecha de Siembra *
+                  Fecha de Cosecha *
                 </Text>
                 <TouchableOpacity
                   className="border-b border-white/10 py-2"
-                  onPress={() => setShowSowingPicker(true)}
+                  onPress={() => setShowDatePicker(true)}
                 >
                   <Text
                     className={
-                      sowingDate
+                      harvestDate
                         ? "text-base text-white"
                         : "text-base text-white/50"
                     }
                   >
-                    {formatDate(sowingDate)}
+                    {formatDate(harvestDate)}
                   </Text>
                 </TouchableOpacity>
-                {showSowingPicker && (
+                {showDatePicker && (
                   <DateTimePicker
-                    value={sowingDate ?? new Date()}
+                    value={harvestDate ?? new Date()}
                     mode="date"
                     display={Platform.OS === "ios" ? "spinner" : "default"}
                     onChange={(_, selected) => {
-                      setShowSowingPicker(false);
-                      if (selected) setSowingDate(selected);
+                      setShowDatePicker(false);
+                      if (selected) setHarvestDate(selected);
                     }}
                   />
                 )}
               </View>
-            </View>
-          </View>
 
-          {/* Section: Parámetros */}
-          <View className="mb-8">
-            <View className="mb-4">
-              <Text className="text-sm font-bold uppercase tracking-widest text-[#3FA39B]">
-                Parámetros de Siembra
-              </Text>
-              <Text className="text-xs text-white/50">
-                Detalles técnicos de la siembra.
-              </Text>
-            </View>
-
-            <View className="bg-[#16181A] p-2 rounded-xl border border-white/10">
-              {/* Density */}
+              {/* Total Yield */}
               <View className="p-3">
                 <Text className="text-xs font-medium text-white/70 mb-1">
-                  Densidad (semillas/m²) *
+                  Rendimiento Total (kg) *
                 </Text>
                 <TextInput
                   className="text-base text-white border-b border-white/10 py-2"
-                  placeholder="Ej: 8, 10, 12"
+                  placeholder="Ej: 5000, 7500, 10000"
                   placeholderTextColor="#ffffff40"
                   keyboardType="numeric"
-                  value={density}
-                  onChangeText={setDensity}
+                  value={totalYieldKg}
+                  onChangeText={setTotalYieldKg}
                 />
               </View>
 
-              {/* Row Spacing */}
+              {/* Moisture Percentage */}
               <View className="p-3">
                 <Text className="text-xs font-medium text-white/70 mb-1">
-                  Distancia entre Filas (m) *
+                  Humedad (%) *
                 </Text>
                 <TextInput
                   className="text-base text-white border-b border-white/10 py-2"
-                  placeholder="Ej: 0.52, 0.70, 0.35"
+                  placeholder="Ej: 14, 15, 16"
                   placeholderTextColor="#ffffff40"
-                  keyboardType="decimal-pad"
-                  value={rowSpacing}
-                  onChangeText={setRowSpacing}
-                />
-              </View>
-
-              {/* Method */}
-              <View className="p-3">
-                <Text className="text-xs font-medium text-white/70 mb-1">
-                  Método de Siembra *
-                </Text>
-                <TextInput
-                  className="text-base text-white border-b border-white/10 py-2"
-                  placeholder="Ej: Directa, Convencional"
-                  placeholderTextColor="#ffffff40"
-                  value={method}
-                  onChangeText={setMethod}
+                  keyboardType="numeric"
+                  value={moisturePercentage}
+                  onChangeText={setMoisturePercentage}
                 />
               </View>
             </View>
@@ -251,12 +182,11 @@ function AddSowingModal({
                 Notas
               </Text>
               <Text className="text-xs text-white/50">
-                Notas adicionales sobre la siembra.
+                Notas adicionales sobre la cosecha.
               </Text>
             </View>
 
             <View className="bg-[#16181A] p-2 rounded-xl border border-white/10">
-              {/* Notes */}
               <View className="p-3">
                 <Text className="text-xs font-medium text-white/70 mb-1">
                   Notas
@@ -281,10 +211,10 @@ function AddSowingModal({
           ) : (
             <TouchableOpacity
               className="w-full bg-[#3FA39B] py-4 rounded-xl shadow-lg flex items-center justify-center"
-              onPress={handleSaveSowing}
+              onPress={handleSave}
             >
               <Text className="text-base text-[#0F1113] font-bold">
-                Guardar Siembra
+                Guardar Cosecha
               </Text>
             </TouchableOpacity>
           )}
@@ -294,4 +224,4 @@ function AddSowingModal({
   );
 }
 
-export default AddSowingModal;
+export default AddHarvestModal;

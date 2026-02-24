@@ -8,8 +8,8 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import AddSowingModal from "@/components/AddSowingModal";
-import { SowingType } from "@/types/campaignTypes";
+import AddFertilizationModal from "@/components/AddFertilizationModal";
+import { FertilizationType } from "@/types/campaignTypes";
 import { campaignAPI } from "@/services/campaignAPI";
 
 const formatDate = (value: Date) => {
@@ -20,33 +20,48 @@ const formatDate = (value: Date) => {
   return `${day}/${month}/${year}`;
 };
 
-function Sowing() {
+function Fertilization() {
   const [showAddModal, setShowAddModal] = useState(false);
-  const [sowings, setSowings] = useState<SowingType[]>([]);
+  const [fertilizations, setFertilizations] = useState<FertilizationType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { campaignId } = useLocalSearchParams();
 
   useEffect(() => {
-    const fetchSowings = async () => {
+    const fetchFertilizations = async () => {
       try {
         setLoading(true);
         setError("");
-        const sowings = await campaignAPI.getSowingsByCampaign(
+        const fertilizations = await campaignAPI.getFertilizationsByCampaign(
           Number(campaignId),
         );
-        setSowings(sowings);
+        setFertilizations(fertilizations);
       } catch (error: any) {
-        setError("Error al cargar los registros de siembre");
+        setError("Error al cargar los registros de fertilización");
       } finally {
         setLoading(false);
       }
     };
 
     if (campaignId) {
-      fetchSowings();
+      fetchFertilizations();
     }
   }, [campaignId]);
+
+  const refetch = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const fertilizations = await campaignAPI.getFertilizationsByCampaign(
+        Number(campaignId),
+      );
+      setFertilizations(fertilizations);
+    } catch (error: any) {
+      setError("Error al cargar los registros de fertilización");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View className="flex-1 bg-[#0F1113]">
@@ -55,7 +70,7 @@ function Sowing() {
           <MaterialIcons name="chevron-left" size={28} color="#3FA39B" />
         </Pressable>
         <Text className="text-lg font-bold text-white">
-          Registros de siembra
+          Registros de Fertilización
         </Text>
         <View className="w-10" />
       </View>
@@ -64,16 +79,14 @@ function Sowing() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ padding: 20, paddingBottom: 120 }}
       >
-        {/* Loading State */}
         {loading ? (
           <View className="flex-1 items-center justify-center py-20">
             <ActivityIndicator size="large" color="#3FA39B" />
             <Text className="text-white/70 mt-4 text-center">
-              Cargando registros de siembra...
+              Cargando registros de fertilización...
             </Text>
           </View>
         ) : error ? (
-          /* Error State */
           <View className="py-6">
             <View className="mx-0 p-4 bg-red-900/20 border border-red-500/50 rounded-xl">
               <View className="flex-row items-start">
@@ -90,67 +103,39 @@ function Sowing() {
             </View>
             <Pressable
               className="mt-4 bg-[#3FA39B] py-3 rounded-xl items-center"
-              onPress={() => {
-                const fetchSowings = async () => {
-                  try {
-                    setLoading(true);
-                    setError("");
-                    console.log(
-                      "Reintentando cargar siembras para campaña:",
-                      campaignId,
-                    );
-                    const sowings = await campaignAPI.getSowingsByCampaign(
-                      Number(campaignId),
-                    );
-                    console.log("Siembras cargadas:", sowings);
-                    setSowings(sowings);
-                  } catch (error: any) {
-                    console.error("Error al cargar siembras:", error);
-                    const errorMessage =
-                      error?.message ||
-                      error?.toString() ||
-                      "Error desconocido al cargar las siembras";
-                    setError(errorMessage);
-                  } finally {
-                    setLoading(false);
-                  }
-                };
-                fetchSowings();
-              }}
+              onPress={refetch}
             >
               <Text className="text-[#0F1113] font-semibold">Reintentar</Text>
             </Pressable>
           </View>
-        ) : sowings.length === 0 ? (
-          /* Empty State */
+        ) : fertilizations.length === 0 ? (
           <View className="py-10 items-center">
             <MaterialIcons name="info-outline" size={48} color="#3FA39B" />
             <Text className="text-white/70 mt-4 text-center text-base">
-              Sin registros de siembra
+              Sin registros de fertilización
             </Text>
             <Text className="text-white/50 mt-2 text-center text-sm">
               Crea un nuevo registro usando el botón de agregar
             </Text>
           </View>
         ) : (
-          /* Data State */
           <View className="gap-5">
-            {sowings.map((record) => (
+            {fertilizations.map((record) => (
               <View
                 key={record.id}
                 className="relative overflow-hidden bg-[#141618] border border-white/10 rounded-3xl p-5"
               >
                 <View
-                  className={"absolute inset-x-0 top-0 h-1 bg-emerald-500/60"}
+                  className={"absolute inset-x-0 top-0 h-1 bg-blue-500/60"}
                 />
 
                 <View className="flex-row items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-3 mb-4">
                   <View>
                     <Text className="text-[10px] uppercase tracking-wider text-white/50">
-                      Fecha de siembra
+                      Fecha de aplicación
                     </Text>
                     <Text className="text-sm font-semibold text-white mt-1">
-                      {formatDate(record.sowingDate)}
+                      {formatDate(record.dateApplied)}
                     </Text>
                   </View>
                   <View className="w-9 h-9 rounded-xl bg-white/10 items-center justify-center">
@@ -161,59 +146,29 @@ function Sowing() {
                 <View className="flex-row gap-3 mb-4">
                   <View className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-3">
                     <Text className="text-[10px] uppercase tracking-wider text-white/50">
-                      Cultivo
+                      Producto
                     </Text>
                     <Text className="text-sm font-semibold text-white mt-1">
-                      {record.cropType}
+                      {record.productName}
                     </Text>
                   </View>
                   <View className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-3">
                     <Text className="text-[10px] uppercase tracking-wider text-white/50">
-                      Variedad
+                      Dosis
                     </Text>
                     <Text className="text-sm font-semibold text-white mt-1">
-                      {record.variety}
+                      {record.dose} kg/ha
                     </Text>
                   </View>
                 </View>
 
                 <View className="border-t border-white/10 pt-4">
                   <View className="flex-row flex-wrap gap-3">
-                    <View className="w-[48%] bg-white/5 border border-white/10 rounded-2xl p-3">
-                      <View className="flex-row items-center gap-1 mb-1">
-                        <MaterialIcons
-                          name="view-module"
-                          size={14}
-                          color="#94A3B8"
-                        />
-                        <Text className="text-[10px] font-semibold uppercase tracking-tight text-white/50">
-                          Densidad
-                        </Text>
-                      </View>
-                      <Text className="text-sm font-medium text-white">
-                        {record.density}
-                      </Text>
-                    </View>
-                    <View className="w-[48%] bg-white/5 border border-white/10 rounded-2xl p-3">
-                      <View className="flex-row items-center gap-1 mb-1">
-                        <MaterialIcons
-                          name="straighten"
-                          size={14}
-                          color="#94A3B8"
-                        />
-                        <Text className="text-[10px] font-semibold uppercase tracking-tight text-white/50">
-                          Distancia
-                        </Text>
-                      </View>
-                      <Text className="text-sm font-medium text-white">
-                        {record.rowSpacing} m
-                      </Text>
-                    </View>
-                    <View className="w-[48%] bg-white/5 border border-white/10 rounded-2xl p-3">
+                    <View className="w-full bg-white/5 border border-white/10 rounded-2xl p-3">
                       <View className="flex-row items-center gap-1 mb-1">
                         <MaterialIcons name="build" size={14} color="#94A3B8" />
                         <Text className="text-[10px] font-semibold uppercase tracking-tight text-white/50">
-                          Metodo
+                          Método
                         </Text>
                       </View>
                       <Text className="text-sm font-medium text-white">
@@ -256,9 +211,9 @@ function Sowing() {
         <MaterialIcons name="add" size={28} color="white" />
       </Pressable>
 
-      {showAddModal && <AddSowingModal setShowAddModal={setShowAddModal} />}
+      {showAddModal && <AddFertilizationModal setShowAddModal={setShowAddModal} />}
     </View>
   );
 }
 
-export default Sowing;
+export default Fertilization;

@@ -55,11 +55,15 @@ async function handlerRegisterSowing(req, res) {
   }
 
   try {
+    // Formatear la fecha a YYYY-MM-DD para MySQL
+    const date = new Date(sowingDate);
+    const formattedDate = date.toISOString().split("T")[0];
+
     const result = await campaignModel.registerSowing(
       campaignId,
       cropType,
       variety,
-      sowingDate,
+      formattedDate,
       density,
       rowSpacing,
       method,
@@ -71,6 +75,7 @@ async function handlerRegisterSowing(req, res) {
       res.status(500).json({ message: "Error al registrar la siembra" });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 }
@@ -95,11 +100,15 @@ async function handlerRegisterFertilization(req, res) {
   }
 
   try {
+    // Formatear la fecha a YYYY-MM-DD para MySQL
+    const date = new Date(dateApplied);
+    const formattedDate = date.toISOString().split("T")[0];
+
     const result = await campaignModel.registerFertilization(
       campaignId,
       productName,
       dose,
-      dateApplied,
+      formattedDate,
       method,
       notes,
     );
@@ -132,11 +141,15 @@ async function handlerRegisterSpraying(req, res) {
   }
 
   try {
+    // Formatear la fecha a YYYY-MM-DD para MySQL
+    const date = new Date(dateApplied);
+    const formattedDate = date.toISOString().split("T")[0];
+
     const result = await campaignModel.registerSpraying(
       campaignId,
       productName,
       dose,
-      dateApplied,
+      formattedDate,
       target,
       method,
       notes,
@@ -170,9 +183,13 @@ async function handlerRegisterHarvest(req, res) {
   }
 
   try {
+    // Formatear la fecha a YYYY-MM-DD para MySQL
+    const date = new Date(harvestDate);
+    const formattedDate = date.toISOString().split("T")[0];
+
     const result = await campaignModel.registerHarvest(
       campaignId,
-      harvestDate,
+      formattedDate,
       totalYieldKg,
       moisturePercentage,
       notes,
@@ -207,9 +224,13 @@ async function handlerRegisterObservation(req, res) {
   }
 
   try {
+    // Formatear la fecha a YYYY-MM-DD para MySQL
+    const date = new Date(observationDate);
+    const formattedDate = date.toISOString().split("T")[0];
+
     const result = await campaignModel.registerObservation(
       campaignId,
-      observationDate,
+      formattedDate,
       note,
     );
     if (result) {

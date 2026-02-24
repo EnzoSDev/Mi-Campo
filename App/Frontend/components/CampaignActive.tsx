@@ -184,8 +184,9 @@ function CampaignActive({ campaign, setCampaignActive }: CampaignActiveProps) {
               className="flex-row items-center justify-between pt-4 mt-2 border-t border-gray-200 dark:border-gray-800"
               onPress={() =>
                 router.push({
-                  pathname: `/(tabs)/(register)/(field)/(lots)/(campaigns)/${campaign.id}`,
+                  pathname: `/(tabs)/(register)/(field)/(lots)/(campaigns)/[campaignId]`,
                   params: {
+                    campaignId: campaign.id,
                     campaignName: campaign.campaignName,
                     startDate: String(campaign.startDate),
                     endDate: String(campaign.endDate),

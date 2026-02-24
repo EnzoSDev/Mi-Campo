@@ -20,7 +20,7 @@ async function userActive(userId) {
 }
 
 async function getCountryCodes() {
-  const query = " SELECT * FROM Countries ";
+  const query = " SELECT * FROM countries ";
   const [rows] = await connection.execute(query);
   return rows;
 }
