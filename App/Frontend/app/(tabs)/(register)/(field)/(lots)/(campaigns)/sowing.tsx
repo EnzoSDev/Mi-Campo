@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AddSowingModal from "@/components/AddSowingModal";
 import { SowingType } from "@/types/campaignTypes";
 import { campaignAPI } from "@/services/campaignAPI";
@@ -25,28 +25,30 @@ function Sowing() {
   const [sowings, setSowings] = useState<SowingType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const { campaignId } = useLocalSearchParams();
+  const { campaignId, status } = useLocalSearchParams();
 
-  useEffect(() => {
-    const fetchSowings = async () => {
-      try {
-        setLoading(true);
-        setError("");
-        const sowings = await campaignAPI.getSowingsByCampaign(
-          Number(campaignId),
-        );
-        setSowings(sowings);
-      } catch (error: any) {
-        setError("Error al cargar los registros de siembre");
-      } finally {
-        setLoading(false);
+  const fetchSowings = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+      if (!campaignId) {
+        setSowings([]);
+        return;
       }
-    };
-
-    if (campaignId) {
-      fetchSowings();
+      const sowings = await campaignAPI.getSowingsByCampaign(
+        Number(campaignId),
+      );
+      setSowings(sowings);
+    } catch (error: any) {
+      setError("Error al cargar los registros de siembre");
+    } finally {
+      setLoading(false);
     }
   }, [campaignId]);
+
+  useEffect(() => {
+    void fetchSowings();
+  }, [fetchSowings]);
 
   return (
     <View className="flex-1 bg-[#0F1113]">
@@ -59,7 +61,6 @@ function Sowing() {
         </Text>
         <View className="w-10" />
       </View>
-
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ padding: 20, paddingBottom: 120 }}
@@ -88,38 +89,6 @@ function Sowing() {
                 </View>
               </View>
             </View>
-            <Pressable
-              className="mt-4 bg-[#3FA39B] py-3 rounded-xl items-center"
-              onPress={() => {
-                const fetchSowings = async () => {
-                  try {
-                    setLoading(true);
-                    setError("");
-                    console.log(
-                      "Reintentando cargar siembras para campaña:",
-                      campaignId,
-                    );
-                    const sowings = await campaignAPI.getSowingsByCampaign(
-                      Number(campaignId),
-                    );
-                    console.log("Siembras cargadas:", sowings);
-                    setSowings(sowings);
-                  } catch (error: any) {
-                    console.error("Error al cargar siembras:", error);
-                    const errorMessage =
-                      error?.message ||
-                      error?.toString() ||
-                      "Error desconocido al cargar las siembras";
-                    setError(errorMessage);
-                  } finally {
-                    setLoading(false);
-                  }
-                };
-                fetchSowings();
-              }}
-            >
-              <Text className="text-[#0F1113] font-semibold">Reintentar</Text>
-            </Pressable>
           </View>
         ) : sowings.length === 0 ? (
           /* Empty State */
@@ -128,9 +97,11 @@ function Sowing() {
             <Text className="text-white/70 mt-4 text-center text-base">
               Sin registros de siembra
             </Text>
-            <Text className="text-white/50 mt-2 text-center text-sm">
-              Crea un nuevo registro usando el botón de agregar
-            </Text>
+            {status === "active" && (
+              <Text className="text-white/50 mt-2 text-center text-sm">
+                Crea un nuevo registro usando el botón de agregar
+              </Text>
+            )}
           </View>
         ) : (
           /* Data State */
@@ -248,15 +219,20 @@ function Sowing() {
           </View>
         )}
       </ScrollView>
-
-      <Pressable
-        className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-[#267366] items-center justify-center shadow-lg active:opacity-80"
-        onPress={() => setShowAddModal(true)}
-      >
-        <MaterialIcons name="add" size={28} color="white" />
-      </Pressable>
-
-      {showAddModal && <AddSowingModal setShowAddModal={setShowAddModal} />}
+      {status === "active" && (
+        <Pressable
+          className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-[#267366] items-center justify-center shadow-lg active:opacity-80"
+          onPress={() => setShowAddModal(true)}
+        >
+          <MaterialIcons name="add" size={28} color="white" />
+        </Pressable>
+      )}
+      {showAddModal && (
+        <AddSowingModal
+          setShowAddModal={setShowAddModal}
+          fetchSowings={fetchSowings}
+        />
+      )}
     </View>
   );
 }

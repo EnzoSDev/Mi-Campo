@@ -17,8 +17,10 @@ import { HarvestType } from "@/types/campaignTypes";
 
 function AddHarvestModal({
   setShowAddModal,
+  fetchHarvests,
 }: {
   setShowAddModal: (value: boolean) => void;
+  fetchHarvests: () => void;
 }) {
   const { campaignId } = useLocalSearchParams();
   const [harvestDate, setHarvestDate] = useState<Date | null>(null);
@@ -56,6 +58,7 @@ function AddHarvestModal({
         parseInt(campaignId as string),
         harvestData,
       );
+      fetchHarvests();
       setShowAddModal(false);
     } catch (error: any) {
       setError(error.message || "Error al crear el registro de cosecha.");

@@ -37,8 +37,7 @@ function Campaign() {
       key: "fertilizations",
       label: "Fertilizaciones",
       icon: "opacity" as keyof typeof MaterialIcons.glyphMap,
-      route:
-        "/(tabs)/(register)/(field)/(lots)/(campaigns)/fertilizations" as const,
+      route: "./fertilization" as const,
       bg: "bg-blue-500/20",
       iconColor: "#3b82f6",
     },
@@ -46,8 +45,7 @@ function Campaign() {
       key: "pulverizations",
       label: "Pulverizaciones",
       icon: "water-drop" as keyof typeof MaterialIcons.glyphMap,
-      route:
-        "/(tabs)/(register)/(field)/(lots)/(campaigns)/pulverizations" as const,
+      route: "./spraying" as const,
       bg: "bg-cyan-500/20",
       iconColor: "#06b6d4",
     },
@@ -55,7 +53,7 @@ function Campaign() {
       key: "harvest",
       label: "Cosecha",
       icon: "agriculture" as keyof typeof MaterialIcons.glyphMap,
-      route: "/(tabs)/(register)/(field)/(lots)/(campaigns)/harvest" as const,
+      route: "./harvest" as const,
       bg: "bg-amber-500/20",
       iconColor: "#f59e0b",
     },
@@ -63,8 +61,7 @@ function Campaign() {
       key: "observations",
       label: "Observaciones",
       icon: "visibility" as keyof typeof MaterialIcons.glyphMap,
-      route:
-        "/(tabs)/(register)/(field)/(lots)/(campaigns)/observations" as const,
+      route: "./observation" as const,
       bg: "bg-red-500/20",
       iconColor: "#ef4444",
     },
@@ -140,7 +137,7 @@ function Campaign() {
                   onPress={() =>
                     router.push({
                       pathname: option.route as any,
-                      params: { campaignId },
+                      params: { campaignId, status },
                     })
                   }
                 >

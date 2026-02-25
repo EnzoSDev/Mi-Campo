@@ -17,8 +17,10 @@ import { SowingType } from "@/types/campaignTypes";
 
 function AddSowingModal({
   setShowAddModal,
+  fetchSowings,
 }: {
   setShowAddModal: (value: boolean) => void;
+  fetchSowings: () => void;
 }) {
   const { campaignId } = useLocalSearchParams();
   const [cropType, setCropType] = useState<string>("");
@@ -69,6 +71,7 @@ function AddSowingModal({
         parseInt(campaignId as string),
         sowingData,
       );
+      fetchSowings();
       setShowAddModal(false);
     } catch (error: any) {
       setError(error.message || "Error al crear el registro de siembra.");

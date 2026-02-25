@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AddSprayingModal from "@/components/AddSprayingModal";
 import { SprayingType } from "@/types/campaignTypes";
 import { campaignAPI } from "@/services/campaignAPI";
@@ -25,33 +25,16 @@ function Spraying() {
   const [sprayings, setSprayings] = useState<SprayingType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const { campaignId } = useLocalSearchParams();
+  const { campaignId, status } = useLocalSearchParams();
 
-  useEffect(() => {
-    const fetchSprayings = async () => {
-      try {
-        setLoading(true);
-        setError("");
-        const sprayings = await campaignAPI.getSprayingsByCampaign(
-          Number(campaignId),
-        );
-        setSprayings(sprayings);
-      } catch (error: any) {
-        setError("Error al cargar los registros de pulverización");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (campaignId) {
-      fetchSprayings();
-    }
-  }, [campaignId]);
-
-  const refetch = async () => {
+  const fetchSprayings = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
+      if (!campaignId) {
+        setSprayings([]);
+        return;
+      }
       const sprayings = await campaignAPI.getSprayingsByCampaign(
         Number(campaignId),
       );
@@ -61,7 +44,11 @@ function Spraying() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [campaignId]);
+
+  useEffect(() => {
+    void fetchSprayings();
+  }, [fetchSprayings]);
 
   return (
     <View className="flex-1 bg-[#0F1113]">
@@ -101,12 +88,6 @@ function Spraying() {
                 </View>
               </View>
             </View>
-            <Pressable
-              className="mt-4 bg-[#3FA39B] py-3 rounded-xl items-center"
-              onPress={refetch}
-            >
-              <Text className="text-[#0F1113] font-semibold">Reintentar</Text>
-            </Pressable>
           </View>
         ) : sprayings.length === 0 ? (
           <View className="py-10 items-center">
@@ -114,9 +95,11 @@ function Spraying() {
             <Text className="text-white/70 mt-4 text-center text-base">
               Sin registros de pulverización
             </Text>
-            <Text className="text-white/50 mt-2 text-center text-sm">
-              Crea un nuevo registro usando el botón de agregar
-            </Text>
+            {status === "active" && (
+              <Text className="text-white/50 mt-2 text-center text-sm">
+                Crea un nuevo registro usando el botón de agregar
+              </Text>
+            )}
           </View>
         ) : (
           <View className="gap-5">
@@ -219,14 +202,21 @@ function Spraying() {
         )}
       </ScrollView>
 
-      <Pressable
-        className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-[#267366] items-center justify-center shadow-lg active:opacity-80"
-        onPress={() => setShowAddModal(true)}
-      >
-        <MaterialIcons name="add" size={28} color="white" />
-      </Pressable>
+      {status === "active" && (
+        <Pressable
+          className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-[#267366] items-center justify-center shadow-lg active:opacity-80"
+          onPress={() => setShowAddModal(true)}
+        >
+          <MaterialIcons name="add" size={28} color="white" />
+        </Pressable>
+      )}
 
-      {showAddModal && <AddSprayingModal setShowAddModal={setShowAddModal} />}
+      {showAddModal && (
+        <AddSprayingModal
+          setShowAddModal={setShowAddModal}
+          fetchSprayings={fetchSprayings}
+        />
+      )}
     </View>
   );
 }

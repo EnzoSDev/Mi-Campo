@@ -13,6 +13,7 @@ const API_URL =
     : process.env.EXPO_PUBLIC_PROD_API_URL;
 
 export const campaignAPI = {
+  unlinkLotFromCampaign,
   completeCampaign,
   getSowingsByCampaign,
   createSowing,
@@ -26,7 +27,43 @@ export const campaignAPI = {
   createObservation,
 };
 
-async function completeCampaign(campaignId: number) {
+async function unlinkLotFromCampaign(
+  campaignId: number,
+  unlinkReason: string,
+  lotId: number,
+) {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+
+    const response = await fetch(
+      `${API_URL}/campaigns/${campaignId}/unlinkLot`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          unlinkDate: new Date(),
+          unlinkReason,
+          lotId,
+        }),
+      },
+    );
+    if (!response.ok) {
+      throw new Error("Error al desvincular el lote de la campaña");
+    }
+
+    return true;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function completeCampaign(campaignId: number, completeReason: string) {
   try {
     const token = await SecureStore.getItemAsync("access-token");
     if (!token) {
@@ -41,6 +78,7 @@ async function completeCampaign(campaignId: number) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({ completeDate: new Date(), completeReason }),
       },
     );
 
@@ -90,7 +128,7 @@ async function getSowingsByCampaign(campaignId: number): Promise<SowingType[]> {
   }
 }
 
-async function createSowing(campignId: number, sowingData: SowingType) {
+async function createSowing(campaignId: number, sowingData: SowingType) {
   try {
     const token = await SecureStore.getItemAsync("access-token");
     if (!token) {
@@ -98,7 +136,7 @@ async function createSowing(campignId: number, sowingData: SowingType) {
     }
 
     const response = await fetch(
-      `${API_URL}/campaigns/${campignId}/registerSowing`,
+      `${API_URL}/campaigns/${campaignId}/registerSowing`,
       {
         method: "POST",
         headers: {

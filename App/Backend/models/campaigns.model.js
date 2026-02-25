@@ -1,6 +1,7 @@
 import connection from "../database/databaseConfig.js";
 
 export const campaignModel = {
+  unlinkLotFromCampaign,
   completeCampaign,
   getSowingsByCampaignId,
   registerSowing,
@@ -13,6 +14,13 @@ export const campaignModel = {
   getObservationsByCampaignId,
   registerObservation,
 };
+
+async function unlinkLotFromCampaign(campaignId, lotId) {
+  const query =
+    "UPDATE campaign_lots SET is_active = 0 WHERE campaign_id = ? AND lot_id = ?";
+  const [result] = await connection.execute(query, [campaignId, lotId]);
+  return result.affectedRows === 1;
+}
 
 async function completeCampaign(campaignId) {
   const query = "UPDATE campaigns SET status = 'completed' WHERE id = ?";

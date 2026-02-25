@@ -72,6 +72,7 @@ function Lot() {
               <CampaignActive
                 campaign={campaignActive}
                 setCampaignActive={setCampaignActive}
+                lotId={Number(lotId)}
               />
             ) : (
               <View className="px-4 pt-6">

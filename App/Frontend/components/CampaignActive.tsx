@@ -1,6 +1,6 @@
-import { View, Text, Pressable, Alert, Modal, TextInput } from "react-native";
+import { View, Text, Pressable, Modal, TextInput } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CampaignType } from "@/types/campaignTypes";
 import { campaignAPI } from "@/services/campaignAPI";
 import { router } from "expo-router";
@@ -8,9 +8,65 @@ import { router } from "expo-router";
 interface CampaignActiveProps {
   campaign: CampaignType;
   setCampaignActive: (campaign: CampaignType | null) => void;
+  lotId: number;
 }
 
-function CampaignActive({ campaign, setCampaignActive }: CampaignActiveProps) {
+function CampaignActive({
+  campaign,
+  setCampaignActive,
+  lotId,
+}: CampaignActiveProps) {
+  function getActivityStyle(activityType: string) {
+    switch (activityType) {
+      case "sowing":
+        return 0;
+      case "fertilization":
+        return 1;
+      case "spraying":
+        return 2;
+      case "observation":
+        return 3;
+      case "harvest":
+        return 4;
+    }
+    return 0;
+  }
+
+  const activitiesStyle = [
+    {
+      icon: "grass",
+      iconColor: "#22c55e",
+      title: "Siembra completada",
+    },
+    {
+      icon: "opacity",
+      iconColor: "#3b82f6",
+      title: "Fertilización aplicada",
+    },
+    {
+      icon: "science",
+      iconColor: "#06b6d4",
+      title: "Aplicación de fertilizante",
+    },
+    {
+      icon: "visibility",
+      iconColor: "#ef4444",
+      title: "Observación registrada",
+    },
+    {
+      icon: "agriculture",
+      iconColor: "#f59e0b",
+      title: "Cosecha completada",
+    },
+  ];
+
+  const [recentActivities, setRecentActivities] = useState<
+    {
+      type: string;
+      description: string;
+      date: string;
+    }[]
+  >([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showUnlinkModal, setShowUnlinkModal] = useState(false);
   const [unlinkReason, setUnlinkReason] = useState("");
@@ -21,6 +77,18 @@ function CampaignActive({ campaign, setCampaignActive }: CampaignActiveProps) {
     null,
   );
 
+  useEffect(() => {
+    const fetchRecentActivities = async () => {
+      try {
+        const activities = await campaignAPI.getRecentActivities(campaign.id);
+        setRecentActivities(activities);
+      } catch (error) {
+        setErrorMsg("Error al cargar las actividades recientes.");
+      }
+    };
+    fetchRecentActivities();
+  });
+
   const handleCompleteCampaign = () => {
     setCompleteReason("");
     setCompleteModalError(null);
@@ -30,13 +98,14 @@ function CampaignActive({ campaign, setCampaignActive }: CampaignActiveProps) {
   const confirmCompleteCampaign = async () => {
     if (completeReason.trim()) {
       try {
-        const res = await campaignAPI.completeCampaign(campaign.id);
+        const res = await campaignAPI.completeCampaign(
+          campaign.id,
+          completeReason,
+        );
         if (res) {
           setShowCompleteModal(false);
           setCompleteModalError(null);
           setCampaignActive(null);
-          // TODO: Guardar el motivo de finalización en la tabla observaciones de la campaña
-          console.log("Motivo de finalización:", completeReason);
         } else {
           setCompleteModalError("Error al finalizar la campaña.");
         }
@@ -54,12 +123,24 @@ function CampaignActive({ campaign, setCampaignActive }: CampaignActiveProps) {
     setShowUnlinkModal(true);
   };
 
-  const confirmUnlinkLot = () => {
+  const confirmUnlinkLot = async () => {
     if (unlinkReason.trim()) {
-      // TODO: Implementar lógica para desvincular lote con el motivo
-      console.log("Motivo:", unlinkReason);
-      setShowUnlinkModal(false);
-      setModalError(null);
+      try {
+        const res = await campaignAPI.unlinkLotFromCampaign(
+          campaign.id,
+          unlinkReason,
+          lotId,
+        );
+        if (res) {
+          setShowUnlinkModal(false);
+          setModalError(null);
+          setCampaignActive(null);
+        } else {
+          setModalError("Error al desvincular el lote.");
+        }
+      } catch (error) {
+        setModalError("Error al desvincular el lote.");
+      }
     } else {
       setModalError("Debes ingresar un motivo para desvincular");
     }
@@ -102,81 +183,44 @@ function CampaignActive({ campaign, setCampaignActive }: CampaignActiveProps) {
 
             {/* Activity List */}
             <View className="space-y-3">
-              {/* Activity Item 1 */}
-              <View className="flex-row items-start py-3 border-b border-gray-100 dark:border-gray-800">
-                <View className="w-10 h-10 rounded-full bg-[#267366]/10 items-center justify-center mr-3">
-                  <MaterialIcons name="grass" size={20} color="#267366" />
-                </View>
-                <View className="flex-1">
-                  <Text className="font-semibold text-sm text-black dark:text-white">
-                    Siembra completada
-                  </Text>
-                  <Text className="text-xs text-gray-500 mt-1">
-                    Soja • Potrero A3 • 45.5 ha
-                  </Text>
-                  <Text className="text-[10px] text-gray-400 mt-1">
-                    hace 2 días
-                  </Text>
-                </View>
-              </View>
-
-              {/* Activity Item 2 */}
-              <View className="flex-row items-start py-3 border-b border-gray-100 dark:border-gray-800">
-                <View className="w-10 h-10 rounded-full bg-blue-500/10 items-center justify-center mr-3">
-                  <MaterialIcons name="opacity" size={20} color="#3b82f6" />
-                </View>
-                <View className="flex-1">
-                  <Text className="font-semibold text-sm text-black dark:text-white">
-                    Riego aplicado
-                  </Text>
-                  <Text className="text-xs text-gray-500 mt-1">
-                    Potrero B1 • 30mm
-                  </Text>
-                  <Text className="text-[10px] text-gray-400 mt-1">
-                    hace 5 días
-                  </Text>
-                </View>
-              </View>
-
-              {/* Activity Item 3 */}
-              <View className="flex-row items-start py-3 border-b border-gray-100 dark:border-gray-800">
-                <View className="w-10 h-10 rounded-full bg-amber-500/10 items-center justify-center mr-3">
-                  <MaterialIcons name="science" size={20} color="#f59e0b" />
-                </View>
-                <View className="flex-1">
-                  <Text className="font-semibold text-sm text-black dark:text-white">
-                    Aplicación de fertilizante
-                  </Text>
-                  <Text className="text-xs text-gray-500 mt-1">
-                    NPK 15-15-15 • Potrero A2 • 200 kg/ha
-                  </Text>
-                  <Text className="text-[10px] text-gray-400 mt-1">
-                    hace 1 semana
-                  </Text>
-                </View>
-              </View>
-
-              {/* Activity Item 4 */}
-              <View className="flex-row items-start py-3">
-                <View className="w-10 h-10 rounded-full bg-red-500/10 items-center justify-center mr-3">
+              {recentActivities.length > 0 ? (
+                recentActivities.map((activity, index) => {
+                  const style =
+                    activitiesStyle[getActivityStyle(activity.type)];
+                  return (
+                    <View
+                      className="flex-row items-start py-3 border-b border-gray-100 dark:border-gray-800"
+                      key={index}
+                    >
+                      <View className="w-10 h-10 rounded-full bg-[#267366]/10 items-center justify-center mr-3">
+                        <MaterialIcons name="grass" size={20} color="#267366" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="font-semibold text-sm text-black dark:text-white">
+                          Siembra completada
+                        </Text>
+                        <Text className="text-xs text-gray-500 mt-1">
+                          Soja • Potrero A3 • 45.5 ha
+                        </Text>
+                        <Text className="text-[10px] text-gray-400 mt-1">
+                          hace 2 días
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                })
+              ) : (
+                <View className="items-center justify-center py-12">
                   <MaterialIcons
-                    name="pest-control"
-                    size={20}
-                    color="#ef4444"
+                    name="info-outline"
+                    size={40}
+                    color="#9ca3af"
                   />
-                </View>
-                <View className="flex-1">
-                  <Text className="font-semibold text-sm text-black dark:text-white">
-                    Control de plagas
-                  </Text>
-                  <Text className="text-xs text-gray-500 mt-1">
-                    Herbicida • Múltiples potreros
-                  </Text>
-                  <Text className="text-[10px] text-gray-400 mt-1">
-                    hace 2 semanas
+                  <Text className="text-sm text-gray-500 text-center py-6">
+                    No hay actividades recientes para mostrar.
                   </Text>
                 </View>
-              </View>
+              )}
             </View>
 
             {/* Footer */}

@@ -3,6 +3,10 @@ import { CampaignController } from "../controllers/campaigns.controller.js";
 
 const router = express.Router();
 
+router.put(
+  "/:campaignId/unlinkLot",
+  CampaignController.handlerUnlinkLotFromCampaign,
+);
 router.put("/:campaignId/complete", CampaignController.handlerCompleteCampaign);
 router.get("/:campaignId/sowings", CampaignController.handlerGetSowings);
 router.post(

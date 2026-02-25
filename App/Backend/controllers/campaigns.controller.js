@@ -1,6 +1,8 @@
 import { campaignModel } from "../models/campaigns.model.js";
+import lotsModel from "../models/lots.model.js";
 
 export const CampaignController = {
+  handlerUnlinkLotFromCampaign,
   handlerCompleteCampaign,
   handlerGetSowings,
   handlerRegisterSowing,
@@ -14,11 +16,47 @@ export const CampaignController = {
   handlerRegisterObservation,
 };
 
+async function handlerUnlinkLotFromCampaign(req, res) {
+  const { campaignId } = req.params;
+  const { unlinkDate, unlinkReason, lotId } = req.body;
+
+  console.log("Received unlink request:", {
+    campaignId,
+    unlinkDate,
+    unlinkReason,
+    lotId,
+  });
+
+  try {
+    const result = await campaignModel.unlinkLotFromCampaign(campaignId, lotId);
+    if (result) {
+      const lot = await lotsModel.getLotById(lotId);
+      await campaignModel.registerObservation(
+        campaignId,
+        new Date(unlinkDate).toISOString().split("T")[0],
+        "Lote " + lot.lot_name + " desvinculado. Motivo: " + unlinkReason,
+      );
+      res.status(200).json({ message: "Lote desvinculado con éxito" });
+    } else {
+      res.status(500).json({ message: "Error al desvincular el lote" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+}
+
 async function handlerCompleteCampaign(req, res) {
   const { campaignId } = req.params;
   try {
     const result = await campaignModel.completeCampaign(campaignId);
     if (result) {
+      const { completeDate, completeReason } = req.body;
+      await campaignModel.registerObservation(
+        campaignId,
+        new Date(completeDate).toISOString().split("T")[0],
+        "Campaña finalizada. Motivo: " + completeReason,
+      );
       res.status(200).json({ message: "Campaña finalizada con éxito" });
     } else {
       res.status(500).json({ message: "Error al finalizar la campaña" });

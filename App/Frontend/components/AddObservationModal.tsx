@@ -17,8 +17,10 @@ import { ObservationType } from "@/types/campaignTypes";
 
 function AddObservationModal({
   setShowAddModal,
+  fetchObservations,
 }: {
   setShowAddModal: (value: boolean) => void;
+  fetchObservations: () => void;
 }) {
   const { campaignId } = useLocalSearchParams();
   const [observationDate, setObservationDate] = useState<Date | null>(null);
@@ -52,6 +54,7 @@ function AddObservationModal({
         parseInt(campaignId as string),
         observationData,
       );
+      fetchObservations();
       setShowAddModal(false);
     } catch (error: any) {
       setError(error.message || "Error al crear la observación.");

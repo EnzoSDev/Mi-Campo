@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AddObservationModal from "@/components/AddObservationModal";
 import { ObservationType } from "@/types/campaignTypes";
 import { campaignAPI } from "@/services/campaignAPI";
@@ -25,33 +25,16 @@ function Observation() {
   const [observations, setObservations] = useState<ObservationType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const { campaignId } = useLocalSearchParams();
+  const { campaignId, status } = useLocalSearchParams();
 
-  useEffect(() => {
-    const fetchObservations = async () => {
-      try {
-        setLoading(true);
-        setError("");
-        const observations = await campaignAPI.getObservationsByCampaign(
-          Number(campaignId),
-        );
-        setObservations(observations);
-      } catch (error: any) {
-        setError("Error al cargar las observaciones");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (campaignId) {
-      fetchObservations();
-    }
-  }, [campaignId]);
-
-  const refetch = async () => {
+  const fetchObservations = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
+      if (!campaignId) {
+        setObservations([]);
+        return;
+      }
       const observations = await campaignAPI.getObservationsByCampaign(
         Number(campaignId),
       );
@@ -61,7 +44,11 @@ function Observation() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [campaignId]);
+
+  useEffect(() => {
+    void fetchObservations();
+  }, [fetchObservations]);
 
   return (
     <View className="flex-1 bg-[#0F1113]">
@@ -101,7 +88,7 @@ function Observation() {
             </View>
             <Pressable
               className="mt-4 bg-[#3FA39B] py-3 rounded-xl items-center"
-              onPress={refetch}
+              onPress={fetchObservations}
             >
               <Text className="text-[#0F1113] font-semibold">Reintentar</Text>
             </Pressable>
@@ -112,9 +99,11 @@ function Observation() {
             <Text className="text-white/70 mt-4 text-center text-base">
               Sin observaciones
             </Text>
-            <Text className="text-white/50 mt-2 text-center text-sm">
-              Crea una nueva observación usando el botón de agregar
-            </Text>
+            {status === "active" && (
+              <Text className="text-white/50 mt-2 text-center text-sm">
+                Crea una nueva observación usando el botón de agregar
+              </Text>
+            )}
           </View>
         ) : (
           <View className="gap-5">
@@ -165,15 +154,20 @@ function Observation() {
         )}
       </ScrollView>
 
-      <Pressable
-        className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-[#267366] items-center justify-center shadow-lg active:opacity-80"
-        onPress={() => setShowAddModal(true)}
-      >
-        <MaterialIcons name="add" size={28} color="white" />
-      </Pressable>
+      {status === "active" && (
+        <Pressable
+          className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-[#267366] items-center justify-center shadow-lg active:opacity-80"
+          onPress={() => setShowAddModal(true)}
+        >
+          <MaterialIcons name="add" size={28} color="white" />
+        </Pressable>
+      )}
 
       {showAddModal && (
-        <AddObservationModal setShowAddModal={setShowAddModal} />
+        <AddObservationModal
+          setShowAddModal={setShowAddModal}
+          fetchObservations={fetchObservations}
+        />
       )}
     </View>
   );

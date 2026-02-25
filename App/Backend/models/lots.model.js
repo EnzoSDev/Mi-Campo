@@ -1,12 +1,19 @@
 import connection from "../database/databaseConfig.js";
 
 export default {
+  getLotById,
   deleteLot,
   getActiveCampaignByLotId,
   getCompletedCampaignsByLotId,
   createCampaign,
   JoinCampaign,
 };
+
+async function getLotById(lotId) {
+  const query = "SELECT * FROM lots WHERE id = ?";
+  const [rows] = await connection.execute(query, [lotId]);
+  return rows.length > 0 ? rows[0] : null;
+}
 
 async function deleteLot(lotId) {
   const query = "UPDATE lots SET is_active = 0 WHERE id = ?";
@@ -16,14 +23,14 @@ async function deleteLot(lotId) {
 
 async function getActiveCampaignByLotId(lotId) {
   const query =
-    "SELECT c.id, c.campaign_name, c.start_date, c.end_date, c.description FROM campaigns c JOIN campaign_lots cl ON c.id = cl.campaign_id WHERE cl.lot_id = ? AND c.is_active = 1 AND c.status = 'active'";
+    "SELECT c.id, c.campaign_name, c.start_date, c.end_date, c.description FROM campaigns c JOIN campaign_lots cl ON c.id = cl.campaign_id WHERE cl.lot_id = ? AND c.is_active = 1 AND c.status = 'active' AND cl.is_active = 1";
   const [rows] = await connection.execute(query, [lotId]);
   return rows.length > 0 ? rows[0] : null;
 }
 
 async function getCompletedCampaignsByLotId(lotId) {
   const query =
-    "SELECT c.id, c.campaign_name, c.start_date, c.end_date, c.description FROM campaigns c JOIN campaign_lots cl ON c.id = cl.campaign_id WHERE cl.lot_id = ? AND c.is_active = 1 AND c.status = 'completed'";
+    "SELECT c.id, c.campaign_name, c.start_date, c.end_date, c.description FROM campaigns c JOIN campaign_lots cl ON c.id = cl.campaign_id WHERE cl.lot_id = ? AND c.is_active = 1 AND c.status = 'completed' AND cl.is_active = 1";
   const [rows] = await connection.execute(query, [lotId]);
   return rows;
 }

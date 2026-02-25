@@ -17,8 +17,10 @@ import { FertilizationType } from "@/types/campaignTypes";
 
 function AddFertilizationModal({
   setShowAddModal,
+  fetchFertilizations,
 }: {
   setShowAddModal: (value: boolean) => void;
+  fetchFertilizations: () => void;
 }) {
   const { campaignId } = useLocalSearchParams();
   const [productName, setProductName] = useState<string>("");
@@ -58,6 +60,7 @@ function AddFertilizationModal({
         parseInt(campaignId as string),
         fertilizationData,
       );
+      fetchFertilizations();
       setShowAddModal(false);
     } catch (error: any) {
       setError(error.message || "Error al crear el registro de fertilización.");

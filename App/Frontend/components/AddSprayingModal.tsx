@@ -17,8 +17,10 @@ import { SprayingType } from "@/types/campaignTypes";
 
 function AddSprayingModal({
   setShowAddModal,
+  fetchSprayings,
 }: {
   setShowAddModal: (value: boolean) => void;
+  fetchSprayings: () => void;
 }) {
   const { campaignId } = useLocalSearchParams();
   const [productName, setProductName] = useState<string>("");
@@ -60,6 +62,7 @@ function AddSprayingModal({
         parseInt(campaignId as string),
         sprayingData,
       );
+      fetchSprayings();
       setShowAddModal(false);
     } catch (error: any) {
       setError(error.message || "Error al crear el registro de pulverización.");
