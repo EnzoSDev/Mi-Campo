@@ -43,6 +43,16 @@ function Layout() {
       />
 
       <Tabs.Screen
+        name="(news)"
+        options={{
+          title: "Noticias",
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon focused={focused} icon="newspaper" title="Noticias" />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="(profile)/profile"
         options={{
           title: "Perfil",

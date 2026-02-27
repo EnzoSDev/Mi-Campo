@@ -42,6 +42,10 @@ function AddCampaign() {
       setError("La fecha de fin no puede ser anterior a la fecha de inicio.");
       setLoading(false);
       return;
+    } else if (endDate < new Date()) {
+      setError("La fecha de fin no puede ser anterior a la fecha actual.");
+      setLoading(false);
+      return;
     }
 
     const campaignData: CreateCampaignType = {
@@ -150,7 +154,7 @@ function AddCampaign() {
             {/* Input End Date */}
             <View className="p-3">
               <Text className="text-xs font-medium text-text-muted mb-1">
-                Fecha de Fin
+                Fecha estimada de fin
               </Text>
               <TouchableOpacity
                 className="border-b border-border-dark py-2"

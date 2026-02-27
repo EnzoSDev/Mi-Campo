@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CampaignType } from "@/types/campaignTypes";
 import { campaignAPI } from "@/services/campaignAPI";
 import { router } from "expo-router";
+import { RecentActivity } from "@/types/utilTypes";
 
 interface CampaignActiveProps {
   campaign: CampaignType;
@@ -16,6 +17,61 @@ function CampaignActive({
   setCampaignActive,
   lotId,
 }: CampaignActiveProps) {
+  function getTimeAgo(date: Date | string | undefined): string {
+    try {
+      if (!date) return "Fecha desconocida";
+
+      const now = new Date();
+      let activityDate: Date;
+
+      if (typeof date === "object" && date !== null) {
+        if (date instanceof Date) {
+          activityDate = date;
+        } else if ("year" in date || "month" in date) {
+          const dateObj = date as any;
+          activityDate = new Date(dateObj.year, dateObj.month - 1, dateObj.day);
+        } else {
+          activityDate = new Date(JSON.stringify(date));
+        }
+      } else if (typeof date === "string") {
+        activityDate = new Date(date);
+      } else {
+        return "Fecha desconocida";
+      }
+
+      if (isNaN(activityDate.getTime())) {
+        return "Fecha desconocida";
+      }
+
+      // Comparar solo fechas (sin horas)
+      const todayStart = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+      );
+      const activityDateStart = new Date(
+        activityDate.getFullYear(),
+        activityDate.getMonth(),
+        activityDate.getDate(),
+      );
+
+      const diffInMs = todayStart.getTime() - activityDateStart.getTime();
+      const diffInDays = Math.floor(diffInMs / 86400000);
+      const diffInMonths = Math.floor(diffInDays / 30);
+      const diffInYears = Math.floor(diffInMonths / 12);
+
+      if (diffInDays === 0) return "Hoy";
+      if (diffInDays < 30)
+        return `Hace ${diffInDays} día${diffInDays > 1 ? "s" : ""}`;
+      if (diffInMonths < 12)
+        return `Hace ${diffInMonths} mes${diffInMonths > 1 ? "es" : ""}`;
+
+      return `Hace ${diffInYears} año${diffInYears > 1 ? "s" : ""}`;
+    } catch (error) {
+      return "Fecha desconocida";
+    }
+  }
+
   function getActivityStyle(activityType: string) {
     switch (activityType) {
       case "sowing":
@@ -34,40 +90,37 @@ function CampaignActive({
 
   const activitiesStyle = [
     {
-      icon: "grass",
+      icon: "grass" as keyof typeof MaterialIcons.glyphMap,
       iconColor: "#22c55e",
       title: "Siembra completada",
     },
     {
-      icon: "opacity",
+      icon: "opacity" as keyof typeof MaterialIcons.glyphMap,
       iconColor: "#3b82f6",
       title: "Fertilización aplicada",
     },
     {
-      icon: "science",
+      icon: "science" as keyof typeof MaterialIcons.glyphMap,
       iconColor: "#06b6d4",
       title: "Aplicación de fertilizante",
     },
     {
-      icon: "visibility",
+      icon: "visibility" as keyof typeof MaterialIcons.glyphMap,
       iconColor: "#ef4444",
       title: "Observación registrada",
     },
     {
-      icon: "agriculture",
+      icon: "agriculture" as keyof typeof MaterialIcons.glyphMap,
       iconColor: "#f59e0b",
       title: "Cosecha completada",
     },
   ];
 
-  const [recentActivities, setRecentActivities] = useState<
-    {
-      type: string;
-      description: string;
-      date: string;
-    }[]
-  >([]);
+  const [recentActivities, setRecentActivities] = useState<RecentActivity[]>(
+    [],
+  );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [showUnlinkModal, setShowUnlinkModal] = useState(false);
   const [unlinkReason, setUnlinkReason] = useState("");
   const [modalError, setModalError] = useState<string | null>(null);
@@ -79,15 +132,18 @@ function CampaignActive({
 
   useEffect(() => {
     const fetchRecentActivities = async () => {
+      setIsLoading(true);
       try {
         const activities = await campaignAPI.getRecentActivities(campaign.id);
         setRecentActivities(activities);
       } catch (error) {
         setErrorMsg("Error al cargar las actividades recientes.");
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchRecentActivities();
-  });
+  }, [campaign.id]);
 
   const handleCompleteCampaign = () => {
     setCompleteReason("");
@@ -183,7 +239,13 @@ function CampaignActive({
 
             {/* Activity List */}
             <View className="space-y-3">
-              {recentActivities.length > 0 ? (
+              {isLoading ? (
+                <View className="items-center justify-center py-12">
+                  <Text className="text-sm text-gray-500 text-center mb-4">
+                    Cargando actividades...
+                  </Text>
+                </View>
+              ) : recentActivities.length > 0 ? (
                 recentActivities.map((activity, index) => {
                   const style =
                     activitiesStyle[getActivityStyle(activity.type)];
@@ -193,17 +255,21 @@ function CampaignActive({
                       key={index}
                     >
                       <View className="w-10 h-10 rounded-full bg-[#267366]/10 items-center justify-center mr-3">
-                        <MaterialIcons name="grass" size={20} color="#267366" />
+                        <MaterialIcons
+                          name={style.icon}
+                          size={20}
+                          color={style.iconColor}
+                        />
                       </View>
                       <View className="flex-1">
                         <Text className="font-semibold text-sm text-black dark:text-white">
-                          Siembra completada
+                          {style.title}
                         </Text>
                         <Text className="text-xs text-gray-500 mt-1">
-                          Soja • Potrero A3 • 45.5 ha
+                          {activity.description}
                         </Text>
                         <Text className="text-[10px] text-gray-400 mt-1">
-                          hace 2 días
+                          {getTimeAgo(activity.date)}
                         </Text>
                       </View>
                     </View>
@@ -225,7 +291,7 @@ function CampaignActive({
 
             {/* Footer */}
             <Pressable
-              className="flex-row items-center justify-between pt-4 mt-2 border-t border-gray-200 dark:border-gray-800"
+              className="flex-row items-center justify-between pt-4 mt-2"
               onPress={() =>
                 router.push({
                   pathname: `/(tabs)/(register)/(field)/(lots)/(campaigns)/[campaignId]`,

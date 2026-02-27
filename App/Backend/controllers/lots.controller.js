@@ -1,4 +1,6 @@
 import lotsModel from "../models/lots.model.js";
+import utilModel from "../models/util.model.js";
+import { campaignModel } from "../models/campaigns.model.js";
 
 export default {
   handleDeleteLot,
@@ -109,6 +111,24 @@ async function handleJoinCampaign(req, res) {
     }
     const result = await lotsModel.JoinCampaign(lotId, campaignId);
     if (result) {
+      const lot = await lotsModel.getLotById(lotId);
+      const text =
+        (lot.lot_name.startsWith("Lote")
+          ? lot.lot_name
+          : "Lote " + lot.lot_name) + " unido a la campaña";
+      await campaignModel.registerObservation(
+        campaignId,
+        new Date().toISOString().split("T")[0],
+        text,
+      );
+      await utilModel.registerActivity(
+        req.user.id,
+        "observation",
+        text,
+        "campaign",
+        campaignId,
+        new Date().toISOString().split("T")[0],
+      );
       res.status(200).json({ message: "Unido a la campaña exitosamente" });
     } else {
       res.status(500).json({ message: "No se pudo unir a la campaña" });

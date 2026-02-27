@@ -1,9 +1,11 @@
 import { campaignModel } from "../models/campaigns.model.js";
 import lotsModel from "../models/lots.model.js";
+import utilModel from "../models/util.model.js";
 
 export const CampaignController = {
   handlerUnlinkLotFromCampaign,
   handlerCompleteCampaign,
+  handlerGetActivities,
   handlerGetSowings,
   handlerRegisterSowing,
   handlerGetFertilizations,
@@ -20,21 +22,26 @@ async function handlerUnlinkLotFromCampaign(req, res) {
   const { campaignId } = req.params;
   const { unlinkDate, unlinkReason, lotId } = req.body;
 
-  console.log("Received unlink request:", {
-    campaignId,
-    unlinkDate,
-    unlinkReason,
-    lotId,
-  });
-
   try {
     const result = await campaignModel.unlinkLotFromCampaign(campaignId, lotId);
     if (result) {
       const lot = await lotsModel.getLotById(lotId);
+      const text =
+        (lot.lot_name.startsWith("Lote") ? "" : "Lote ") +
+        lot.lot_name +
+        " desvinculado de la campaña.";
       await campaignModel.registerObservation(
         campaignId,
         new Date(unlinkDate).toISOString().split("T")[0],
-        "Lote " + lot.lot_name + " desvinculado. Motivo: " + unlinkReason,
+        text + " Motivo: " + unlinkReason,
+      );
+      await utilModel.registerActivity(
+        req.user.id,
+        "observation",
+        text + " desvinculado",
+        "campaign",
+        campaignId,
+        new Date(unlinkDate).toISOString().split("T")[0],
       );
       res.status(200).json({ message: "Lote desvinculado con éxito" });
     } else {
@@ -66,6 +73,25 @@ async function handlerCompleteCampaign(req, res) {
   }
 }
 
+async function handlerGetActivities(req, res) {
+  const { campaignId } = req.params;
+  const userId = req.user.id;
+  try {
+    const activities = await utilModel.getActivities(
+      userId,
+      ["sowing", "fertilization", "spraying", "harvest", "observation"],
+      "campaign",
+      campaignId,
+      4,
+      "desc",
+    );
+    console.log("Activities retrieved from DB:", activities);
+    res.status(200).json(activities);
+  } catch (error) {
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+}
+
 async function handlerGetSowings(req, res) {
   const { campaignId } = req.params;
   try {
@@ -78,6 +104,7 @@ async function handlerGetSowings(req, res) {
 
 async function handlerRegisterSowing(req, res) {
   const { campaignId } = req.params;
+  const userId = req.user.id;
   const { cropType, variety, sowingDate, density, rowSpacing, method, notes } =
     req.body;
 
@@ -108,12 +135,19 @@ async function handlerRegisterSowing(req, res) {
       notes,
     );
     if (result) {
+      await utilModel.registerActivity(
+        userId,
+        "sowing",
+        `Siembra de ${variety} - ${cropType}`,
+        "campaign",
+        campaignId,
+        formattedDate,
+      );
       res.status(201).json({ message: "Siembra registrada con éxito" });
     } else {
       res.status(500).json({ message: "Error al registrar la siembra" });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 }
@@ -131,6 +165,7 @@ async function handlerGetFertilizations(req, res) {
 
 async function handlerRegisterFertilization(req, res) {
   const { campaignId } = req.params;
+  const userId = req.user.id;
   const { productName, dose, dateApplied, method, notes } = req.body;
 
   if (!productName || !dose || !dateApplied || !method) {
@@ -151,6 +186,14 @@ async function handlerRegisterFertilization(req, res) {
       notes,
     );
     if (result) {
+      await utilModel.registerActivity(
+        userId,
+        "fertilization",
+        `Fertilización con ${productName} - ${dose}`,
+        "campaign",
+        campaignId,
+        formattedDate,
+      );
       res.status(201).json({ message: "Fertilización registrada con éxito" });
     } else {
       res.status(500).json({ message: "Error al registrar la fertilización" });
@@ -172,6 +215,7 @@ async function handlerGetSprayings(req, res) {
 
 async function handlerRegisterSpraying(req, res) {
   const { campaignId } = req.params;
+  const userId = req.user.id;
   const { productName, dose, dateApplied, target, method, notes } = req.body;
 
   if (!productName || !dose || !dateApplied || !target || !method) {
@@ -193,6 +237,14 @@ async function handlerRegisterSpraying(req, res) {
       notes,
     );
     if (result) {
+      await utilModel.registerActivity(
+        userId,
+        "spraying",
+        `Pulverización con ${productName} contra ${target}`,
+        "campaign",
+        campaignId,
+        formattedDate,
+      );
       res.status(201).json({ message: "Pulverización registrada con éxito" });
     } else {
       res.status(500).json({ message: "Error al registrar la pulverización" });
@@ -214,6 +266,7 @@ async function handlerGetHarvests(req, res) {
 
 async function handlerRegisterHarvest(req, res) {
   const { campaignId } = req.params;
+  const userId = req.user.id;
   const { harvestDate, totalYieldKg, moisturePercentage, notes } = req.body;
 
   if (!harvestDate || !totalYieldKg || !moisturePercentage) {
@@ -233,6 +286,14 @@ async function handlerRegisterHarvest(req, res) {
       notes,
     );
     if (result) {
+      await utilModel.registerActivity(
+        userId,
+        "harvest",
+        `Cosecha: ${totalYieldKg} kg (Humedad: ${moisturePercentage}%)`,
+        "campaign",
+        campaignId,
+        formattedDate,
+      );
       res.status(201).json({ message: "Cosecha registrada con éxito" });
     } else {
       res.status(500).json({ message: "Error al registrar la cosecha" });
@@ -255,6 +316,7 @@ async function handlerGetObservations(req, res) {
 
 async function handlerRegisterObservation(req, res) {
   const { campaignId } = req.params;
+  const userId = req.user.id;
   const { observationDate, note } = req.body;
 
   if (!observationDate || !note) {
@@ -272,6 +334,14 @@ async function handlerRegisterObservation(req, res) {
       note,
     );
     if (result) {
+      await utilModel.registerActivity(
+        userId,
+        "observation",
+        note,
+        "campaign",
+        campaignId,
+        formattedDate,
+      );
       res.status(201).json({ message: "Observación registrada con éxito" });
     } else {
       res.status(500).json({ message: "Error al registrar la observación" });

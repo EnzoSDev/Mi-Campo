@@ -8,6 +8,7 @@ router.put(
   CampaignController.handlerUnlinkLotFromCampaign,
 );
 router.put("/:campaignId/complete", CampaignController.handlerCompleteCampaign);
+router.get("/:campaignId/activities", CampaignController.handlerGetActivities);
 router.get("/:campaignId/sowings", CampaignController.handlerGetSowings);
 router.post(
   "/:campaignId/registerSowing",

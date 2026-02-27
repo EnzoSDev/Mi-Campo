@@ -5,6 +5,8 @@ import {
   HarvestType,
   ObservationType,
 } from "@/types/campaignTypes";
+import { RecentActivity } from "@/types/utilTypes";
+
 import * as SecureStore from "expo-secure-store";
 
 const API_URL =
@@ -15,6 +17,7 @@ const API_URL =
 export const campaignAPI = {
   unlinkLotFromCampaign,
   completeCampaign,
+  getRecentActivities,
   getSowingsByCampaign,
   createSowing,
   getFertilizationsByCampaign,
@@ -87,6 +90,37 @@ async function completeCampaign(campaignId: number, completeReason: string) {
     }
 
     return true;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getRecentActivities(
+  campaignId: number,
+): Promise<RecentActivity[]> {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+
+    const response = await fetch(
+      `${API_URL}/campaigns/${campaignId}/activities`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Error al obtener las actividades recientes");
+    }
+
+    const data = await response.json();
+    return data;
   } catch (error) {
     throw error;
   }
