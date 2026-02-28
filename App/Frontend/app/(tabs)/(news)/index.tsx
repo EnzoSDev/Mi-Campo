@@ -1,58 +1,49 @@
 import { View, Text, FlatList, ActivityIndicator } from "react-native";
 import { useState, useEffect } from "react";
 import NewsCard from "@/components/NewsCard";
+import { NewsItem } from "@/types/utilTypes";
 
-interface NewsItem {
-  id: number;
-  title: string;
-  description: string;
-  imageUrl?: string;
-  date: string;
-  source?: string;
-}
+import * as SecureStore from "expo-secure-store";
+
+
+const API_URL =
+  process.env.NODE_ENV === "development"
+    ? process.env.EXPO_PUBLIC_API_URL
+    : process.env.EXPO_PUBLIC_PROD_API_URL;
 
 function News() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Aquí puedes agregar tu función para cargar las noticias desde la API
   const loadNews = async () => {
     setLoading(true);
+    setError(null);
     try {
-      // TODO: Implementar llamada a la API
-      // const response = await fetch('TU_API_URL');
-      // const data = await response.json();
-      // setNews(data);
 
-      // Datos de ejemplo mientras conectas tu API
-      setNews([
-        {
-          id: 1,
-          title: "Nueva temporada de siembra",
-          description: "Mejores prácticas para la siembra de esta temporada...",
-          imageUrl: "https://via.placeholder.com/400x300",
-          date: "Hace 2 horas",
-          source: "AgroNews",
+      const token = await SecureStore.getItemAsync("access-token");
+      if (!token) {
+        throw new Error("No se encontró el token de autenticación");
+      }
+
+      const response = await fetch(`${API_URL}/news`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        {
-          id: 2,
-          title: "Avances en agricultura sostenible",
-          description: "Nuevas técnicas que están revolucionando el sector...",
-          imageUrl: "https://via.placeholder.com/400x300",
-          date: "Hace 5 horas",
-          source: "Campo Digital",
-        },
-      ]);
+      });
+      const data = await response.json();
+      setNews(data);
     } catch (error) {
-      console.error("Error cargando noticias:", error);
+      setError("Error al cargar las noticias" + error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleNewsPress = (newsItem: NewsItem) => {
-    // TODO: Navegar a detalle de noticia o abrir enlace
-    console.log("Noticia seleccionada:", newsItem);
+    
   };
 
   useEffect(() => {
@@ -70,6 +61,14 @@ function News() {
         </Text>
       </View>
 
+      {error && (
+        <View className="mx-4 mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <Text className="text-red-600 dark:text-red-300">
+            {error}
+          </Text>
+        </View>
+      )}
+
       {loading && news.length === 0 ? (
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#267366" />
@@ -82,7 +81,7 @@ function News() {
           data={news}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <NewsCard {...item} onPress={() => handleNewsPress(item)} />
+            <NewsCard newItem={item} onPress={() => handleNewsPress(item)} />
           )}
           contentContainerStyle={{
             padding: 16,

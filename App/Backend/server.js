@@ -10,6 +10,10 @@ import userRoutes from "./routes/user.routes.js";
 import fieldsRoutes from "./routes/fields.routes.js";
 import lotsRoutes from "./routes/lots.routes.js";
 import campaignsRoutes from "./routes/campaigns.routes.js";
+import newsRoutes from "./routes/news.routes.js";
+
+// cron job para actualizar las noticias cada cierto tiempo
+//import newsJob from "./jobs/newsJob.js";
 
 dotenv.config();
 
@@ -52,12 +56,14 @@ app.disable("x-powered-by");
     })
 */
 
-app.use("/user", userRoutes);
+//newsJob.updateNews(); // Ejecutar la función al iniciar el servidor
 
-app.use(authMiddleware); // Si existe el token en las cookies, valida y agrega la info del usuario a req.user
+app.use("/user", userRoutes);
+//app.use(authMiddleware);  Si existe el token en las cookies, valida y agrega la info del usuario a req.user
 app.use("/fields", fieldsRoutes);
 app.use("/lots", lotsRoutes);
 app.use("/campaigns", campaignsRoutes);
+app.use("/news", newsRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Ruta no encontrada" });

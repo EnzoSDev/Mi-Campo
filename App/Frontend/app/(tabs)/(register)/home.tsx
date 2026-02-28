@@ -15,7 +15,7 @@ import { fieldAPI } from "../../../services/fieldAPI";
 import type { ResponseFieldType } from "@/types/fieldTypes";
 
 // Components
-import FieldCard from "../../../components/FieldCard";
+import FieldCard from "../../../components/fieldCard";
 
 export default function Home() {
   const [fields, setFields] = useState<ResponseFieldType[]>([]);
