@@ -10,7 +10,6 @@ export const userAPI = {
   login,
   register,
   checkSession,
-  getMe,
   logout,
 };
 
@@ -115,26 +114,6 @@ async function register(
     if (!res.ok) {
       throw new Error(data.message);
     }
-  } catch (error) {
-    throw error;
-  }
-}
-
-async function getMe() {
-  const token = await SecureStore.getItemAsync("access-token");
-  if (!token) {
-    throw new Error("No token found");
-  }
-  try {
-    const res = await fetch(`${API_URL}/user/me`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.message);
-    }
-    return data;
   } catch (error) {
     throw error;
   }

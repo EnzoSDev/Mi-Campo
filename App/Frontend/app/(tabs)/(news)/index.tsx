@@ -1,10 +1,9 @@
-import { View, Text, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, ActivityIndicator, Linking } from "react-native";
 import { useState, useEffect } from "react";
 import NewsCard from "@/components/NewsCard";
 import { NewsItem } from "@/types/utilTypes";
 
 import * as SecureStore from "expo-secure-store";
-
 
 const API_URL =
   process.env.NODE_ENV === "development"
@@ -20,7 +19,6 @@ function News() {
     setLoading(true);
     setError(null);
     try {
-
       const token = await SecureStore.getItemAsync("access-token");
       if (!token) {
         throw new Error("No se encontró el token de autenticación");
@@ -43,7 +41,7 @@ function News() {
   };
 
   const handleNewsPress = (newsItem: NewsItem) => {
-    
+    Linking.openURL(newsItem.url);
   };
 
   useEffect(() => {
@@ -63,9 +61,7 @@ function News() {
 
       {error && (
         <View className="mx-4 mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <Text className="text-red-600 dark:text-red-300">
-            {error}
-          </Text>
+          <Text className="text-red-600 dark:text-red-300">{error}</Text>
         </View>
       )}
 

@@ -29,12 +29,13 @@ async function getAllFields(): Promise<ResponseFieldType[]> {
       },
     });
 
+    const data = await res.json();
+
     if (!res.ok) {
-      throw new Error("Error al obtener los campos");
+      throw new Error(data.message);
     }
 
-    const data = (await res.json()).fields;
-    const fields: ResponseFieldType[] = data.map((field: any) => ({
+    const fields: ResponseFieldType[] = data.fields.map((field: any) => ({
       id: field.id,
       fieldName: field.field_name,
       locationName: field.location_name,

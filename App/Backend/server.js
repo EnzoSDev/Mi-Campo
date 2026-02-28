@@ -13,7 +13,7 @@ import campaignsRoutes from "./routes/campaigns.routes.js";
 import newsRoutes from "./routes/news.routes.js";
 
 // cron job para actualizar las noticias cada cierto tiempo
-//import newsJob from "./jobs/newsJob.js";
+import newsJob from "./jobs/newsJob.js";
 
 dotenv.config();
 
@@ -56,10 +56,10 @@ app.disable("x-powered-by");
     })
 */
 
-//newsJob.updateNews(); // Ejecutar la función al iniciar el servidor
+newsJob.updateNews(); // Ejecutar la función al iniciar el servidor
 
 app.use("/user", userRoutes);
-//app.use(authMiddleware);  Si existe el token en las cookies, valida y agrega la info del usuario a req.user
+app.use(authMiddleware); // Si existe el token en las cookies, valida y agrega la info del usuario a req.user
 app.use("/fields", fieldsRoutes);
 app.use("/lots", lotsRoutes);
 app.use("/campaigns", campaignsRoutes);
