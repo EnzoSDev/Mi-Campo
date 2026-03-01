@@ -45,6 +45,18 @@ router.get(
   "/getExpenseCategories",
   CampaignController.handlerGetExpenseCategories,
 );
-router.post("/:campaignId/expenses", CampaignController.handlerRegisterExpense);
+router.post(
+  "/:campaignId/registerExpense",
+  CampaignController.handlerRegisterExpense,
+);
+
+router.get(
+  "/getIncomeCategories",
+  CampaignController.handlerGetIncomeCategories,
+);
+router.post(
+  "/:campaignId/registerIncome",
+  CampaignController.handlerRegisterIncome,
+);
 
 export default router;

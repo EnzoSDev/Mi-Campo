@@ -18,6 +18,8 @@ export const CampaignController = {
   handlerRegisterObservation,
   handlerGetExpenseCategories,
   handlerRegisterExpense,
+  handlerGetIncomeCategories,
+  handlerRegisterIncome,
 };
 
 async function handlerUnlinkLotFromCampaign(req, res) {
@@ -81,7 +83,15 @@ async function handlerGetActivities(req, res) {
   try {
     const activities = await utilModel.getActivities(
       userId,
-      ["sowing", "fertilization", "spraying", "harvest", "observation"],
+      [
+        "sowing",
+        "fertilization",
+        "spraying",
+        "harvest",
+        "observation",
+        "expense",
+        "income",
+      ],
       "campaign",
       campaignId,
       4,
@@ -366,9 +376,19 @@ async function handlerRegisterExpense(req, res) {
   const { campaignId } = req.params;
   const { category_id, concept, amount, date, notes } = req.body;
 
+  console.log("Received expense data:", {
+    category_id,
+    concept,
+    amount,
+    date,
+    notes,
+  });
+
   if (!category_id || !concept || !amount || !date) {
     return res.status(400).json({ message: "Faltan datos obligatorios" });
   }
+
+  const notesToStore = notes === "" ? null : notes;
 
   try {
     // Formatear la fecha a YYYY-MM-DD para MySQL
@@ -380,7 +400,7 @@ async function handlerRegisterExpense(req, res) {
       concept,
       amount,
       formattedDate,
-      notes,
+      notesToStore,
     );
 
     if (result) {
@@ -397,6 +417,66 @@ async function handlerRegisterExpense(req, res) {
       res.status(500).json({ message: "Error al registrar el gasto" });
     }
   } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+}
+
+async function handlerGetIncomeCategories(req, res) {
+  try {
+    const categories = await campaignModel.getIncomeCategories();
+    res.status(200).json(categories);
+  } catch (error) {
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+}
+
+async function handlerRegisterIncome(req, res) {
+  const { campaignId } = req.params;
+  const { category_id, concept, amount, date, notes } = req.body;
+
+  console.log("Received income data:", {
+    category_id,
+    concept,
+    amount,
+    date,
+    notes,
+  });
+
+  if (!category_id || !concept || !amount || !date) {
+    return res.status(400).json({ message: "Faltan datos obligatorios" });
+  }
+
+  const notesToStore = notes === "" ? null : notes;
+
+  try {
+    // Formatear la fecha a YYYY-MM-DD para MySQL
+    const formattedDate = new Date(date).toISOString().split("T")[0];
+
+    const result = await campaignModel.registerIncome(
+      campaignId,
+      category_id,
+      concept,
+      amount,
+      formattedDate,
+      notesToStore,
+    );
+
+    if (result) {
+      await utilModel.registerActivity(
+        req.user.id,
+        "income",
+        `Ingreso registrado: ${concept} - $${amount}`,
+        "campaign",
+        campaignId,
+        formattedDate,
+      );
+      res.status(201).json({ message: "Ingreso registrado con éxito" });
+    } else {
+      res.status(500).json({ message: "Error al registrar el ingreso" });
+    }
+  } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 }

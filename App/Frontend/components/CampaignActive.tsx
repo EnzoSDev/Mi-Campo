@@ -149,6 +149,7 @@ function CampaignActive({
       setIsLoading(true);
       try {
         const activities = await campaignAPI.getRecentActivities(campaign.id);
+        console.log("Actividades recientes:", activities);
         setRecentActivities(activities);
       } catch (error) {
         setErrorMsg("Error al cargar las actividades recientes.");

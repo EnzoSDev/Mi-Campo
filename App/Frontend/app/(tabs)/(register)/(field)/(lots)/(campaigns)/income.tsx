@@ -1,30 +1,50 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   View,
   Text,
   Pressable,
   ScrollView,
   TextInput,
-  Alert,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
+import { campaignAPI } from "@/services/campaignAPI";
 
 function Income() {
+  const { campaignId } = useLocalSearchParams();
   const [concept, setConcept] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState<Date | null>(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [category, setCategory] = useState<
-    "Venta" | "Subsidio" | "Servicio" | "Otro"
-  >("Venta");
+  const [category, setCategory] = useState<number>(-1);
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
-  const categories = ["Venta", "Subsidio", "Servicio", "Otro"] as const;
+  const [incomeCategories, setIncomeCategories] = useState<
+    { id: number; description: string }[]
+  >([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setIsLoadingCategories(true);
+      try {
+        const categories = await campaignAPI.getIncomeCategories();
+        setIncomeCategories(categories);
+      } catch (error) {
+        setError("No se pudieron cargar las categorías de ingresos");
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const formatDate = (value: Date | null) => {
     if (!value) return "Seleccionar fecha";
@@ -36,16 +56,21 @@ function Income() {
     if (!amount || Number.isNaN(parsed) || parsed <= 0) return "-";
     return new Intl.NumberFormat("es-AR", {
       style: "currency",
-      currency: "ARS",
+      currency: "USD",
       maximumFractionDigits: 2,
     }).format(parsed);
   }, [amount]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const parsed = Number(amount.replace(",", "."));
 
     if (!concept.trim()) {
       setError("Ingresá el concepto del ingreso.");
+      return;
+    }
+
+    if (category === -1) {
+      setError("Seleccioná una categoría de ingreso.");
       return;
     }
 
@@ -60,12 +85,30 @@ function Income() {
     }
 
     setError("");
-    Alert.alert("Ingreso registrado", "El ingreso se registró correctamente.", [
-      {
-        text: "Aceptar",
-        onPress: () => router.back(),
-      },
-    ]);
+    setIsLoading(true);
+
+    console.log("Attempting to register income with data:", {
+      campaignId,
+      category,
+      concept,
+      amount: parsed,
+      date,
+      notes,
+    });
+    try {
+      await campaignAPI.registerIncome(
+        Number(campaignId),
+        category,
+        concept,
+        parsed,
+        date,
+        notes,
+      );
+      router.back();
+    } catch (error) {
+      setError("Error al registrar el ingreso");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -156,21 +199,33 @@ function Income() {
               <Text className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-2">
                 Categoría
               </Text>
-              <View className="bg-white/5 border border-white/10 rounded-2xl px-1">
-                <Picker
-                  selectedValue={category}
-                  onValueChange={(itemValue) => setCategory(itemValue)}
-                  style={{
-                    color: "white",
-                    height: 50,
-                  }}
-                  dropdownIconColor="#9ca3af"
-                >
-                  {categories.map((item) => (
-                    <Picker.Item key={item} label={item} value={item} />
-                  ))}
-                </Picker>
-              </View>
+              {isLoadingCategories ? (
+                <View className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 items-center justify-center h-12">
+                  <ActivityIndicator size="small" color="#10b981" />
+                </View>
+              ) : (
+                <View className="bg-white/5 border border-white/10 rounded-2xl px-1">
+                  <Picker
+                    selectedValue={category}
+                    onValueChange={(itemValue) => setCategory(itemValue)}
+                    dropdownIconColor="#9ca3af"
+                    style={{ color: "white" }}
+                  >
+                    <Picker.Item
+                      label="Seleccionar categoría..."
+                      value={-1}
+                      enabled={false}
+                    />
+                    {incomeCategories.map((item) => (
+                      <Picker.Item
+                        key={item.id}
+                        label={item.description}
+                        value={item.id}
+                      />
+                    ))}
+                  </Picker>
+                </View>
+              )}
             </View>
 
             <View>
@@ -194,12 +249,19 @@ function Income() {
 
       <View className="px-5 pb-6 pt-3 border-t border-white/10 bg-[#0F1113]">
         <Pressable
-          className="bg-emerald-500 rounded-2xl py-4 items-center active:opacity-80"
+          className={`bg-emerald-500 rounded-2xl py-4 items-center active:opacity-80 ${
+            isLoading ? "opacity-70" : ""
+          }`}
           onPress={handleSave}
+          disabled={isLoading}
         >
-          <Text className="text-[#0F1113] font-bold text-sm">
-            Guardar ingreso
-          </Text>
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#0F1113" />
+          ) : (
+            <Text className="text-[#0F1113] font-bold text-sm">
+              Guardar ingreso
+            </Text>
+          )}
         </Pressable>
       </View>
     </View>

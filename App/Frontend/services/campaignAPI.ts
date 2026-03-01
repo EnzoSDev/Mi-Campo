@@ -30,6 +30,8 @@ export const campaignAPI = {
   createObservation,
   getExpenseCategories,
   registerExpense,
+  getIncomeCategories,
+  registerIncome,
 };
 
 async function unlinkLotFromCampaign(
@@ -524,6 +526,74 @@ async function registerExpense(
 
     if (!response.ok) {
       throw new Error("Error al registrar el gasto");
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getIncomeCategories(): Promise<
+  { id: number; description: string }[]
+> {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+
+    const response = await fetch(`${API_URL}/campaigns/getIncomeCategories`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al obtener las categorías de ingresos");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function registerIncome(
+  campaignId: number,
+  categoryId: number,
+  concept: string,
+  amount: number,
+  date: Date,
+  notes: string,
+) {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+
+    const response = await fetch(
+      `${API_URL}/campaigns/${campaignId}/registerIncome`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          category_id: categoryId,
+          concept,
+          amount,
+          date,
+          notes,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Error al registrar el ingreso");
     }
   } catch (error) {
     throw error;

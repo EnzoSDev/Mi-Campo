@@ -15,6 +15,8 @@ export const campaignModel = {
   registerObservation,
   getExpenseCategories,
   registerExpense,
+  getIncomeCategories,
+  registerIncome,
 };
 
 async function unlinkLotFromCampaign(campaignId, lotId) {
@@ -171,12 +173,47 @@ async function getExpenseCategories() {
   return rows;
 }
 
-async function registerExpense(campaignId, categoryId, amount, date, notes) {
+async function registerExpense(
+  campaignId,
+  categoryId,
+  concept,
+  amount,
+  date,
+  notes,
+) {
   const query =
-    "INSERT INTO expenses (campaign_id, category_id, amount, date, notes) VALUES (?, ?, ?, ?, ?)";
+    "INSERT INTO expenses (campaign_id, expense_category_id, concept, amount, date, notes) VALUES (?, ?, ?, ?, ?, ?)";
   const [result] = await connection.execute(query, [
     campaignId,
     categoryId,
+    concept,
+    amount,
+    date,
+    notes,
+  ]);
+  return result.affectedRows === 1;
+}
+
+async function getIncomeCategories() {
+  const query = "SELECT id, description FROM income_categories";
+  const [rows] = await connection.execute(query);
+  return rows;
+}
+
+async function registerIncome(
+  campaignId,
+  categoryId,
+  concept,
+  amount,
+  date,
+  notes,
+) {
+  const query =
+    "INSERT INTO incomes (campaign_id, income_category_id, concept, amount, date, notes) VALUES (?, ?, ?, ?, ?, ?)";
+  const [result] = await connection.execute(query, [
+    campaignId,
+    categoryId,
+    concept,
     amount,
     date,
     notes,
