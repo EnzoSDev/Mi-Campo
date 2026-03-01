@@ -13,6 +13,8 @@ export const campaignModel = {
   registerHarvest,
   getObservationsByCampaignId,
   registerObservation,
+  getExpenseCategories,
+  registerExpense,
 };
 
 async function unlinkLotFromCampaign(campaignId, lotId) {
@@ -159,6 +161,25 @@ async function registerObservation(campaignId, observationDate, note) {
     campaignId,
     observationDate,
     note,
+  ]);
+  return result.affectedRows === 1;
+}
+
+async function getExpenseCategories() {
+  const query = "SELECT id, description FROM expense_categories";
+  const [rows] = await connection.execute(query);
+  return rows;
+}
+
+async function registerExpense(campaignId, categoryId, amount, date, notes) {
+  const query =
+    "INSERT INTO expenses (campaign_id, category_id, amount, date, notes) VALUES (?, ?, ?, ?, ?)";
+  const [result] = await connection.execute(query, [
+    campaignId,
+    categoryId,
+    amount,
+    date,
+    notes,
   ]);
   return result.affectedRows === 1;
 }

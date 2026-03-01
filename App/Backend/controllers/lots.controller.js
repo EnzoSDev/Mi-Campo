@@ -74,11 +74,19 @@ async function handleCreateCampaign(req, res) {
         message: "CAMPAIGN_ACTIVE_EXISTS",
       });
     }
+
+    // Formatear la fecha a YYYY-MM-DD para MySQL
+    const start = new Date(startDate);
+    const formattedStartDate = start.toISOString().split("T")[0];
+
+    const end = new Date(endDate);
+    const formattedEndDate = end.toISOString().split("T")[0];
+
     const result = await lotsModel.createCampaign({
       lotId,
       campaignName,
-      startDate,
-      endDate,
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
       description,
     });
     if (result) {

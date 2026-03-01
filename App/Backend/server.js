@@ -56,7 +56,7 @@ app.disable("x-powered-by");
     })
 */
 
-newsJob.updateNews(); // Ejecutar la función al iniciar el servidor
+//newsJob.updateNews(); // Ejecutar la función al iniciar el servidor
 
 app.use("/user", userRoutes);
 app.use(authMiddleware); // Si existe el token en las cookies, valida y agrega la info del usuario a req.user

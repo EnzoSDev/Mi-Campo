@@ -33,6 +33,20 @@ function Layout() {
       />
 
       <Tabs.Screen
+        name="(economy)"
+        options={{
+          title: "Economía",
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              icon="monetization-on"
+              title="Economía"
+            />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="(analytics)/analytics"
         options={{
           title: "Analisis",

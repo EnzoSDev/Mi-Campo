@@ -84,6 +84,10 @@ function CampaignActive({
         return 3;
       case "harvest":
         return 4;
+      case "income":
+        return 5;
+      case "expense":
+        return 6;
     }
     return 0;
   }
@@ -106,13 +110,23 @@ function CampaignActive({
     },
     {
       icon: "visibility" as keyof typeof MaterialIcons.glyphMap,
-      iconColor: "#ef4444",
+      iconColor: "#a855f7",
       title: "Observación registrada",
     },
     {
       icon: "agriculture" as keyof typeof MaterialIcons.glyphMap,
       iconColor: "#f59e0b",
       title: "Cosecha completada",
+    },
+    {
+      icon: "trending-up" as keyof typeof MaterialIcons.glyphMap,
+      iconColor: "#10b981",
+      title: "Ingreso registrado",
+    },
+    {
+      icon: "trending-down" as keyof typeof MaterialIcons.glyphMap,
+      iconColor: "#f43f5e",
+      title: "Gasto registrado",
     },
   ];
 

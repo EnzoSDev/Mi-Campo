@@ -30,7 +30,7 @@ function Campaign() {
       label: "Siembra",
       icon: "grass" as keyof typeof MaterialIcons.glyphMap,
       route: "./sowing" as const,
-      bg: "bg-green-500/20",
+      bg: "bg-green-500/35",
       iconColor: "#22c55e",
     },
     {
@@ -38,7 +38,7 @@ function Campaign() {
       label: "Fertilizaciones",
       icon: "opacity" as keyof typeof MaterialIcons.glyphMap,
       route: "./fertilization" as const,
-      bg: "bg-blue-500/20",
+      bg: "bg-blue-500/35",
       iconColor: "#3b82f6",
     },
     {
@@ -46,7 +46,7 @@ function Campaign() {
       label: "Pulverizaciones",
       icon: "water-drop" as keyof typeof MaterialIcons.glyphMap,
       route: "./spraying" as const,
-      bg: "bg-cyan-500/20",
+      bg: "bg-cyan-500/35",
       iconColor: "#06b6d4",
     },
     {
@@ -54,16 +54,32 @@ function Campaign() {
       label: "Cosecha",
       icon: "agriculture" as keyof typeof MaterialIcons.glyphMap,
       route: "./harvest" as const,
-      bg: "bg-amber-500/20",
+      bg: "bg-amber-500/35",
       iconColor: "#f59e0b",
+    },
+    {
+      key: "expense",
+      label: "Gastos",
+      icon: "trending-down" as keyof typeof MaterialIcons.glyphMap,
+      route: "./expense" as const,
+      bg: "bg-rose-500/35",
+      iconColor: "#f43f5e",
+    },
+    {
+      key: "income",
+      label: "Ingresos",
+      icon: "trending-up" as keyof typeof MaterialIcons.glyphMap,
+      route: "./income" as const,
+      bg: "bg-emerald-500/35",
+      iconColor: "#10b981",
     },
     {
       key: "observations",
       label: "Observaciones",
       icon: "visibility" as keyof typeof MaterialIcons.glyphMap,
       route: "./observation" as const,
-      bg: "bg-red-500/20",
-      iconColor: "#ef4444",
+      bg: "bg-purple-500/35",
+      iconColor: "#a855f7",
     },
   ] as const;
 
@@ -141,7 +157,7 @@ function Campaign() {
                     })
                   }
                 >
-                  <View className="w-10 h-10 rounded-xl bg-white/10 items-center justify-center mb-2">
+                  <View className="w-10 h-10 rounded-xl bg-white/20 items-center justify-center mb-2">
                     <MaterialIcons
                       name={option.icon}
                       size={20}

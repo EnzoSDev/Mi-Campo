@@ -16,6 +16,8 @@ export const CampaignController = {
   handlerRegisterHarvest,
   handlerGetObservations,
   handlerRegisterObservation,
+  handlerGetExpenseCategories,
+  handlerRegisterExpense,
 };
 
 async function handlerUnlinkLotFromCampaign(req, res) {
@@ -345,6 +347,54 @@ async function handlerRegisterObservation(req, res) {
       res.status(201).json({ message: "Observación registrada con éxito" });
     } else {
       res.status(500).json({ message: "Error al registrar la observación" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+}
+
+async function handlerGetExpenseCategories(req, res) {
+  try {
+    const categories = await campaignModel.getExpenseCategories();
+    res.status(200).json(categories);
+  } catch (error) {
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+}
+
+async function handlerRegisterExpense(req, res) {
+  const { campaignId } = req.params;
+  const { category_id, concept, amount, date, notes } = req.body;
+
+  if (!category_id || !concept || !amount || !date) {
+    return res.status(400).json({ message: "Faltan datos obligatorios" });
+  }
+
+  try {
+    // Formatear la fecha a YYYY-MM-DD para MySQL
+    const formattedDate = new Date(date).toISOString().split("T")[0];
+
+    const result = await campaignModel.registerExpense(
+      campaignId,
+      category_id,
+      concept,
+      amount,
+      formattedDate,
+      notes,
+    );
+
+    if (result) {
+      await utilModel.registerActivity(
+        req.user.id,
+        "expense",
+        `Gasto registrado: ${concept} - $${amount}`,
+        "campaign",
+        campaignId,
+        formattedDate,
+      );
+      res.status(201).json({ message: "Gasto registrado con éxito" });
+    } else {
+      res.status(500).json({ message: "Error al registrar el gasto" });
     }
   } catch (error) {
     res.status(500).json({ message: "Error interno del servidor" });
