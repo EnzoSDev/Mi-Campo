@@ -6,7 +6,6 @@ import {
   ScrollView,
   TextInput,
   Platform,
-  ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -23,8 +22,6 @@ function Expense() {
   const [category, setCategory] = useState<number>(-1);
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
   const [expenseCategories, setExpenseCategories] = useState<
     { id: number; description: string }[]
@@ -32,14 +29,11 @@ function Expense() {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      setIsLoadingCategories(true);
       try {
         const categories = await campaignAPI.getExpenseCategories();
         setExpenseCategories(categories);
       } catch (error) {
         setError("No se pudieron cargar las categorías de gastos");
-      } finally {
-        setIsLoadingCategories(false);
       }
     };
 
@@ -56,7 +50,7 @@ function Expense() {
     if (!amount || Number.isNaN(parsed) || parsed <= 0) return "-";
     return new Intl.NumberFormat("es-AR", {
       style: "currency",
-      currency: "USD",
+      currency: "ARS",
       maximumFractionDigits: 2,
     }).format(parsed);
   }, [amount]);
@@ -85,16 +79,6 @@ function Expense() {
     }
 
     setError("");
-    setIsLoading(true);
-
-    console.log("Attempting to register expense with data:", {
-      campaignId,
-      category,
-      concept,
-      amount: parsed,
-      date,
-      notes,
-    });
     try {
       await campaignAPI.registerExpense(
         Number(campaignId),
@@ -107,7 +91,6 @@ function Expense() {
       router.back();
     } catch (error) {
       setError("Error al registrar el gasto");
-      setIsLoading(false);
     }
   };
 
@@ -199,33 +182,27 @@ function Expense() {
               <Text className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-2">
                 Categoría
               </Text>
-              {isLoadingCategories ? (
-                <View className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 items-center justify-center h-12">
-                  <ActivityIndicator size="small" color="#e11d48" />
-                </View>
-              ) : (
-                <View className="bg-white/5 border border-white/10 rounded-2xl px-1">
-                  <Picker
-                    selectedValue={category}
-                    onValueChange={(itemValue) => setCategory(itemValue)}
-                    dropdownIconColor="#9ca3af"
-                    style={{ color: "white" }}
-                  >
+              <View className="bg-white/5 border border-white/10 rounded-2xl px-1">
+                <Picker
+                  selectedValue={category}
+                  onValueChange={(itemValue) => setCategory(itemValue)}
+                  dropdownIconColor="#9ca3af"
+                  style={{ color: "white" }}
+                >
+                  <Picker.Item
+                    label="Seleccionar categoría..."
+                    value={-1}
+                    enabled={false}
+                  />
+                  {expenseCategories.map((item) => (
                     <Picker.Item
-                      label="Seleccionar categoría..."
-                      value={-1}
-                      enabled={false}
+                      key={item.id}
+                      label={item.description}
+                      value={item.id}
                     />
-                    {expenseCategories.map((item) => (
-                      <Picker.Item
-                        key={item.id}
-                        label={item.description}
-                        value={item.id}
-                      />
-                    ))}
-                  </Picker>
-                </View>
-              )}
+                  ))}
+                </Picker>
+              </View>
             </View>
 
             <View>
@@ -249,17 +226,10 @@ function Expense() {
 
       <View className="px-5 pb-6 pt-3 border-t border-white/10 bg-[#0F1113]">
         <Pressable
-          className={`bg-rose-500 rounded-2xl py-4 items-center active:opacity-80 ${
-            isLoading ? "opacity-70" : ""
-          }`}
+          className="bg-rose-500 rounded-2xl py-4 items-center active:opacity-80"
           onPress={handleSave}
-          disabled={isLoading}
         >
-          {isLoading ? (
-            <ActivityIndicator size="small" color="white" />
-          ) : (
-            <Text className="text-white font-bold text-sm">Guardar gasto</Text>
-          )}
+          <Text className="text-white font-bold text-sm">Guardar gasto</Text>
         </Pressable>
       </View>
     </View>
