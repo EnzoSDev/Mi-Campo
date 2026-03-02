@@ -11,6 +11,7 @@ import fieldsRoutes from "./routes/fields.routes.js";
 import lotsRoutes from "./routes/lots.routes.js";
 import campaignsRoutes from "./routes/campaigns.routes.js";
 import newsRoutes from "./routes/news.routes.js";
+import economyRoutes from "./routes/economy.routes.js";
 
 // cron job para actualizar las noticias cada cierto tiempo
 import newsJob from "./jobs/newsJob.js";
@@ -64,6 +65,7 @@ app.use("/fields", fieldsRoutes);
 app.use("/lots", lotsRoutes);
 app.use("/campaigns", campaignsRoutes);
 app.use("/news", newsRoutes);
+app.use("/economy", economyRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Ruta no encontrada" });

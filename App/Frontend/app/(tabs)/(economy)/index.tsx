@@ -1,23 +1,17 @@
 import { useState } from "react";
 import { View, Text, ScrollView, Pressable, Modal } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import EconomyFilterModal from "@/components/EconomyFilterModal";
-
-type Transaction = {
-  id: number;
-  type: "income" | "expense";
-  field: string;
-  lot: string;
-  campaign: string;
-  date: string;
-  concept: string;
-  amount: number;
-  category: string;
-};
+import { EconomyData, Transaction } from "@/types/economyTypes";
+import { ResponseFieldType } from "@/types/fieldTypes";
 
 function Economy() {
-  const [totalIncome] = useState(250000);
-  const [totalExpense] = useState(80000);
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [totalExpense, setTotalExpense] = useState(0);
+  const [incomes, setIncomes] = useState<EconomyData[]>([]);
+  const [expenses, setExpenses] = useState<EconomyData[]>([]);
+
   const [activeTab, setActiveTab] = useState<"all" | "income" | "expense">(
     "all",
   );
@@ -31,83 +25,8 @@ function Economy() {
   const [showFilterModal, setShowFilterModal] = useState(false);
 
   const profit = totalIncome - totalExpense;
-  const profitMargin = ((profit / totalIncome) * 100).toFixed(1);
-
-  const transactions: Transaction[] = [
-    {
-      id: 1,
-      type: "income",
-      field: "Campo Norte",
-      lot: "Lote A",
-      campaign: "Soja 2024",
-      date: "2024-03-01",
-      concept: "Venta de soja",
-      amount: 50000,
-      category: "Venta",
-    },
-    {
-      id: 2,
-      type: "expense",
-      field: "Campo Norte",
-      lot: "Lote A",
-      campaign: "Soja 2024",
-      date: "2024-02-25",
-      concept: "Compra fertilizante",
-      amount: 15000,
-      category: "Fertilizante",
-    },
-    {
-      id: 3,
-      type: "income",
-      field: "Campo Sur",
-      lot: "Lote B",
-      campaign: "Maíz 2024",
-      date: "2024-03-02",
-      concept: "Venta de maíz",
-      amount: 80000,
-      category: "Venta",
-    },
-    {
-      id: 4,
-      type: "expense",
-      field: "Campo Sur",
-      lot: "Lote B",
-      campaign: "Maíz 2024",
-      date: "2024-02-20",
-      concept: "Fungicida",
-      amount: 8000,
-      category: "Fungicida",
-    },
-    {
-      id: 5,
-      type: "expense",
-      field: "Campo Norte",
-      lot: "Lote A",
-      campaign: "Soja 2024",
-      date: "2024-02-15",
-      concept: "Laboreo del terreno",
-      amount: 12000,
-      category: "Laboreo",
-    },
-  ];
-
-  const fieldOptions = Array.from(new Set(transactions.map((t) => t.field)));
-
-  const campaignOptions = Array.from(
-    new Set(
-      transactions
-        .filter((t) => !!selectedField && t.field === selectedField)
-        .map((t) => t.campaign),
-    ),
-  );
-
-  const filteredTransactions = transactions.filter((t) => {
-    if (activeTab === "income" && t.type !== "income") return false;
-    if (activeTab === "expense" && t.type !== "expense") return false;
-    if (appliedField && t.field !== appliedField) return false;
-    if (appliedCampaign && t.campaign !== appliedCampaign) return false;
-    return true;
-  });
+  const profitMargin =
+    totalIncome > 0 ? ((profit / totalIncome) * 100).toFixed(1) : "0";
 
   const handleFieldSelect = (field: string | null) => {
     setSelectedField(field);
@@ -142,9 +61,9 @@ function Economy() {
   };
 
   return (
-    <View className="flex-1 bg-[#1F242A]">
+    <SafeAreaView className="flex-1 bg-[#1F242A]" edges={["top"]}>
       {/* Header */}
-      <View className="px-5 pt-8 pb-6 border-b border-[#3B4450]">
+      <View className="px-5 pt-4 pb-6 border-b border-[#3B4450]">
         <View className="flex-row items-center justify-between">
           <Text className="text-[32px] font-semibold text-[#F3F4F6]">
             Economía
@@ -276,7 +195,7 @@ function Economy() {
                       <View className="flex-row items-center justify-between mb-2">
                         <View className="flex-row items-center gap-2 flex-1">
                           <View
-                            className={`w-1 h-1 rounded-full ${
+                            className={`w-2 h-2 rounded-full ${
                               transaction.type === "income"
                                 ? "bg-[#2E7D32]"
                                 : "bg-[#C62828]"
@@ -327,14 +246,12 @@ function Economy() {
         animationType="fade"
         onRequestClose={() => setShowModal(false)}
       >
-        <Pressable
-          className="flex-1 bg-black/50 justify-center items-center px-5"
-          onPress={() => setShowModal(false)}
-        >
+        <View className="flex-1 bg-black/50 justify-center items-center px-5">
           <Pressable
-            className="bg-[#2A3138] rounded-2xl w-full max-w-sm border border-[#3B4450]"
-            onPress={(e) => e.stopPropagation()}
-          >
+            onPress={() => setShowModal(false)}
+            className="absolute inset-0"
+          />
+          <View className="bg-[#2A3138] rounded-2xl w-full max-w-sm border border-[#3B4450]">
             {/* Header */}
             <View className="p-5 border-b border-[#3B4450]">
               <View className="flex-row items-center justify-between">
@@ -441,15 +358,15 @@ function Economy() {
                 </View>
               </ScrollView>
             )}
-          </Pressable>
-        </Pressable>
+          </View>
+        </View>
       </Modal>
 
       {/* Modal de Filtros */}
       <EconomyFilterModal
         visible={showFilterModal}
         onClose={() => setShowFilterModal(false)}
-        fieldOptions={fieldOptions}
+        fieldOptions={fields.map((field) => field.fieldName)}
         campaignOptions={campaignOptions}
         selectedField={selectedField}
         selectedCampaign={selectedCampaign}
@@ -458,7 +375,7 @@ function Economy() {
         onApplyFilter={handleApplyFilter}
         onClearFilter={handleClearFilter}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

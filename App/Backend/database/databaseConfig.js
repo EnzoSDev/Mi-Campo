@@ -1,7 +1,7 @@
-import mysql2 from 'mysql2/promise'
-import dotenv from 'dotenv'
+import mysql2 from "mysql2/promise";
+import dotenv from "dotenv";
 
-dotenv.config()
+dotenv.config();
 
 const configDB = {
   host: process.env.DB_HOST,
@@ -11,8 +11,8 @@ const configDB = {
   port: process.env.DB_PORT,
   connectionLimit: 10,
   waitForConnections: true,
-}
+};
 
-const pool = mysql2.createPool(configDB)
+const pool = mysql2.createPool(configDB);
 
-export default pool
+export default pool;
