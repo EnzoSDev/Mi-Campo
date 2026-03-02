@@ -1,10 +1,20 @@
 import economyModel from "../models/economy.model.js";
 
 export default {
+  handlerGetFilters,
   handlerGetEconomyData,
   handlerGetFieldEconomyData,
   handlerGetCampaignEconomyData,
 };
+
+async function handlerGetFilters(req, res) {
+  try {
+    const filters = await economyModel.getFilters();
+    res.json(filters);
+  } catch (error) {
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+}
 
 async function handlerGetEconomyData(req, res) {
   const userId = req.user.id;

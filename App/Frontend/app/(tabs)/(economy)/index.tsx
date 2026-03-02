@@ -3,14 +3,33 @@ import { View, Text, ScrollView, Pressable, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import EconomyFilterModal from "@/components/EconomyFilterModal";
-import { EconomyData, Transaction } from "@/types/economyTypes";
-import { ResponseFieldType } from "@/types/fieldTypes";
+
+type EconomyTransaction = {
+  id: string;
+  type: "income" | "expense";
+  concept: string;
+  amount: number;
+  date: string;
+  category: string;
+  field: string;
+  lot: string;
+  campaign: string;
+  notes?: string;
+};
 
 function Economy() {
-  const [totalIncome, setTotalIncome] = useState(0);
-  const [totalExpense, setTotalExpense] = useState(0);
-  const [incomes, setIncomes] = useState<EconomyData[]>([]);
-  const [expenses, setExpenses] = useState<EconomyData[]>([]);
+  const [totalIncome] = useState(0);
+  const [totalExpense] = useState(0);
+  const [filters] = useState<
+    {
+      field_id: number;
+      field_name: string;
+      lot_id: number;
+      lot_name: string;
+      campaign_id: number;
+      campaign_name: string;
+    }[]
+  >([]);
 
   const [activeTab, setActiveTab] = useState<"all" | "income" | "expense">(
     "all",
@@ -20,9 +39,41 @@ function Economy() {
   const [appliedField, setAppliedField] = useState<string | null>(null);
   const [appliedCampaign, setAppliedCampaign] = useState<string | null>(null);
   const [selectedTransaction, setSelectedTransaction] =
-    useState<Transaction | null>(null);
+    useState<EconomyTransaction | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
+
+  const fieldOptions = Array.from(
+    new Set(filters.map((item) => item.field_name).filter(Boolean)),
+  );
+
+  const campaignOptions = selectedField
+    ? Array.from(
+        new Set(
+          filters
+            .filter((item) => item.field_name === selectedField)
+            .map((item) => item.campaign_name)
+            .filter(Boolean),
+        ),
+      )
+    : [];
+
+  const allTransactions: EconomyTransaction[] = [];
+
+  const filteredTransactions = allTransactions.filter((transaction) => {
+    const matchesField =
+      !appliedField ||
+      transaction.field.toLowerCase() === appliedField.toLowerCase();
+
+    const matchesCampaign =
+      !appliedCampaign ||
+      transaction.campaign.toLowerCase() === appliedCampaign.toLowerCase();
+
+    const matchesTab =
+      activeTab === "all" ? true : transaction.type === activeTab;
+
+    return matchesField && matchesCampaign && matchesTab;
+  });
 
   const profit = totalIncome - totalExpense;
   const profitMargin =
@@ -56,7 +107,7 @@ function Economy() {
     }).format(value);
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | Date) => {
     return new Date(dateString).toLocaleDateString("es-AR");
   };
 
@@ -366,7 +417,7 @@ function Economy() {
       <EconomyFilterModal
         visible={showFilterModal}
         onClose={() => setShowFilterModal(false)}
-        fieldOptions={fields.map((field) => field.fieldName)}
+        fieldOptions={fieldOptions}
         campaignOptions={campaignOptions}
         selectedField={selectedField}
         selectedCampaign={selectedCampaign}
