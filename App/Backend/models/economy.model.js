@@ -1,33 +1,16 @@
 import connection from "../database/databaseConfig.js";
 
 export default {
-  getFilters,
   getAllIncomesAmount,
   getAllExpensesAmount,
-  getAllIncomesData,
-  getAllExpensesData,
+  getTransactionsData,
   getFieldIncomesAmount,
   getFieldExpensesAmount,
-  getFieldIncomesData,
-  getFieldExpensesData,
+  getFieldTransactionsData,
   getCampaignIncomesAmount,
   getCampaignExpensesAmount,
-  getCampaignIncomesData,
-  getCampaignExpensesData,
+  getCampaignTransactionsData,
 };
-
-async function getFilters(userId) {
-  const query = `
-    SELECT f.id as field_id, f.field_name, l.id as lot_id, l.lot_name, c.id as campaign_id, c.campaign_name
-    FROM fields as f
-    LEFT JOIN lots as l ON f.id = l.field_id
-    LEFT JOIN campaign_lots as cl ON l.id = cl.lot_id
-    LEFT JOIN campaigns as c ON cl.campaign_id = c.id
-    WHERE f.user_id = ? and f.is_active = 1 and (l.is_active = 1 OR l.id IS NULL) and (c.status = 'active' OR c.id IS NULL)
-  `;
-  const [rows] = await connection.execute(query, [userId]);
-  return rows;
-}
 
 async function getAllIncomesAmount(userId) {
   const [rows] = await connection.execute(
@@ -45,19 +28,42 @@ async function getAllExpensesAmount(userId) {
   return rows[0].total || 0;
 }
 
-async function getAllIncomesData(userId) {
-  const [rows] = await connection.execute(
-    "SELECT concept, amount, date, notes FROM incomes WHERE user_id = ? AND is_active = 1",
-    [userId],
-  );
-  return rows;
-}
-
-async function getAllExpensesData(userId) {
-  const [rows] = await connection.execute(
-    "SELECT concept, amount, date, notes FROM expenses WHERE user_id = ? AND is_active = 1",
-    [userId],
-  );
+async function getTransactionsData(userId) {
+  const query = `
+    SELECT 
+      i.id, 
+      'income' AS type, 
+      f.field_name, 
+      l.lot_name, 
+      c.campaign_name, 
+      i.concept, 
+      i.amount, 
+      i.date, 
+      i.notes
+    FROM incomes i
+    JOIN fields f ON i.field_id = f.id
+    JOIN lots l ON i.lot_id = l.id
+    JOIN campaigns c ON i.campaign_id = c.id
+    WHERE i.user_id = ? AND i.is_active = 1
+    UNION ALL
+    SELECT 
+      e.id, 
+      'expense' AS type, 
+      f.field_name, 
+      l.lot_name, 
+      c.campaign_name, 
+      e.concept, 
+      e.amount, 
+      e.date, 
+      e.notes
+    FROM expenses e
+    JOIN fields f ON e.field_id = f.id
+    JOIN lots l ON e.lot_id = l.id
+    JOIN campaigns c ON e.campaign_id = c.id
+    WHERE e.user_id = ? AND e.is_active = 1
+    ORDER BY date DESC
+  `;
+  const [rows] = await connection.execute(query, [userId, userId]);
   return rows;
 }
 
@@ -77,19 +83,42 @@ async function getFieldExpensesAmount(fieldId) {
   return rows[0].total || 0;
 }
 
-async function getFieldIncomesData(fieldId) {
-  const [rows] = await connection.execute(
-    "SELECT concept, amount, date, notes FROM incomes WHERE field_id = ? AND is_active = 1",
-    [fieldId],
-  );
-  return rows;
-}
-
-async function getFieldExpensesData(fieldId) {
-  const [rows] = await connection.execute(
-    "SELECT concept, amount, date, notes FROM expenses WHERE field_id = ? AND is_active = 1",
-    [fieldId],
-  );
+async function getFieldTransactionsData(fieldId) {
+  const query = `
+    SELECT 
+      i.id, 
+      'income' AS type, 
+      f.field_name, 
+      l.lot_name, 
+      c.campaign_name, 
+      i.concept, 
+      i.amount, 
+      i.date, 
+      i.notes
+    FROM incomes i
+    JOIN fields f ON i.field_id = f.id
+    JOIN lots l ON i.lot_id = l.id
+    JOIN campaigns c ON i.campaign_id = c.id
+    WHERE i.field_id = ? AND i.is_active = 1
+    UNION ALL
+    SELECT 
+      e.id, 
+      'expense' AS type, 
+      f.field_name, 
+      l.lot_name, 
+      c.campaign_name, 
+      e.concept, 
+      e.amount, 
+      e.date, 
+      e.notes
+    FROM expenses e
+    JOIN fields f ON e.field_id = f.id
+    JOIN lots l ON e.lot_id = l.id
+    JOIN campaigns c ON e.campaign_id = c.id
+    WHERE e.field_id = ? AND e.is_active = 1
+    ORDER BY date DESC
+  `;
+  const [rows] = await connection.execute(query, [fieldId, fieldId]);
   return rows;
 }
 
@@ -109,18 +138,41 @@ async function getCampaignExpensesAmount(campaignId) {
   return rows[0].total || 0;
 }
 
-async function getCampaignIncomesData(campaignId) {
-  const [rows] = await connection.execute(
-    "SELECT concept, amount, date, notes FROM incomes WHERE campaign_id = ? AND is_active = 1",
-    [campaignId],
-  );
-  return rows;
-}
-
-async function getCampaignExpensesData(campaignId) {
-  const [rows] = await connection.execute(
-    "SELECT concept, amount, date, notes FROM expenses WHERE campaign_id = ? AND is_active = 1",
-    [campaignId],
-  );
+async function getCampaignTransactionsData(campaignId) {
+  const query = `
+    SELECT 
+      i.id, 
+      'income' AS type, 
+      f.field_name, 
+      l.lot_name, 
+      c.campaign_name, 
+      i.concept, 
+      i.amount, 
+      i.date, 
+      i.notes
+    FROM incomes i
+    JOIN fields f ON i.field_id = f.id
+    JOIN lots l ON i.lot_id = l.id
+    JOIN campaigns c ON i.campaign_id = c.id
+    WHERE i.campaign_id = ? AND i.is_active = 1
+    UNION ALL
+    SELECT 
+      e.id, 
+      'expense' AS type, 
+      f.field_name, 
+      l.lot_name, 
+      c.campaign_name, 
+      e.concept, 
+      e.amount, 
+      e.date, 
+      e.notes
+    FROM expenses e
+    JOIN fields f ON e.field_id = f.id
+    JOIN lots l ON e.lot_id = l.id
+    JOIN campaigns c ON e.campaign_id = c.id
+    WHERE e.campaign_id = ? AND e.is_active = 1
+    ORDER BY date DESC
+  `;
+  const [rows] = await connection.execute(query, [campaignId, campaignId]);
   return rows;
 }

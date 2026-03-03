@@ -1,68 +1,79 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, ScrollView, Pressable, Modal } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { ResponseFieldType } from "@/types/fieldTypes";
+import { CampaignType } from "@/types/campaignTypes";
+import { fieldAPI } from "@/services/fieldAPI";
 
 interface EconomyFilterModalProps {
-  visible: boolean;
-  onClose: () => void;
-  fieldOptions: string[];
-  campaignOptions: string[];
-  selectedField: string | null;
-  selectedCampaign: string | null;
-  onFieldSelect: (field: string | null) => void;
-  onCampaignSelect: (campaign: string | null) => void;
-  onApplyFilter: () => void;
-  onClearFilter: () => void;
+  handleCloseFilterModal: () => void;
+  selectedField: { id: number; fieldName: string } | null;
+  setSelectedField: (field: { id: number; fieldName: string } | null) => void;
+  selectedCampaign: { id: number; campaignName: string } | null;
+  setSelectedCampaign: (
+    campaign: { id: number; campaignName: string } | null,
+  ) => void;
 }
 
 function EconomyFilterModal({
-  visible,
-  onClose,
-  fieldOptions,
-  campaignOptions,
+  handleCloseFilterModal,
   selectedField,
+  setSelectedField,
   selectedCampaign,
-  onFieldSelect,
-  onCampaignSelect,
-  onApplyFilter,
-  onClearFilter,
+  setSelectedCampaign,
 }: EconomyFilterModalProps) {
-  const [isFieldDropdownOpen, setIsFieldDropdownOpen] = useState(false);
-  const [isCampaignDropdownOpen, setIsCampaignDropdownOpen] = useState(false);
+  const [fields, setFields] = useState<ResponseFieldType[]>([]);
+  const [campaigns, setCampaigns] = useState<CampaignType[]>([]);
+  const [showFieldDropdown, setShowFieldDropdown] = useState(false);
+  const [showCampaignDropdown, setShowCampaignDropdown] = useState(false);
+  const [draftSelectedField, setDraftSelectedField] = useState<{
+    id: number;
+    fieldName: string;
+  } | null>(selectedField);
+  const [draftSelectedCampaign, setDraftSelectedCampaign] = useState<{
+    id: number;
+    campaignName: string;
+  } | null>(selectedCampaign);
 
-  const handleFieldSelect = (field: string | null) => {
-    onFieldSelect(field);
-    setIsFieldDropdownOpen(false);
-    setIsCampaignDropdownOpen(false);
-  };
+  useEffect(() => {
+    const fetchFields = async () => {
+      try {
+        const fields = await fieldAPI.getAllFields();
+        setFields(fields);
+      } catch (error) {
+        console.error("Error al obtener los campos:", error);
+      }
+    };
 
-  const handleCampaignSelect = (campaign: string | null) => {
-    onCampaignSelect(campaign);
-    setIsCampaignDropdownOpen(false);
-  };
+    fetchFields();
+  }, []);
 
-  const handleClear = () => {
-    onClearFilter();
-    setIsFieldDropdownOpen(false);
-    setIsCampaignDropdownOpen(false);
-  };
-
-  const handleApply = () => {
-    onApplyFilter();
-    setIsFieldDropdownOpen(false);
-    setIsCampaignDropdownOpen(false);
-  };
+  useEffect(() => {
+    if (draftSelectedField) {
+      const fetchCampaigns = async (fieldId: number) => {
+        try {
+          const campaigns = await fieldAPI.getCampaignsByField(fieldId);
+          setCampaigns(campaigns);
+        } catch (error) {
+          console.error("Error al obtener las campañas del campo:", error);
+        }
+      };
+      fetchCampaigns(draftSelectedField.id);
+    } else {
+      setCampaigns([]);
+    }
+  }, [draftSelectedField]);
 
   return (
     <Modal
-      visible={visible}
+      visible={true}
       transparent
       animationType="fade"
-      onRequestClose={onClose}
+      onRequestClose={() => handleCloseFilterModal()}
     >
       <Pressable
         className="flex-1 bg-black/80 justify-center items-center px-4"
-        onPress={onClose}
+        onPress={() => handleCloseFilterModal()}
       >
         <Pressable
           onPress={(e) => e.stopPropagation()}
@@ -73,7 +84,7 @@ function EconomyFilterModal({
             <Text className="text-white font-bold text-lg">
               Filtrar movimientos
             </Text>
-            <Pressable onPress={onClose}>
+            <Pressable onPress={() => handleCloseFilterModal()}>
               <MaterialIcons name="close" size={24} color="white" />
             </Pressable>
           </View>
@@ -85,21 +96,20 @@ function EconomyFilterModal({
             </Text>
             <Pressable
               onPress={() => {
-                setIsFieldDropdownOpen((prev) => !prev);
-                setIsCampaignDropdownOpen(false);
+                setShowFieldDropdown((prev) => !prev);
               }}
               className="h-11 px-3 rounded-lg border border-white/10 bg-white/5 flex-row items-center justify-between"
             >
               <Text
                 className={`text-sm font-semibold ${
-                  selectedField ? "text-white" : "text-white/60"
+                  draftSelectedField ? "text-white" : "text-white/60"
                 }`}
               >
-                {selectedField || "Todos"}
+                {draftSelectedField?.fieldName || "Todos"}
               </Text>
               <MaterialIcons
                 name={
-                  isFieldDropdownOpen
+                  showFieldDropdown
                     ? "keyboard-arrow-up"
                     : "keyboard-arrow-down"
                 }
@@ -108,27 +118,48 @@ function EconomyFilterModal({
               />
             </Pressable>
 
-            {isFieldDropdownOpen && (
-              <View className="mt-2 border border-white/10 bg-[#1A1D20] rounded-lg overflow-hidden max-h-48">
-                <ScrollView>
+            {showFieldDropdown && (
+              <View className="mt-2 border border-white/10 bg-[#1A1D20] rounded-lg overflow-hidden max-h-60">
+                <ScrollView
+                  showsVerticalScrollIndicator={true}
+                  persistentScrollbar={true}
+                  nestedScrollEnabled={true}
+                  bounces={true}
+                >
                   <Pressable
-                    onPress={() => handleFieldSelect(null)}
                     className="px-3 py-3 border-b border-white/10"
+                    onPress={() => {
+                      setDraftSelectedField(null);
+                      setDraftSelectedCampaign(null);
+                      setShowFieldDropdown(false);
+                    }}
                   >
                     <Text className="text-white/80 text-sm">Todos</Text>
                   </Pressable>
 
-                  {fieldOptions.map((field, index) => (
+                  {fields.map((field, index) => (
                     <Pressable
-                      key={field}
-                      onPress={() => handleFieldSelect(field)}
+                      key={field.id}
                       className={`px-3 py-3 ${
-                        index !== fieldOptions.length - 1
+                        index !== fields.length - 1
                           ? "border-b border-white/10"
                           : ""
                       }`}
+                      onPress={() => {
+                        // Solo resetear campaña si cambias de campo
+                        if (draftSelectedField?.id !== field.id) {
+                          setDraftSelectedCampaign(null);
+                        }
+                        setDraftSelectedField({
+                          id: field.id,
+                          fieldName: field.fieldName,
+                        });
+                        setShowFieldDropdown(false);
+                      }}
                     >
-                      <Text className="text-white/80 text-sm">{field}</Text>
+                      <Text className="text-white/80 text-sm">
+                        {field.fieldName}
+                      </Text>
                     </Pressable>
                   ))}
                 </ScrollView>
@@ -142,63 +173,80 @@ function EconomyFilterModal({
               CAMPAÑA
             </Text>
             <Pressable
-              disabled={!selectedField}
+              disabled={!draftSelectedField}
               onPress={() => {
-                if (!selectedField) return;
-                setIsCampaignDropdownOpen((prev) => !prev);
-                setIsFieldDropdownOpen(false);
+                if (!draftSelectedField) return;
+                setShowCampaignDropdown((prev) => !prev);
               }}
               className={`h-11 px-3 rounded-lg border flex-row items-center justify-between ${
-                !selectedField
+                !draftSelectedField
                   ? "border-white/10 bg-white/5"
                   : "border-white/10 bg-white/5"
               }`}
             >
               <Text
                 className={`text-sm font-semibold ${
-                  !selectedField
+                  !draftSelectedField
                     ? "text-white/40"
-                    : selectedCampaign
+                    : draftSelectedCampaign
                       ? "text-white"
                       : "text-white/60"
                 }`}
               >
-                {!selectedField
+                {!draftSelectedField
                   ? "Primero selecciona un campo"
-                  : selectedCampaign || "Todas"}
+                  : draftSelectedCampaign
+                    ? draftSelectedCampaign.campaignName
+                    : "Todas"}
               </Text>
               <MaterialIcons
                 name={
-                  isCampaignDropdownOpen
+                  showCampaignDropdown
                     ? "keyboard-arrow-up"
                     : "keyboard-arrow-down"
                 }
                 size={20}
-                color={selectedField ? "#94a3b8" : "#6b7280"}
+                color={draftSelectedField ? "#94a3b8" : "#6b7280"}
               />
             </Pressable>
 
-            {isCampaignDropdownOpen && selectedField && (
-              <View className="mt-2 border border-white/10 bg-[#1A1D20] rounded-lg overflow-hidden max-h-48">
-                <ScrollView>
+            {showCampaignDropdown && draftSelectedField && (
+              <View className="mt-2 border border-white/10 bg-[#1A1D20] rounded-lg overflow-hidden max-h-60">
+                <ScrollView
+                  showsVerticalScrollIndicator={true}
+                  persistentScrollbar={true}
+                  nestedScrollEnabled={true}
+                  bounces={true}
+                >
                   <Pressable
-                    onPress={() => handleCampaignSelect(null)}
                     className="px-3 py-3 border-b border-white/10"
+                    onPress={() => {
+                      setDraftSelectedCampaign(null);
+                      setShowCampaignDropdown(false);
+                    }}
                   >
                     <Text className="text-white/80 text-sm">Todas</Text>
                   </Pressable>
 
-                  {campaignOptions.map((campaign, index) => (
+                  {campaigns.map((campaign, index) => (
                     <Pressable
-                      key={campaign}
-                      onPress={() => handleCampaignSelect(campaign)}
+                      key={campaign.id}
                       className={`px-3 py-3 ${
-                        index !== campaignOptions.length - 1
+                        index !== campaigns.length - 1
                           ? "border-b border-white/10"
                           : ""
                       }`}
+                      onPress={() => {
+                        setDraftSelectedCampaign({
+                          id: campaign.id,
+                          campaignName: campaign.campaignName,
+                        });
+                        setShowCampaignDropdown(false);
+                      }}
                     >
-                      <Text className="text-white/80 text-sm">{campaign}</Text>
+                      <Text className="text-white/80 text-sm">
+                        {campaign.campaignName}
+                      </Text>
                     </Pressable>
                   ))}
                 </ScrollView>
@@ -209,16 +257,23 @@ function EconomyFilterModal({
           {/* Botones de acción */}
           <View className="flex-row gap-3 mt-2">
             <Pressable
-              onPress={handleClear}
               className="flex-1 bg-white/5 border border-white/10 rounded-lg py-3"
+              onPress={() => {
+                setDraftSelectedField(null);
+                setDraftSelectedCampaign(null);
+              }}
             >
               <Text className="text-white/80 text-center text-sm font-bold">
                 LIMPIAR
               </Text>
             </Pressable>
             <Pressable
-              onPress={handleApply}
               className="flex-1 bg-[#267366] rounded-lg py-3"
+              onPress={() => {
+                setSelectedField(draftSelectedField);
+                setSelectedCampaign(draftSelectedCampaign);
+                handleCloseFilterModal();
+              }}
             >
               <Text className="text-white text-center text-sm font-bold">
                 FILTRAR
