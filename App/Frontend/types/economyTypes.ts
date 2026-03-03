@@ -1,5 +1,5 @@
 export interface EconomyData {
-  income: number;
+  incomes: number;
   expenses: number;
   incomesData: Transaction[];
   expensesData: Transaction[];

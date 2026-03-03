@@ -16,6 +16,11 @@ router.get(
   "/:fieldId/campaigns/all-active",
   fieldsController.handleGetActiveCampaignsByField,
 );
+router.get(
+  // Ruta para obtener campañas por campo
+  "/:fieldId/campaigns",
+  fieldsController.handleGetCampaignsByField,
+);
 router.get("/", fieldsController.handleGetFields);
 router.post("/", fieldsController.handleCreateField);
 

@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, ScrollView, Pressable, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import EconomyFilterModal from "@/components/EconomyFilterModal";
+import { economyAPI } from "@/services/economyAPI";
+import { ResponseFieldType } from "@/types/fieldTypes";
+import { fieldAPI } from "@/services/fieldAPI";
+import { CampaignType } from "@/types/campaignTypes";
 
 type EconomyTransaction = {
   id: string;
@@ -18,85 +22,18 @@ type EconomyTransaction = {
 };
 
 function Economy() {
-  const [totalIncome] = useState(0);
-  const [totalExpense] = useState(0);
-  const [filters] = useState<
-    {
-      field_id: number;
-      field_name: string;
-      lot_id: number;
-      lot_name: string;
-      campaign_id: number;
-      campaign_name: string;
-    }[]
-  >([]);
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [totalExpense, setTotalExpense] = useState(0);
+  const [fields, setFields] = useState<ResponseFieldType[]>([]);
+  const [campaigns, setCampaigns] = useState<CampaignType[]>([]);
 
-  const [activeTab, setActiveTab] = useState<"all" | "income" | "expense">(
-    "all",
-  );
-  const [selectedField, setSelectedField] = useState<string | null>(null);
-  const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
-  const [appliedField, setAppliedField] = useState<string | null>(null);
-  const [appliedCampaign, setAppliedCampaign] = useState<string | null>(null);
-  const [selectedTransaction, setSelectedTransaction] =
-    useState<EconomyTransaction | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [showFilterModal, setShowFilterModal] = useState(false);
-
-  const fieldOptions = Array.from(
-    new Set(filters.map((item) => item.field_name).filter(Boolean)),
-  );
-
-  const campaignOptions = selectedField
-    ? Array.from(
-        new Set(
-          filters
-            .filter((item) => item.field_name === selectedField)
-            .map((item) => item.campaign_name)
-            .filter(Boolean),
-        ),
-      )
-    : [];
-
-  const allTransactions: EconomyTransaction[] = [];
-
-  const filteredTransactions = allTransactions.filter((transaction) => {
-    const matchesField =
-      !appliedField ||
-      transaction.field.toLowerCase() === appliedField.toLowerCase();
-
-    const matchesCampaign =
-      !appliedCampaign ||
-      transaction.campaign.toLowerCase() === appliedCampaign.toLowerCase();
-
-    const matchesTab =
-      activeTab === "all" ? true : transaction.type === activeTab;
-
-    return matchesField && matchesCampaign && matchesTab;
-  });
-
-  const profit = totalIncome - totalExpense;
-  const profitMargin =
-    totalIncome > 0 ? ((profit / totalIncome) * 100).toFixed(1) : "0";
-
-  const handleFieldSelect = (field: string | null) => {
-    setSelectedField(field);
-    setSelectedCampaign(null);
-  };
-
-  const handleCampaignSelect = (campaign: string | null) => {
-    setSelectedCampaign(campaign);
-  };
-
-  const handleClearFilter = () => {
-    setSelectedField(null);
-    setSelectedCampaign(null);
-  };
-
-  const handleApplyFilter = () => {
-    setAppliedField(selectedField);
-    setAppliedCampaign(selectedCampaign);
-    setShowFilterModal(false);
+  const fetchCampaigns = async (fieldId: number) => {
+    try {
+      const campaigns = await fieldAPI.getCampaignsByField(fieldId);
+      setCampaigns(campaigns);
+    } catch (error) {
+      console.error("Error al obtener las campañas del campo:", error);
+    }
   };
 
   const formatCurrency = (value: number) => {
@@ -110,6 +47,33 @@ function Economy() {
   const formatDate = (dateString: string | Date) => {
     return new Date(dateString).toLocaleDateString("es-AR");
   };
+
+  useEffect(() => {
+    const fetchFields = async () => {
+      try {
+        const fields = await fieldAPI.getAllFields();
+        setFields(fields);
+      } catch (error) {
+        console.error("Error al obtener los campos:", error);
+      }
+    };
+
+    fetchFields();
+  }, []);
+
+  useEffect(() => {
+    const fetchEconomyData = async () => {
+      try {
+        const data = await economyAPI.getAllEconomyData();
+        setTotalIncome(data.incomes);
+        setTotalExpense(data.expenses);
+      } catch (error) {
+        console.error("Error al obtener los datos de economía:", error);
+      }
+    };
+
+    fetchEconomyData();
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-[#1F242A]" edges={["top"]}>

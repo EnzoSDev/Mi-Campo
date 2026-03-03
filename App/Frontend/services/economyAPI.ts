@@ -12,7 +12,12 @@ export const economyAPI = {
 
 async function getAllEconomyData(): Promise<EconomyData> {
   try {
-    const token = await SecureStore.getItemAsync("token");
+    const token = await SecureStore.getItemAsync("access-token");
+
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+
     const response = await fetch(`${API_URL}/economy`, {
       method: "GET",
       headers: {

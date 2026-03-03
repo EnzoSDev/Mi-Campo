@@ -13,6 +13,7 @@ export const fieldAPI = {
   deleteField,
   getFieldGeometry,
   getAllActiveCampaigns,
+  getCampaignsByField,
 };
 
 async function getAllFields(): Promise<ResponseFieldType[]> {
@@ -135,6 +136,32 @@ async function getAllActiveCampaigns(fieldId: number): Promise<CampaignType[]> {
 
     if (!response.ok) {
       throw new Error("Error al obtener las campañas activas");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getCampaignsByField(fieldId: number): Promise<CampaignType[]> {
+  try {
+    const token = await SecureStore.getItemAsync("access-token");
+    if (!token) {
+      throw new Error("No se encontró el token de autenticación");
+    }
+
+    const response = await fetch(`${API_URL}/fields/${fieldId}/campaigns`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al obtener las campañas del campo");
     }
 
     const data = await response.json();
