@@ -14,6 +14,8 @@ export const userAPI = {
   logout,
   getUserData,
   updateUsername,
+  updatePassword,
+  updateProfileImage,
 };
 
 export type CountryCode = {
@@ -169,6 +171,69 @@ async function updateUsername(newUsername: string) {
     if (!res.ok) {
       throw new Error("Error al actualizar el nombre de usuario");
     }
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function updatePassword(
+  currentPassword: string,
+  newPassword: string,
+  newPasswordConfirm: string,
+) {
+  const token = await SecureStore.getItemAsync("access-token");
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/user/change-password`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        currentPassword,
+        newPassword,
+        newPasswordConfirm,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || "Error al actualizar la contraseña");
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function updateProfileImage(imageUri: string) {
+  const token = await SecureStore.getItemAsync("access-token");
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
+  const formData = new FormData();
+  formData.append("profileImage", {
+    uri: imageUri,
+    name: "profile.jpg",
+    type: "image/jpeg",
+  } as any);
+
+  try {
+    const res = await fetch(`${API_URL}/user/update-profile-image`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || "Error al actualizar la foto de perfil");
+    }
+    return data.profile_image;
   } catch (error) {
     throw error;
   }

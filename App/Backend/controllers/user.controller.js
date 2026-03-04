@@ -1,7 +1,13 @@
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import path from "path";
+import { fileURLToPath } from "url";
+import fs from "fs";
 import userModel from "../models/user.model.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -12,6 +18,8 @@ export default {
   handlerValidateSession,
   handlerGetData,
   handlerUpdateUsername,
+  handlerChangePassword,
+  handlerUpdateProfileImage,
 };
 
 async function handlerValidateSession(req, res) {
@@ -160,5 +168,78 @@ async function handlerUpdateUsername(req, res) {
       .json({ message: "Nombre de usuario actualizado exitosamente" });
   } catch (error) {
     res.status(401).json({ message: "Sesión inválida o expirada" });
+  }
+}
+
+async function handlerChangePassword(req, res) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ message: "Token de autenticación requerido" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+    const { currentPassword, newPassword, newPasswordConfirm } = req.body;
+    if (!currentPassword || !newPassword || !newPasswordConfirm) {
+      return res
+        .status(400)
+        .json({ message: "Todos los campos son requeridos" });
+    }
+
+    if (newPassword !== newPasswordConfirm) {
+      return res
+        .status(400)
+        .json({ message: "Las nuevas contraseñas no coinciden" });
+    }
+
+    const user = await userModel.findUserById(userId);
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password_hashed,
+    );
+
+    if (!isCurrentPasswordValid) {
+      return res
+        .status(401)
+        .json({ message: "La contraseña actual es incorrecta" });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    await userModel.changePassword(userId, hashedNewPassword);
+    res.status(200).json({ message: "Contraseña actualizada exitosamente" });
+  } catch (error) {
+    res.status(401).json({ message: "Sesión inválida o expirada" });
+  }
+}
+
+async function handlerUpdateProfileImage(req, res) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ message: "Token de autenticación requerido" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+  if (!imageUrl) {
+    return res.status(400).json({ message: "No se proporcionó una imagen" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+    await userModel.updateProfileImage(userId, imageUrl);
+    res.status(200).json({
+      message: "Foto de perfil actualizada exitosamente",
+      profile_image: imageUrl,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error al actualizar la foto de perfil" });
   }
 }

@@ -1,9 +1,19 @@
-import { View, Text, Image, Pressable, ScrollView, Modal } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  Pressable,
+  ScrollView,
+  Modal,
+  Alert,
+} from "react-native";
 import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { userAPI } from "../../../services/userAPI";
 import { useEffect, useState } from "react";
 import UpdateUsernameModal from "../../../components/UpdateUsernameModal";
+import UpdatePasswordModal from "../../../components/UpdatePasswordModal";
 
 function Profile() {
   const [username, setUsername] = useState<string>("");
@@ -11,6 +21,50 @@ function Profile() {
   const [countryCode, setCountryCode] = useState<string>("");
   const [showUpdateUsernameModal, setShowUpdateUsernameModal] =
     useState<boolean>(false);
+  const [showUpdatePasswordModal, setShowUpdatePasswordModal] =
+    useState<boolean>(false);
+
+  const [profileImageUrl, setProfileImageUrl] = useState<string>("");
+  const [uploading, setUploading] = useState(false);
+
+  const pickImage = async () => {
+    // Pedir permisos para acceder a la galería
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== "granted") {
+      Alert.alert(
+        "Permiso requerido",
+        "Necesitamos acceso a tu galería para cambiar la foto de perfil",
+      );
+      return;
+    }
+
+    // Abrir el selector de imágenes
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      await uploadProfileImage(result.assets[0].uri);
+    }
+  };
+
+  const uploadProfileImage = async (imageUri: string) => {
+    setUploading(true);
+    try {
+      const res = await userAPI.updateProfileImage(imageUri); // Envio la URI de la imagen y con el formData se encarga de subirla al backend
+      if (res.profile_image) {
+        setProfileImageUrl(res.profile_image); // Guardo la URL de la imagen del backend
+      }
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Error al subir la foto de perfil");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -52,7 +106,11 @@ function Profile() {
 
         <View className="bg-[#2d3136] rounded-2xl p-6 border border-white/10 items-center">
           <Image
-            source={{ uri: "https://i.pravatar.cc/300" }}
+            source={
+              profileImageUrl
+                ? { uri: profileImageUrl }
+                : { uri: "https://i.pravatar.cc/300" }
+            }
             className="h-28 w-28 rounded-full border-2 border-[#267366]"
           />
           <Text className="mt-4 text-2xl font-semibold text-white">
@@ -83,19 +141,26 @@ function Profile() {
             <MaterialIcons name="chevron-right" size={22} color="#94a3b8" />
           </Pressable>
 
-          <Pressable className="rounded-xl bg-[#2d3136] border border-white/10 px-4 py-4 flex-row items-center justify-between active:opacity-80">
+          <Pressable
+            onPress={pickImage}
+            disabled={uploading}
+            className="rounded-xl bg-[#2d3136] border border-white/10 px-4 py-4 flex-row items-center justify-between active:opacity-80"
+          >
             <View className="flex-row items-center gap-3">
               <View className="h-10 w-10 rounded-lg bg-white/5 items-center justify-center">
                 <MaterialIcons name="photo-camera" size={20} color="#BFDBFE" />
               </View>
               <Text className="text-base font-medium text-white">
-                Cambiar foto de perfil
+                {uploading ? "Subiendo..." : "Cambiar foto de perfil"}
               </Text>
             </View>
             <MaterialIcons name="chevron-right" size={22} color="#94a3b8" />
           </Pressable>
 
-          <Pressable className="rounded-xl bg-[#2d3136] border border-white/10 px-4 py-4 flex-row items-center justify-between active:opacity-80">
+          <Pressable
+            onPress={() => setShowUpdatePasswordModal(true)}
+            className="rounded-xl bg-[#2d3136] border border-white/10 px-4 py-4 flex-row items-center justify-between active:opacity-80"
+          >
             <View className="flex-row items-center gap-3">
               <View className="h-10 w-10 rounded-lg bg-white/5 items-center justify-center">
                 <MaterialIcons name="lock" size={20} color="#BFDBFE" />
@@ -149,6 +214,19 @@ function Profile() {
           onSuccess={(newUsername) => {
             setUsername(newUsername);
             setShowUpdateUsernameModal(false);
+          }}
+        />
+      </Modal>
+
+      <Modal
+        visible={showUpdatePasswordModal}
+        transparent={true}
+        animationType="fade"
+      >
+        <UpdatePasswordModal
+          onClose={() => setShowUpdatePasswordModal(false)}
+          onSuccess={() => {
+            setShowUpdatePasswordModal(false);
           }}
         />
       </Modal>

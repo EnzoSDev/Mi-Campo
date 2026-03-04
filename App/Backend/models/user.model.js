@@ -7,11 +7,21 @@ export default {
   createUser,
   getUserData,
   updateUsername,
+  findUserById,
+  changePassword,
+  updateProfileImage,
+  getUserIdByProfileImage,
 };
 
 async function findUserByEmail(email) {
   const query = " SELECT * FROM users WHERE email = ? AND is_active = 1 ";
   const [rows] = await connection.execute(query, [email]);
+  return rows[0];
+}
+
+async function findUserById(userId) {
+  const query = " SELECT * FROM users WHERE id = ? AND is_active = 1 ";
+  const [rows] = await connection.execute(query, [userId]);
   return rows[0];
 }
 
@@ -42,7 +52,7 @@ async function createUser({ username, email, passwordHash, countryCode }) {
 
 async function getUserData(userId) {
   const query =
-    " SELECT id, username, email, country_code FROM users WHERE id = ? ";
+    " SELECT id, username, email, country_code, profile_image FROM users WHERE id = ? ";
   const [rows] = await connection.execute(query, [userId]);
   return rows[0];
 }
@@ -51,4 +61,22 @@ async function updateUsername(userId, newUsername) {
   const query = " UPDATE users SET username = ? WHERE id = ? ";
   const [result] = await connection.execute(query, [newUsername, userId]);
   return result.affectedRows;
+}
+
+async function changePassword(userId, newPasswordHash) {
+  const query = " UPDATE users SET password_hashed = ? WHERE id = ? ";
+  const [result] = await connection.execute(query, [newPasswordHash, userId]);
+  return result.affectedRows;
+}
+
+async function updateProfileImage(userId, picturePath) {
+  const query = " UPDATE users SET profile_image = ? WHERE id = ? ";
+  const [result] = await connection.execute(query, [picturePath, userId]);
+  return result.affectedRows;
+}
+
+async function getUserIdByProfileImage(imagePath) {
+  const query = " SELECT id FROM users WHERE profile_image = ? AND is_active = 1 ";
+  const [rows] = await connection.execute(query, [imagePath]);
+  return rows[0]?.id;
 }
