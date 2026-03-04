@@ -7,7 +7,9 @@ router.get(
   "/campaign/:campaignId",
   economyController.handlerGetCampaignEconomyData,
 );
-router.get("/field/:fieldId", economyController.handlerGetFieldEconomyData);
-router.get("/", economyController.handlerGetEconomyData);
+
+router.use((req, res) => {
+  res.status(404).json({ message: "Ruta no encontrada" });
+});
 
 export default router;

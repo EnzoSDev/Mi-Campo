@@ -7,10 +7,13 @@ const API_URL =
 
 export const userAPI = {
   getCountryCodes,
+  countryCodeToEmoji,
   login,
   register,
   checkSession,
   logout,
+  getUserData,
+  updateUsername,
 };
 
 export type CountryCode = {
@@ -19,7 +22,7 @@ export type CountryCode = {
   flag: string;
 };
 
-function countryCodeToEmoji(code: string) {
+export function countryCodeToEmoji(code: string) {
   return code
     .toUpperCase()
     .replace(/./g, (char) => String.fromCodePoint(127397 + char.charCodeAt(0)));
@@ -122,6 +125,50 @@ async function register(
 async function logout() {
   try {
     await SecureStore.deleteItemAsync("access-token");
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getUserData() {
+  const token = await SecureStore.getItemAsync("access-token");
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/user/data`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message);
+    }
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function updateUsername(newUsername: string) {
+  const token = await SecureStore.getItemAsync("access-token");
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/user/username`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ newUsername }),
+    });
+    if (!res.ok) {
+      throw new Error("Error al actualizar el nombre de usuario");
+    }
   } catch (error) {
     throw error;
   }

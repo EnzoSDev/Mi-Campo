@@ -7,6 +7,8 @@ router.post("/login", userController.handlerLogin);
 router.post("/register", userController.handlerRegister);
 router.get("/country-codes", userController.handlerGetCountryCodes);
 router.get("/validate-session", userController.handlerValidateSession);
+router.get("/data", userController.handlerGetData);
+router.put("/username", userController.handlerUpdateUsername);
 router.use((req, res) => {
   res.status(404).json({ message: "Ruta no encontrada" });
 });

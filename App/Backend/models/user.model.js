@@ -5,6 +5,8 @@ export default {
   findUserByEmail,
   getCountryCodes,
   createUser,
+  getUserData,
+  updateUsername,
 };
 
 async function findUserByEmail(email) {
@@ -35,5 +37,18 @@ async function createUser({ username, email, passwordHash, countryCode }) {
     countryCode,
     true,
   ]);
+  return result.affectedRows;
+}
+
+async function getUserData(userId) {
+  const query =
+    " SELECT id, username, email, country_code FROM users WHERE id = ? ";
+  const [rows] = await connection.execute(query, [userId]);
+  return rows[0];
+}
+
+async function updateUsername(userId, newUsername) {
+  const query = " UPDATE users SET username = ? WHERE id = ? ";
+  const [result] = await connection.execute(query, [newUsername, userId]);
   return result.affectedRows;
 }

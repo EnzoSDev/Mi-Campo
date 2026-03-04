@@ -34,6 +34,7 @@ function EconomyFilterModal({
     id: number;
     campaignName: string;
   } | null>(selectedCampaign);
+  const [filterError, setFilterError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchFields = async () => {
@@ -105,7 +106,7 @@ function EconomyFilterModal({
                   draftSelectedField ? "text-white" : "text-white/60"
                 }`}
               >
-                {draftSelectedField?.fieldName || "Todos"}
+                {draftSelectedField?.fieldName || "Selecciona un campo"}
               </Text>
               <MaterialIcons
                 name={
@@ -126,17 +127,6 @@ function EconomyFilterModal({
                   nestedScrollEnabled={true}
                   bounces={true}
                 >
-                  <Pressable
-                    className="px-3 py-3 border-b border-white/10"
-                    onPress={() => {
-                      setDraftSelectedField(null);
-                      setDraftSelectedCampaign(null);
-                      setShowFieldDropdown(false);
-                    }}
-                  >
-                    <Text className="text-white/80 text-sm">Todos</Text>
-                  </Pressable>
-
                   {fields.map((field, index) => (
                     <Pressable
                       key={field.id}
@@ -150,6 +140,7 @@ function EconomyFilterModal({
                         if (draftSelectedField?.id !== field.id) {
                           setDraftSelectedCampaign(null);
                         }
+                        setFilterError(null);
                         setDraftSelectedField({
                           id: field.id,
                           fieldName: field.fieldName,
@@ -197,7 +188,7 @@ function EconomyFilterModal({
                   ? "Primero selecciona un campo"
                   : draftSelectedCampaign
                     ? draftSelectedCampaign.campaignName
-                    : "Todas"}
+                    : "Selecciona una campaña"}
               </Text>
               <MaterialIcons
                 name={
@@ -218,16 +209,6 @@ function EconomyFilterModal({
                   nestedScrollEnabled={true}
                   bounces={true}
                 >
-                  <Pressable
-                    className="px-3 py-3 border-b border-white/10"
-                    onPress={() => {
-                      setDraftSelectedCampaign(null);
-                      setShowCampaignDropdown(false);
-                    }}
-                  >
-                    <Text className="text-white/80 text-sm">Todas</Text>
-                  </Pressable>
-
                   {campaigns.map((campaign, index) => (
                     <Pressable
                       key={campaign.id}
@@ -237,6 +218,7 @@ function EconomyFilterModal({
                           : ""
                       }`}
                       onPress={() => {
+                        setFilterError(null);
                         setDraftSelectedCampaign({
                           id: campaign.id,
                           campaignName: campaign.campaignName,
@@ -254,6 +236,14 @@ function EconomyFilterModal({
             )}
           </View>
 
+          {filterError && (
+            <View className="bg-red-500/15 border border-red-500/30 rounded-lg px-3 py-2">
+              <Text className="text-red-300 text-xs font-semibold text-center">
+                {filterError}
+              </Text>
+            </View>
+          )}
+
           {/* Botones de acción */}
           <View className="flex-row gap-3 mt-2">
             <Pressable
@@ -261,6 +251,7 @@ function EconomyFilterModal({
               onPress={() => {
                 setDraftSelectedField(null);
                 setDraftSelectedCampaign(null);
+                setFilterError(null);
               }}
             >
               <Text className="text-white/80 text-center text-sm font-bold">
@@ -270,6 +261,12 @@ function EconomyFilterModal({
             <Pressable
               className="flex-1 bg-[#267366] rounded-lg py-3"
               onPress={() => {
+                if (!draftSelectedField || !draftSelectedCampaign) {
+                  setFilterError("Debes seleccionar un campo y una campaña.");
+                  return;
+                }
+
+                setFilterError(null);
                 setSelectedField(draftSelectedField);
                 setSelectedCampaign(draftSelectedCampaign);
                 handleCloseFilterModal();

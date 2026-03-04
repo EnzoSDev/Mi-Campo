@@ -5,13 +5,9 @@ export interface EconomyData {
 }
 
 export interface Transaction {
-  id: number;
-  type: "income" | "expense";
-  fieldName: string;
-  lotName: string;
-  campaignName: string;
-  concept: string;
   category: string;
+  type: "income" | "expense";
+  concept: string;
   amount: number;
   date: Date;
   notes: string;

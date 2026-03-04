@@ -22,9 +22,6 @@ function Economy() {
   const [activeTab, setActiveTab] = useState<"all" | "income" | "expense">(
     "all",
   );
-  const [showModal, setShowModal] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] =
-    useState<Transaction | null>(null);
   const [showFilterModal, setShowFilterModal] = useState(false);
 
   const handleCloseFilterModal = () => {
@@ -43,33 +40,24 @@ function Economy() {
     return new Date(dateString).toLocaleDateString("es-AR");
   };
 
+  const filteredTransactions = transactions.filter((transaction) => {
+    if (activeTab === "all") return true;
+    return transaction.type === activeTab;
+  });
+
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        if (!selectedField) {
-          const data = await economyAPI.getAllEconomyData();
-          setTotalIncome(data.incomes);
-          setTotalExpense(data.expenses);
-          setTransactions(data.transactions);
-          console.log("Data fetched for all economy:", data);
-        } else if (!selectedCampaign) {
-          const data = await economyAPI.getEconomyDataByField(selectedField.id);
-          console.log("Data fetched for field:", data);
-          setTotalIncome(data.incomes);
-          setTotalExpense(data.expenses);
-          setTransactions(data.transactions);
-        } else {
+      if (selectedField && selectedCampaign)
+        try {
           const data = await economyAPI.getEconomyDataByCampaign(
             selectedCampaign.id,
           );
-          console.log("Data fetched for campaign:", data);
           setTotalIncome(data.incomes);
           setTotalExpense(data.expenses);
           setTransactions(data.transactions);
+        } catch (error) {
+          console.error("Error fetching economy data:", error);
         }
-      } catch (error) {
-        console.error("Error fetching economy data:", error);
-      }
     };
 
     fetchData();
@@ -199,14 +187,10 @@ function Economy() {
 
               {/* Lista de transacciones sin scroll */}
               <View className="gap-2">
-                {transactions && transactions.length > 0 ? (
-                  transactions.map((transaction) => (
+                {filteredTransactions.length > 0 ? (
+                  filteredTransactions.map((transaction, index) => (
                     <Pressable
-                      key={transaction.id}
-                      onPress={() => {
-                        setSelectedTransaction(transaction);
-                        setShowModal(true);
-                      }}
+                      key={index}
                       className={`bg-[#2A3138] rounded-xl p-4 border active:opacity-70 ${
                         transaction.type === "income"
                           ? "border-[#315C3C]"
@@ -259,129 +243,6 @@ function Economy() {
           </View>
         </View>
       </ScrollView>
-
-      {/* Modal de detalles */}
-      <Modal
-        visible={showModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowModal(false)}
-      >
-        <View className="flex-1 bg-black/50 justify-center items-center px-5">
-          <Pressable
-            onPress={() => setShowModal(false)}
-            className="absolute inset-0"
-          />
-          <View className="bg-[#2A3138] rounded-2xl w-full max-w-sm border border-[#3B4450]">
-            {/* Header */}
-            <View className="p-5 border-b border-[#3B4450]">
-              <View className="flex-row items-center justify-between">
-                <Text className="text-[#F3F4F6] text-2xl font-semibold">
-                  Detalles
-                </Text>
-                <Pressable
-                  onPress={() => setShowModal(false)}
-                  className="bg-[#3B4450] p-3 rounded-lg active:bg-[#4B5563]"
-                >
-                  <MaterialIcons name="close" size={20} color="#F3F4F6" />
-                </Pressable>
-              </View>
-            </View>
-
-            {selectedTransaction && (
-              <ScrollView className="max-h-[500px]">
-                <View className="p-5 gap-4">
-                  {/* Monto */}
-                  <View className="py-4">
-                    <Text className="text-[#CBD5E1] text-base mb-2">Monto</Text>
-                    <Text
-                      className={`text-[34px] font-bold ${
-                        selectedTransaction.type === "income"
-                          ? "text-[#2E7D32]"
-                          : "text-[#C62828]"
-                      }`}
-                    >
-                      {selectedTransaction.type === "income" ? "+" : "-"}
-                      {formatCurrency(selectedTransaction.amount)}
-                    </Text>
-                  </View>
-
-                  <View className="h-px bg-[#3B4450]" />
-
-                  {/* Información */}
-                  <View className="gap-3">
-                    <View>
-                      <Text className="text-[#CBD5E1] text-base mb-1">
-                        Concepto
-                      </Text>
-                      <Text className="text-[#F3F4F6] text-lg">
-                        {selectedTransaction.concept}
-                      </Text>
-                    </View>
-
-                    <View>
-                      <Text className="text-[#CBD5E1] text-base mb-1">
-                        Categoría
-                      </Text>
-                      <Text className="text-[#F3F4F6] text-lg">
-                        {selectedTransaction.category}
-                      </Text>
-                    </View>
-
-                    <View>
-                      <Text className="text-[#CBD5E1] text-base mb-1">
-                        Fecha
-                      </Text>
-                      <Text className="text-[#F3F4F6] text-lg">
-                        {formatDate(selectedTransaction.date)}
-                      </Text>
-                    </View>
-
-                    <View className="h-px bg-[#3B4450]" />
-
-                    <View>
-                      <Text className="text-[#CBD5E1] text-base mb-1">
-                        Campo
-                      </Text>
-                      <Text className="text-[#F3F4F6] text-lg">
-                        {selectedTransaction.fieldName}
-                      </Text>
-                    </View>
-
-                    <View>
-                      <Text className="text-[#CBD5E1] text-base mb-1">
-                        Lote
-                      </Text>
-                      <Text className="text-[#F3F4F6] text-lg">
-                        {selectedTransaction.lotName}
-                      </Text>
-                    </View>
-
-                    <View>
-                      <Text className="text-[#CBD5E1] text-base mb-1">
-                        Campaña
-                      </Text>
-                      <Text className="text-[#F3F4F6] text-lg">
-                        {selectedTransaction.campaignName}
-                      </Text>
-                    </View>
-                  </View>
-
-                  {/* Botón cerrar */}
-                  <Pressable
-                    onPress={() => setShowModal(false)}
-                    className="bg-[#1565C0] rounded-lg py-4 mt-2 active:bg-[#0F4EA0]"
-                  >
-                    <Text className="text-white font-semibold text-center text-lg">
-                      Cerrar
-                    </Text>
-                  </Pressable>
-                </View>
-              </ScrollView>
-            )}
-          </View>
-        </View>
-      </Modal>
 
       {/* Modal de Filtros */}
       {showFilterModal && (

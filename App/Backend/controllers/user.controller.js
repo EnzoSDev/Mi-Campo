@@ -10,6 +10,8 @@ export default {
   handlerGetCountryCodes,
   handlerRegister,
   handlerValidateSession,
+  handlerGetData,
+  handlerUpdateUsername,
 };
 
 async function handlerValidateSession(req, res) {
@@ -114,5 +116,49 @@ async function handlerRegister(req, res) {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error interno del servidor" });
+  }
+}
+
+async function handlerGetData(req, res) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ message: "Token de autenticación requerido" });
+  }
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+    const userData = await userModel.getUserData(userId);
+    res.status(200).json(userData);
+  } catch (error) {
+    res.status(401).json({ message: "Sesión inválida o expirada" });
+  }
+}
+
+async function handlerUpdateUsername(req, res) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ message: "Token de autenticación requerido" });
+  }
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+    const { newUsername } = req.body;
+    if (!newUsername) {
+      return res
+        .status(400)
+        .json({ message: "El nuevo nombre de usuario es requerido" });
+    }
+    await userModel.updateUsername(userId, newUsername);
+    res
+      .status(200)
+      .json({ message: "Nombre de usuario actualizado exitosamente" });
+  } catch (error) {
+    res.status(401).json({ message: "Sesión inválida o expirada" });
   }
 }
