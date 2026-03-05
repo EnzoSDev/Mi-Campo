@@ -1,5 +1,6 @@
 import { EconomyData } from "../types/economyTypes";
 import * as SecureStore from "expo-secure-store";
+import { getToken } from "./utils";
 
 const API_URL =
   process.env.NODE_ENV === "development"
@@ -14,10 +15,7 @@ async function getEconomyDataByCampaign(
   campaignId: number,
 ): Promise<EconomyData> {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(`${API_URL}/economy/campaign/${campaignId}`, {
       method: "GET",

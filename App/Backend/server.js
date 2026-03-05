@@ -28,6 +28,7 @@ app.use(
   }),
 );
 app.use(express.json());
+app.use("/uploads", express.static("uploads")); // Servir archivos estáticos en /uploads
 app.disable("x-powered-by");
 
 /*

@@ -1,4 +1,5 @@
 import * as SecureStore from "expo-secure-store";
+import { getToken } from "./utils";
 
 const API_URL =
   process.env.NODE_ENV === "development"
@@ -133,12 +134,8 @@ async function logout() {
 }
 
 async function getUserData() {
-  const token = await SecureStore.getItemAsync("access-token");
-  if (!token) {
-    throw new Error("No authentication token found");
-  }
-
   try {
+    const token = await getToken();
     const res = await fetch(`${API_URL}/user/data`, {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
@@ -154,12 +151,8 @@ async function getUserData() {
 }
 
 async function updateUsername(newUsername: string) {
-  const token = await SecureStore.getItemAsync("access-token");
-  if (!token) {
-    throw new Error("No authentication token found");
-  }
-
   try {
+    const token = await getToken();
     const res = await fetch(`${API_URL}/user/username`, {
       method: "PUT",
       headers: {
@@ -181,12 +174,8 @@ async function updatePassword(
   newPassword: string,
   newPasswordConfirm: string,
 ) {
-  const token = await SecureStore.getItemAsync("access-token");
-  if (!token) {
-    throw new Error("No authentication token found");
-  }
-
   try {
+    const token = await getToken();
     const res = await fetch(`${API_URL}/user/change-password`, {
       method: "PUT",
       headers: {
@@ -209,19 +198,16 @@ async function updatePassword(
 }
 
 async function updateProfileImage(imageUri: string) {
-  const token = await SecureStore.getItemAsync("access-token");
-  if (!token) {
-    throw new Error("No authentication token found");
-  }
-
-  const formData = new FormData();
-  formData.append("profileImage", {
-    uri: imageUri,
-    name: "profile.jpg",
-    type: "image/jpeg",
-  } as any);
-
   try {
+    const token = await getToken();
+    // FormData permite enviar archivos al backend
+    const formData = new FormData();
+    formData.append("profileImage", {
+      // profileImage es la key que espera el backend
+      uri: imageUri,
+      name: "profile.jpg",
+      type: "image/jpeg",
+    } as any);
     const res = await fetch(`${API_URL}/user/update-profile-image`, {
       method: "PUT",
       headers: {
@@ -230,6 +216,7 @@ async function updateProfileImage(imageUri: string) {
       body: formData,
     });
     const data = await res.json();
+
     if (!res.ok) {
       throw new Error(data.message || "Error al actualizar la foto de perfil");
     }

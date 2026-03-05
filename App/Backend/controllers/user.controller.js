@@ -1,13 +1,7 @@
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs";
 import userModel from "../models/user.model.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -128,16 +122,8 @@ async function handlerRegister(req, res) {
 }
 
 async function handlerGetData(req, res) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res
-      .status(401)
-      .json({ message: "Token de autenticación requerido" });
-  }
-  const token = authHeader.split(" ")[1];
+  const userId = req.user.id;
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
     const userData = await userModel.getUserData(userId);
     res.status(200).json(userData);
   } catch (error) {
@@ -146,16 +132,8 @@ async function handlerGetData(req, res) {
 }
 
 async function handlerUpdateUsername(req, res) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res
-      .status(401)
-      .json({ message: "Token de autenticación requerido" });
-  }
-  const token = authHeader.split(" ")[1];
+  const userId = req.user.id;
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
     const { newUsername } = req.body;
     if (!newUsername) {
       return res
@@ -172,17 +150,8 @@ async function handlerUpdateUsername(req, res) {
 }
 
 async function handlerChangePassword(req, res) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res
-      .status(401)
-      .json({ message: "Token de autenticación requerido" });
-  }
-
-  const token = authHeader.split(" ")[1];
+  const userId = req.user.id;
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
     const { currentPassword, newPassword, newPasswordConfirm } = req.body;
     if (!currentPassword || !newPassword || !newPasswordConfirm) {
       return res
@@ -217,14 +186,7 @@ async function handlerChangePassword(req, res) {
 }
 
 async function handlerUpdateProfileImage(req, res) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res
-      .status(401)
-      .json({ message: "Token de autenticación requerido" });
-  }
-
-  const token = authHeader.split(" ")[1];
+  const userId = req.user.id;
   const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
   if (!imageUrl) {
@@ -232,8 +194,6 @@ async function handlerUpdateProfileImage(req, res) {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
     await userModel.updateProfileImage(userId, imageUrl);
     res.status(200).json({
       message: "Foto de perfil actualizada exitosamente",

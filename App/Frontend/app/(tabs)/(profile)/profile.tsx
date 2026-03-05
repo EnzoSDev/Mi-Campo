@@ -15,6 +15,11 @@ import { useEffect, useState } from "react";
 import UpdateUsernameModal from "../../../components/UpdateUsernameModal";
 import UpdatePasswordModal from "../../../components/UpdatePasswordModal";
 
+const API_URL =
+  process.env.NODE_ENV === "development"
+    ? process.env.EXPO_PUBLIC_API_URL
+    : process.env.EXPO_PUBLIC_PROD_API_URL;
+
 function Profile() {
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -48,16 +53,17 @@ function Profile() {
     });
 
     if (!result.canceled && result.assets[0]) {
-      await uploadProfileImage(result.assets[0].uri);
+      await uploadProfileImage(result.assets[0].uri); // Paso la URI de la imagen que es una direccion local en el dispositivo
     }
   };
 
   const uploadProfileImage = async (imageUri: string) => {
     setUploading(true);
     try {
-      const res = await userAPI.updateProfileImage(imageUri); // Envio la URI de la imagen y con el formData se encarga de subirla al backend
-      if (res.profile_image) {
-        setProfileImageUrl(res.profile_image); // Guardo la URL de la imagen del backend
+      const imageUrl = await userAPI.updateProfileImage(imageUri);
+      console.log(imageUrl);
+      if (imageUrl) {
+        setProfileImageUrl(imageUrl); // Guardo la URL de la imagen del backend
       }
     } catch (error: any) {
       Alert.alert("Error", error.message || "Error al subir la foto de perfil");
@@ -74,6 +80,8 @@ function Profile() {
           setUsername(data.username || "");
           setEmail(data.email || "");
           setCountryCode(data.country_code || "");
+          setProfileImageUrl(data.profile_image);
+          console.log(data);
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -108,8 +116,8 @@ function Profile() {
           <Image
             source={
               profileImageUrl
-                ? { uri: profileImageUrl }
-                : { uri: "https://i.pravatar.cc/300" }
+                ? { uri: API_URL + profileImageUrl }
+                : require("../../../assets/images/profile-default.png")
             }
             className="h-28 w-28 rounded-full border-2 border-[#267366]"
           />

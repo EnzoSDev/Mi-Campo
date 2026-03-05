@@ -2,6 +2,7 @@ import * as SecureStore from "expo-secure-store";
 import { ResponseLotType, CreateLotType } from "@/types/fieldTypes";
 import { CreateCampaignType } from "@/types/lotTypes";
 import { CampaignType } from "@/types/campaignTypes";
+import { getToken } from "./utils";
 
 const API_URL =
   process.env.NODE_ENV === "development"
@@ -21,10 +22,7 @@ export const lotAPI = {
 
 async function getAllLotsGeometryData(fieldId: number) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
     const response = await fetch(`${API_URL}/fields/${fieldId}/lots/geometry`, {
       method: "GET",
       headers: {
@@ -46,10 +44,7 @@ async function getAllLotsGeometryData(fieldId: number) {
 
 async function createLot(lot: CreateLotType) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
     const response = await fetch(`${API_URL}/fields/${lot.fieldId}/lots`, {
       method: "POST",
       headers: {
@@ -69,10 +64,7 @@ async function createLot(lot: CreateLotType) {
 
 async function getAllLots(fieldId: number): Promise<ResponseLotType[]> {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
     const res = await fetch(`${API_URL}/fields/${fieldId}/lots`, {
       method: "GET",
       headers: {
@@ -99,10 +91,7 @@ async function getAllLots(fieldId: number): Promise<ResponseLotType[]> {
 
 async function deleteLot(id: number) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
     const response = await fetch(`${API_URL}/lots/${id}`, {
       method: "DELETE",
       headers: {
@@ -121,10 +110,7 @@ async function deleteLot(id: number) {
 
 async function getCampaignActive(lotId: number): Promise<CampaignType | null> {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(`${API_URL}/lots/${lotId}/campaigns/active`, {
       method: "GET",
@@ -159,10 +145,7 @@ async function getCampaignActive(lotId: number): Promise<CampaignType | null> {
 
 async function createCampaign(lotId: number, campaign: CreateCampaignType) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(`${API_URL}/lots/${lotId}/campaigns/create`, {
       method: "POST",
@@ -190,10 +173,7 @@ async function createCampaign(lotId: number, campaign: CreateCampaignType) {
 
 async function joinCampaign(lotId: number, campaignId: number) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
     const response = await fetch(`${API_URL}/lots/${lotId}/campaigns/join`, {
       method: "POST",
       headers: {
@@ -220,10 +200,8 @@ async function joinCampaign(lotId: number, campaignId: number) {
 
 async function getCampaignsCompleted(lotId: number): Promise<CampaignType[]> {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
+
     const response = await fetch(
       `${API_URL}/lots/${lotId}/campaigns/completed`,
       {

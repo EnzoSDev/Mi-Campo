@@ -8,6 +8,7 @@ import {
 import { RecentActivity } from "@/types/utilTypes";
 
 import * as SecureStore from "expo-secure-store";
+import { getToken } from "./utils";
 
 const API_URL =
   process.env.NODE_ENV === "development"
@@ -40,10 +41,7 @@ async function unlinkLotFromCampaign(
   lotId: number,
 ) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(
       `${API_URL}/campaigns/${campaignId}/unlinkLot`,
@@ -72,10 +70,7 @@ async function unlinkLotFromCampaign(
 
 async function completeCampaign(campaignId: number, completeReason: string) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(
       `${API_URL}/campaigns/${campaignId}/complete`,
@@ -103,10 +98,7 @@ async function getRecentActivities(
   campaignId: number,
 ): Promise<RecentActivity[]> {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(
       `${API_URL}/campaigns/${campaignId}/activities`,
@@ -132,10 +124,7 @@ async function getRecentActivities(
 
 async function getSowingsByCampaign(campaignId: number): Promise<SowingType[]> {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(`${API_URL}/campaigns/${campaignId}/sowings`, {
       method: "GET",
@@ -168,10 +157,7 @@ async function getSowingsByCampaign(campaignId: number): Promise<SowingType[]> {
 
 async function createSowing(campaignId: number, sowingData: SowingType) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(
       `${API_URL}/campaigns/${campaignId}/registerSowing`,
@@ -198,10 +184,7 @@ async function getFertilizationsByCampaign(
   campaignId: number,
 ): Promise<FertilizationType[]> {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(
       `${API_URL}/campaigns/${campaignId}/fertilizations`,
@@ -238,10 +221,7 @@ async function createFertilization(
   fertilizationData: FertilizationType,
 ) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(
       `${API_URL}/campaigns/${campaignId}/registerFertilization`,
@@ -268,10 +248,7 @@ async function getSprayingsByCampaign(
   campaignId: number,
 ): Promise<SprayingType[]> {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(
       `${API_URL}/campaigns/${campaignId}/sprayings`,
@@ -306,10 +283,7 @@ async function getSprayingsByCampaign(
 
 async function createSpraying(campaignId: number, sprayingData: SprayingType) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(
       `${API_URL}/campaigns/${campaignId}/registerSpraying`,
@@ -336,10 +310,7 @@ async function getHarvestsByCampaign(
   campaignId: number,
 ): Promise<HarvestType[]> {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(
       `${API_URL}/campaigns/${campaignId}/harvests`,
@@ -372,10 +343,7 @@ async function getHarvestsByCampaign(
 
 async function createHarvest(campaignId: number, harvestData: HarvestType) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(
       `${API_URL}/campaigns/${campaignId}/registerHarvest`,
@@ -402,10 +370,7 @@ async function getObservationsByCampaign(
   campaignId: number,
 ): Promise<ObservationType[]> {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(
       `${API_URL}/campaigns/${campaignId}/observations`,
@@ -439,10 +404,7 @@ async function createObservation(
   observationData: ObservationType,
 ) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(
       `${API_URL}/campaigns/${campaignId}/registerObservation`,
@@ -468,10 +430,7 @@ async function getExpenseCategories(): Promise<
   { id: number; description: string }[]
 > {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(`${API_URL}/campaigns/getExpenseCategories`, {
       method: "GET",
@@ -501,10 +460,7 @@ async function registerExpense(
   notes: string,
 ) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(
       `${API_URL}/campaigns/${campaignId}/registerExpense`,
@@ -536,10 +492,7 @@ async function getIncomeCategories(): Promise<
   { id: number; description: string }[]
 > {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(`${API_URL}/campaigns/getIncomeCategories`, {
       method: "GET",
@@ -569,10 +522,7 @@ async function registerIncome(
   notes: string,
 ) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(
       `${API_URL}/campaigns/${campaignId}/registerIncome`,

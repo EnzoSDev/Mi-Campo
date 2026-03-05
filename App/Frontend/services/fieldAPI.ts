@@ -1,6 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 import { ResponseFieldType, CreateFieldType } from "@/types/fieldTypes";
 import { CampaignType } from "@/types/campaignTypes";
+import { getToken } from "./utils";
 
 const API_URL =
   process.env.NODE_ENV === "development"
@@ -18,10 +19,7 @@ export const fieldAPI = {
 
 async function getAllFields(): Promise<ResponseFieldType[]> {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
     const res = await fetch(`${API_URL}/fields`, {
       method: "GET",
       headers: {
@@ -51,10 +49,7 @@ async function getAllFields(): Promise<ResponseFieldType[]> {
 
 async function createField(field: CreateFieldType) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
     const response = await fetch(`${API_URL}/fields`, {
       method: "POST",
       headers: {
@@ -74,10 +69,7 @@ async function createField(field: CreateFieldType) {
 
 async function deleteField(id: number) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
     const response = await fetch(`${API_URL}/fields/${id}`, {
       method: "DELETE",
       headers: {
@@ -96,10 +88,7 @@ async function deleteField(id: number) {
 
 async function getFieldGeometry(id: number) {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
     const response = await fetch(`${API_URL}/fields/${id}/geometry`, {
       method: "GET",
       headers: {
@@ -118,10 +107,7 @@ async function getFieldGeometry(id: number) {
 
 async function getAllActiveCampaigns(fieldId: number): Promise<CampaignType[]> {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(
       `${API_URL}/fields/${fieldId}/campaigns/all-active`,
@@ -147,10 +133,7 @@ async function getAllActiveCampaigns(fieldId: number): Promise<CampaignType[]> {
 
 async function getCampaignsByField(fieldId: number): Promise<CampaignType[]> {
   try {
-    const token = await SecureStore.getItemAsync("access-token");
-    if (!token) {
-      throw new Error("No se encontró el token de autenticación");
-    }
+    const token = await getToken();
 
     const response = await fetch(`${API_URL}/fields/${fieldId}/campaigns`, {
       method: "GET",
