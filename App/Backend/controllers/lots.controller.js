@@ -56,7 +56,7 @@ async function handleCreateCampaign(req, res) {
   const { lotId } = req.params;
   const { campaignName, startDate, endDate, description } = req.body;
 
-  if (!campaignName || !startDate || !endDate || !description) {
+  if (!campaignName || !startDate || !endDate) {
     return res.status(400).json({ message: "Faltan datos obligatorios" });
   }
 
