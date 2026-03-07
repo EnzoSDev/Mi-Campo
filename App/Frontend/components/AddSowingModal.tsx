@@ -56,6 +56,22 @@ function AddSowingModal({
       return;
     }
 
+    if (rowSpacing.includes(",") || density.includes(",")) {
+      setError(
+        "Por favor, utiliza puntos en lugar de comas para los números decimales.",
+      );
+      setLoading(false);
+      return;
+    }
+
+    if (rowSpacing === "0" || density === "0") {
+      setError(
+        "La densidad y la distancia entre filas deben ser mayores a cero.",
+      );
+      setLoading(false);
+      return;
+    }
+
     try {
       const sowingData: SowingType = {
         campaignId: parseInt(campaignId as string),
@@ -203,6 +219,7 @@ function AddSowingModal({
             <View className="bg-[#16181A] p-2 rounded-xl border border-white/10">
               {/* Density */}
               <View className="p-3">
+                {/* TODO: REVISAR UNIDAD*/}
                 <Text className="text-xs font-medium text-white/70 mb-1">
                   Densidad (semillas/m²) *
                 </Text>

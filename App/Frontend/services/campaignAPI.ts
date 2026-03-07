@@ -7,8 +7,7 @@ import {
 } from "@/types/campaignTypes";
 import { RecentActivity } from "@/types/utilTypes";
 
-import * as SecureStore from "expo-secure-store";
-import { getToken } from "./utils";
+import { getToken } from "./authManager";
 
 const API_URL =
   process.env.NODE_ENV === "development"
@@ -479,6 +478,8 @@ async function registerExpense(
         }),
       },
     );
+
+    console.log("Response status:", response.status);
 
     if (!response.ok) {
       throw new Error("Error al registrar el gasto");

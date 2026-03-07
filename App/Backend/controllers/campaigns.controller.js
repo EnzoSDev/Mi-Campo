@@ -375,6 +375,7 @@ async function handlerGetExpenseCategories(req, res) {
 async function handlerRegisterExpense(req, res) {
   const { campaignId } = req.params;
   const { category_id, concept, amount, date, notes } = req.body;
+  console.log(req.user.id);
 
   console.log("Received expense data:", {
     category_id,

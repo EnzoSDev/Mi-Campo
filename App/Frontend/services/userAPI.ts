@@ -1,5 +1,5 @@
 import * as SecureStore from "expo-secure-store";
-import { getToken } from "./utils";
+import { getToken } from "./authManager";
 
 const API_URL =
   process.env.NODE_ENV === "development"
@@ -9,9 +9,9 @@ const API_URL =
 export const userAPI = {
   getCountryCodes,
   countryCodeToEmoji,
+  checkSession,
   login,
   register,
-  checkSession,
   logout,
   getUserData,
   updateUsername,
@@ -24,12 +24,6 @@ export type CountryCode = {
   name: string;
   flag: string;
 };
-
-export function countryCodeToEmoji(code: string) {
-  return code
-    .toUpperCase()
-    .replace(/./g, (char) => String.fromCodePoint(127397 + char.charCodeAt(0)));
-}
 
 async function checkSession() {
   const token = await SecureStore.getItemAsync("access-token");
@@ -51,6 +45,12 @@ async function checkSession() {
     await SecureStore.deleteItemAsync("access-token");
     return false;
   }
+}
+
+export function countryCodeToEmoji(code: string) {
+  return code
+    .toUpperCase()
+    .replace(/./g, (char) => String.fromCodePoint(127397 + char.charCodeAt(0)));
 }
 
 async function login(email: string, password: string) {

@@ -1,7 +1,6 @@
-import * as SecureStore from "expo-secure-store";
 import { ResponseFieldType, CreateFieldType } from "@/types/fieldTypes";
 import { CampaignType } from "@/types/campaignTypes";
-import { getToken } from "./utils";
+import { getToken } from "./authManager";
 
 const API_URL =
   process.env.NODE_ENV === "development"
