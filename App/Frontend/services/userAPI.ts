@@ -64,7 +64,7 @@ async function login(email: string, password: string) {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.message);
+      throw new Error(data.message || "Error al iniciar sesión");
     }
     if (data.token) {
       await SecureStore.setItemAsync("access-token", data.token);
@@ -84,7 +84,7 @@ async function getCountryCodes() {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.message);
+      throw new Error(data.message || "Error al obtener los códigos de país");
     }
     return data.countryCodes.map((country: CountryCode) => ({
       ...country,
@@ -118,7 +118,7 @@ async function register(
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.message);
+      throw new Error(data.message || "Error al registrar el usuario");
     }
   } catch (error) {
     throw error;
@@ -142,7 +142,7 @@ async function getUserData() {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.message);
+      throw new Error(data.message || "Error al obtener los datos del usuario");
     }
     return data;
   } catch (error) {
@@ -161,8 +161,11 @@ async function updateUsername(newUsername: string) {
       },
       body: JSON.stringify({ newUsername }),
     });
+    const data = await res.json();
     if (!res.ok) {
-      throw new Error("Error al actualizar el nombre de usuario");
+      throw new Error(
+        data.message || "Error al actualizar el nombre de usuario",
+      );
     }
   } catch (error) {
     throw error;

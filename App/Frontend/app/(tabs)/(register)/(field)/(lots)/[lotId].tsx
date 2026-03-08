@@ -35,7 +35,12 @@ function Lot() {
         ]);
         setCampaignActive(activeCampaign);
         setCampaignsCompleted(completedCampaigns);
-      } catch (error) {
+      } catch (error: any) {
+        if (error.message === "SESSION_EXPIRED") {
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        }
       } finally {
         setIsLoading(false);
       }

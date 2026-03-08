@@ -59,8 +59,15 @@ function DrawLotInMap() {
             1000,
           );
         }
-      } catch (error) {
-        console.error("Error fetching field geometry data:", error);
+      } catch (error: any) {
+        if (error.message === "SESSION_EXPIRED") {
+          setError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        } else {
+          console.error("Error fetching field geometry data:", error);
+        }
       }
     };
     fetchFieldGeometryData();
@@ -69,8 +76,15 @@ function DrawLotInMap() {
       try {
         const data = await lotAPI.getAllLotsGeometryData(Number(fieldId));
         setLotsCoordinates(data);
-      } catch (error) {
-        console.error("Error fetching lots geometry data:", error);
+      } catch (error: any) {
+        if (error.message === "SESSION_EXPIRED") {
+          setError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        } else {
+          console.error("Error fetching lots geometry data:", error);
+        }
       }
     };
 
@@ -289,8 +303,15 @@ function DrawLotInMap() {
       console.log("Creando lote con datos:", lot);
       await lotAPI.createLot(lot);
       router.back();
-    } catch (error) {
-      setError("Error al guardar el lote.");
+    } catch (error: any) {
+      if (error.message === "SESSION_EXPIRED") {
+        setError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        setTimeout(() => {
+          router.push("/(auth)/login");
+        }, 2000);
+      } else {
+        setError("Error al guardar el lote.");
+      }
     }
   };
 

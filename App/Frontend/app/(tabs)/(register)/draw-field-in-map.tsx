@@ -172,8 +172,15 @@ function DrawFieldInMap() {
       console.log("Creando campo con datos:", field);
       await fieldAPI.createField(field);
       router.replace("/(tabs)/(register)/home");
-    } catch (error) {
-      setError("Error al guardar el campo.");
+    } catch (error: any) {
+      if (error.message === "SESSION_EXPIRED") {
+        setError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        setTimeout(() => {
+          router.push("/(auth)/login");
+        }, 2000);
+      } else {
+        setError("Error al guardar el campo.");
+      }
     }
   };
 

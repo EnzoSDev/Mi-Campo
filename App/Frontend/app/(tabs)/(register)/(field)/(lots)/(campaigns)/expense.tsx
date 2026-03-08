@@ -89,8 +89,15 @@ function Expense() {
         notes,
       );
       router.back();
-    } catch (error) {
-      setError("Error al registrar el gasto");
+    } catch (error: any) {
+      if (error.message === "SESSION_EXPIRED") {
+        setError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        setTimeout(() => {
+          router.push("/(auth)/login");
+        }, 2000);
+      } else {
+        setError("Error al registrar el gasto");
+      }
     }
   };
 

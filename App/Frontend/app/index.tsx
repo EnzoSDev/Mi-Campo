@@ -15,7 +15,12 @@ export default function Index() {
       try {
         const res = await userAPI.checkSession();
         setSessionActive(res);
-      } catch (error) {
+      } catch (error: any) {
+        if (error.message === "SESSION_EXPIRED") {
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        }
         setSessionActive(false);
       } finally {
         setIsLoading(false);

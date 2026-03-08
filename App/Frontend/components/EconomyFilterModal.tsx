@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { View, Text, ScrollView, Pressable, Modal } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { ResponseFieldType } from "@/types/fieldTypes";
 import { CampaignType } from "@/types/campaignTypes";
 import { fieldAPI } from "@/services/fieldAPI";
@@ -41,8 +42,14 @@ function EconomyFilterModal({
       try {
         const fields = await fieldAPI.getAllFields();
         setFields(fields);
-      } catch (error) {
-        console.error("Error al obtener los campos:", error);
+      } catch (error: any) {
+        if (error.message === "SESSION_EXPIRED") {
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        } else {
+          console.error("Error al obtener los campos:", error);
+        }
       }
     };
 
@@ -55,8 +62,14 @@ function EconomyFilterModal({
         try {
           const campaigns = await fieldAPI.getCampaignsByField(fieldId);
           setCampaigns(campaigns);
-        } catch (error) {
-          console.error("Error al obtener las campañas del campo:", error);
+        } catch (error: any) {
+          if (error.message === "SESSION_EXPIRED") {
+            setTimeout(() => {
+              router.push("/(auth)/login");
+            }, 2000);
+          } else {
+            console.error("Error al obtener las campañas del campo:", error);
+          }
         }
       };
       fetchCampaigns(draftSelectedField.id);

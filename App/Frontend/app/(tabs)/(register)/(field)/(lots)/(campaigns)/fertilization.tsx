@@ -40,7 +40,14 @@ function Fertilization() {
       );
       setFertilizations(fertilizations);
     } catch (error: any) {
-      setError("Error al cargar los registros de fertilización");
+      if (error.message === "SESSION_EXPIRED") {
+        setError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        setTimeout(() => {
+          router.push("/(auth)/login");
+        }, 2000);
+      } else {
+        setError("Error al cargar los registros de fertilización");
+      }
     } finally {
       setLoading(false);
     }

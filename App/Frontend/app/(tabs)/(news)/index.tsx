@@ -1,5 +1,6 @@
 import { View, Text, FlatList, ActivityIndicator, Linking } from "react-native";
 import { useState, useEffect } from "react";
+import { router } from "expo-router";
 import NewsCard from "@/components/NewsCard";
 import { NewsItem } from "@/types/utilTypes";
 
@@ -32,9 +33,19 @@ function News() {
         },
       });
       const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Error al cargar las noticias");
+      }
       setNews(data);
-    } catch (error) {
-      setError("Error al cargar las noticias" + error);
+    } catch (error: any) {
+      if (error.message === "SESSION_EXPIRED") {
+        setError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        setTimeout(() => {
+          router.push("/(auth)/login");
+        }, 2000);
+      } else {
+        setError("Error al cargar las noticias" + error);
+      }
     } finally {
       setLoading(false);
     }

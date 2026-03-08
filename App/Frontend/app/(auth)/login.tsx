@@ -33,7 +33,16 @@ export default function Login() {
         await userAPI.login(email, password);
         router.replace("/(tabs)/(register)/home");
       } catch (error: any) {
-        setErrorMessage(error.message);
+        if (error.message === "SESSION_EXPIRED") {
+          setErrorMessage(
+            "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+          );
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        } else {
+          setErrorMessage(error.message);
+        }
       } finally {
         setIsLoading(false);
       }

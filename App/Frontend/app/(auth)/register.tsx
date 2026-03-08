@@ -35,8 +35,17 @@ export default function Register() {
       try {
         const res = await userAPI.getCountryCodes();
         setCountryCodes(res);
-      } catch (error) {
-        console.error("Error fetching country codes:", error);
+      } catch (error: any) {
+        if (error.message === "SESSION_EXPIRED") {
+          setErrorMessage(
+            "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+          );
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        } else {
+          console.error("Error fetching country codes:", error);
+        }
       }
     };
 
@@ -63,7 +72,16 @@ export default function Register() {
         );
         setSuccessMessage("Registro exitoso");
       } catch (error: any) {
-        setErrorMessage(error.message);
+        if (error.message === "SESSION_EXPIRED") {
+          setErrorMessage(
+            "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+          );
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        } else {
+          setErrorMessage(error.message);
+        }
       } finally {
         setIsLoading(false);
       }

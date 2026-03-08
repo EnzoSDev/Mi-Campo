@@ -40,7 +40,14 @@ function Harvest() {
       );
       setHarvests(harvests);
     } catch (error: any) {
-      setError("Error al cargar los registros de cosecha");
+      if (error.message === "SESSION_EXPIRED") {
+        setError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        setTimeout(() => {
+          router.push("/(auth)/login");
+        }, 2000);
+      } else {
+        setError("Error al cargar los registros de cosecha");
+      }
     } finally {
       setLoading(false);
     }

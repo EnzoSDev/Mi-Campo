@@ -151,8 +151,17 @@ function CampaignActive({
         const activities = await campaignAPI.getRecentActivities(campaign.id);
         console.log("Actividades recientes:", activities);
         setRecentActivities(activities);
-      } catch (error) {
-        setErrorMsg("Error al cargar las actividades recientes.");
+      } catch (error: any) {
+        if (error.message === "SESSION_EXPIRED") {
+          setErrorMsg(
+            "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+          );
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        } else {
+          setErrorMsg("Error al cargar las actividades recientes.");
+        }
       } finally {
         setIsLoading(false);
       }
@@ -180,8 +189,17 @@ function CampaignActive({
         } else {
           setCompleteModalError("Error al finalizar la campaña.");
         }
-      } catch (error) {
-        setCompleteModalError("Error al finalizar la campaña.");
+      } catch (error: any) {
+        if (error.message === "SESSION_EXPIRED") {
+          setCompleteModalError(
+            "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+          );
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        } else {
+          setCompleteModalError("Error al finalizar la campaña.");
+        }
       }
     } else {
       setCompleteModalError("Debes ingresar un motivo para finalizar");
@@ -209,8 +227,17 @@ function CampaignActive({
         } else {
           setModalError("Error al desvincular el lote.");
         }
-      } catch (error) {
-        setModalError("Error al desvincular el lote.");
+      } catch (error: any) {
+        if (error.message === "SESSION_EXPIRED") {
+          setModalError(
+            "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+          );
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        } else {
+          setModalError("Error al desvincular el lote.");
+        }
       }
     } else {
       setModalError("Debes ingresar un motivo para desvincular");

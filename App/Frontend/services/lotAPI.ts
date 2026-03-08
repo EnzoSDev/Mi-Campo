@@ -29,11 +29,12 @@ async function getAllLotsGeometryData(fieldId: number) {
       },
     });
 
-    if (!response.ok) {
-      throw new Error("Error al obtener la geometría de los lotes");
-    }
-
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Error al obtener la geometría de los lotes",
+      );
+    }
     console.log("Datos de geometría de los lotes:", data);
     return data.lotsGeometryData;
   } catch (error) {
@@ -53,8 +54,9 @@ async function createLot(lot: CreateLotType) {
       body: JSON.stringify(lot),
     });
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error("Error al crear el lote");
+      throw new Error(data.message || "Error al crear el lote");
     }
   } catch (error) {
     throw error;
@@ -72,11 +74,12 @@ async function getAllLots(fieldId: number): Promise<ResponseLotType[]> {
       },
     });
 
+    const data = await res.json();
     if (!res.ok) {
-      throw new Error("Error al obtener los lotes");
+      throw new Error(data.message || "Error al obtener los lotes");
     }
-    const data = (await res.json()).lots;
-    const lots: ResponseLotType[] = data.map((lot: any) => ({
+    const lotsData = data.lots;
+    const lots: ResponseLotType[] = lotsData.map((lot: any) => ({
       id: lot.id,
       lotName: lot.lot_name,
       description: lot.description,
@@ -99,8 +102,9 @@ async function deleteLot(id: number) {
       },
     });
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error("Error al borrar el lote");
+      throw new Error(data.message || "Error al borrar el lote");
     }
   } catch (error) {
     throw error;
@@ -119,16 +123,16 @@ async function getCampaignActive(lotId: number): Promise<CampaignType | null> {
       },
     });
 
+    const data = await response.json();
+
     // Si no hay campaña activa (404), retornar null
     if (response.status === 404) {
       return null;
     }
 
     if (!response.ok) {
-      throw new Error("Error al obtener la campaña activa");
+      throw new Error(data.message || "Error al obtener la campaña activa");
     }
-
-    const data = await response.json();
 
     return {
       id: data.activeCampaign.id,
@@ -155,14 +159,14 @@ async function createCampaign(lotId: number, campaign: CreateCampaignType) {
       body: JSON.stringify(campaign),
     });
 
+    const data = await response.json();
     if (!response.ok) {
-      const mensaje = await response.json();
-      if (mensaje.message === "CAMPAIGN_ACTIVE_EXISTS") {
+      if (data.message === "CAMPAIGN_ACTIVE_EXISTS") {
         throw new Error(
           "Ya existe una campaña activa para este lote. No se puede crear una nueva campaña hasta que la campaña activa actual termine.",
         );
       } else {
-        throw new Error("Error al crear la campaña");
+        throw new Error(data.message || "Error al crear la campaña");
       }
     }
   } catch (error) {
@@ -182,14 +186,14 @@ async function joinCampaign(lotId: number, campaignId: number) {
       body: JSON.stringify({ campaignId }),
     });
 
+    const data = await response.json();
     if (!response.ok) {
-      const mensaje = await response.json();
-      if (mensaje.message === "CAMPAIGN_ACTIVE_EXISTS") {
+      if (data.message === "CAMPAIGN_ACTIVE_EXISTS") {
         throw new Error(
           "Ya existe una campaña activa para este lote. No se puede crear una nueva campaña hasta que la campaña activa actual termine.",
         );
       } else {
-        throw new Error("Error al unirse a la campaña");
+        throw new Error(data.message || "Error al unirse a la campaña");
       }
     }
   } catch (error) {
@@ -212,11 +216,12 @@ async function getCampaignsCompleted(lotId: number): Promise<CampaignType[]> {
       },
     );
 
-    if (!response.ok) {
-      throw new Error("Error al obtener las campañas completadas");
-    }
-
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Error al obtener las campañas completadas",
+      );
+    }
 
     // Validar que completedCampaigns existe y es un array
     if (!data.completedCampaigns || !Array.isArray(data.completedCampaigns)) {

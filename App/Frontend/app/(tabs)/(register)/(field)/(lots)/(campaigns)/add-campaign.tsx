@@ -59,7 +59,14 @@ function AddCampaign() {
       await lotAPI.createCampaign(Number(lotId), campaignData);
       router.back();
     } catch (error: any) {
-      setError(error.message || "Error al crear la campaña.");
+      if (error.message === "SESSION_EXPIRED") {
+        setError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        setTimeout(() => {
+          router.push("/(auth)/login");
+        }, 2000);
+      } else {
+        setError(error.message || "Error al crear la campaña.");
+      }
     } finally {
       setLoading(false);
     }

@@ -26,8 +26,17 @@ function Lots() {
       try {
         const data = await lotAPI.getAllLots(Number(fieldId));
         setLots(data);
-      } catch (error) {
-        setErrorMsg("Error al obtener los lotes.");
+      } catch (error: any) {
+        if (error.message === "SESSION_EXPIRED") {
+          setErrorMsg(
+            "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+          );
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        } else {
+          setErrorMsg("Error al obtener los lotes.");
+        }
       } finally {
         setIsLoading(false);
       }
@@ -60,8 +69,17 @@ function Lots() {
               await lotAPI.deleteLot(id);
               setLots((prevLots) => prevLots.filter((lot) => lot.id !== id));
               setErrorMsg(null);
-            } catch (error) {
-              setErrorMsg("Error al borrar el lote.");
+            } catch (error: any) {
+              if (error.message === "SESSION_EXPIRED") {
+                setErrorMsg(
+                  "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+                );
+                setTimeout(() => {
+                  router.push("/(auth)/login");
+                }, 2000);
+              } else {
+                setErrorMsg("Error al borrar el lote.");
+              }
             }
           },
         },

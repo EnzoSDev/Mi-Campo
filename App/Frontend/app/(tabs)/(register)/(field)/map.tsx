@@ -52,8 +52,14 @@ function Map() {
             1000,
           );
         }
-      } catch (error) {
-        console.error("Error fetching field geometry data:", error);
+      } catch (error: any) {
+        if (error.message === "SESSION_EXPIRED") {
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        } else {
+          console.error("Error fetching field geometry data:", error);
+        }
       }
     };
     fetchFieldGeometryData();
@@ -62,8 +68,14 @@ function Map() {
       try {
         const data = await lotAPI.getAllLotsGeometryData(Number(id));
         setLotsCoordinates(data);
-      } catch (error) {
-        console.error("Error fetching lots geometry data:", error);
+      } catch (error: any) {
+        if (error.message === "SESSION_EXPIRED") {
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        } else {
+          console.error("Error fetching lots geometry data:", error);
+        }
       }
     };
 

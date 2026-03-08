@@ -58,8 +58,9 @@ async function createField(field: CreateFieldType) {
       body: JSON.stringify(field),
     });
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error(await response.text());
+      throw new Error(data.message || "Error al crear el campo");
     }
   } catch (error) {
     throw error;
@@ -96,10 +97,12 @@ async function getFieldGeometry(id: number) {
         authorization: `Bearer ${token}`,
       },
     });
-    if (!response.ok) {
-      throw new Error("Error al obtener la geometría del campo");
-    }
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Error al obtener la geometría del campo",
+      );
+    }
     return data;
   } catch (error) {
     throw error;
@@ -121,11 +124,10 @@ async function getAllActiveCampaigns(fieldId: number): Promise<CampaignType[]> {
       },
     );
 
-    if (!response.ok) {
-      throw new Error("Error al obtener las campañas activas");
-    }
-
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || "Error al obtener las campañas activas");
+    }
     return data;
   } catch (error) {
     throw error;
@@ -144,11 +146,12 @@ async function getCampaignsByField(fieldId: number): Promise<CampaignType[]> {
       },
     });
 
-    if (!response.ok) {
-      throw new Error("Error al obtener las campañas del campo");
-    }
-
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Error al obtener las campañas del campo",
+      );
+    }
     return data;
   } catch (error) {
     throw error;

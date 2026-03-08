@@ -24,11 +24,12 @@ async function getEconomyDataByCampaign(
       },
     });
 
-    if (!response.ok) {
-      throw new Error("Error al obtener los datos de economía por campaña");
-    }
-
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Error al obtener los datos de economía por campaña",
+      );
+    }
     return data;
   } catch (error) {
     throw error;

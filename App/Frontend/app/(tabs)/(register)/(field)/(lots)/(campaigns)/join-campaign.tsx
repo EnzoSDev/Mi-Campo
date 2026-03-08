@@ -33,8 +33,15 @@ function JoinCampaign() {
           Number(fieldId),
         );
         setCampaigns(campaignsData);
-      } catch (error) {
-        setError("Error al cargar las campañas.");
+      } catch (error: any) {
+        if (error.message === "SESSION_EXPIRED") {
+          setError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        } else {
+          setError("Error al cargar las campañas.");
+        }
       } finally {
         setIsFetching(false);
       }
@@ -57,7 +64,14 @@ function JoinCampaign() {
       await lotAPI.joinCampaign(Number(lotId), selectedCampaignId);
       router.back();
     } catch (error: any) {
-      setError(error.message || "Error al unirse a la campaña.");
+      if (error.message === "SESSION_EXPIRED") {
+        setError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        setTimeout(() => {
+          router.push("/(auth)/login");
+        }, 2000);
+      } else {
+        setError(error.message || "Error al unirse a la campaña.");
+      }
     } finally {
       setLoading(false);
     }

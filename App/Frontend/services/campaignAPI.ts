@@ -57,8 +57,11 @@ async function unlinkLotFromCampaign(
         }),
       },
     );
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error("Error al desvincular el lote de la campaña");
+      throw new Error(
+        data.message || "Error al desvincular el lote de la campaña",
+      );
     }
 
     return true;
@@ -83,8 +86,9 @@ async function completeCampaign(campaignId: number, completeReason: string) {
       },
     );
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error("Error al finalizar la campaña");
+      throw new Error(data.message || "Error al finalizar la campaña");
     }
 
     return true;
@@ -110,11 +114,12 @@ async function getRecentActivities(
       },
     );
 
-    if (!response.ok) {
-      throw new Error("Error al obtener las actividades recientes");
-    }
-
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Error al obtener las actividades recientes",
+      );
+    }
     return data;
   } catch (error) {
     throw error;
@@ -133,11 +138,12 @@ async function getSowingsByCampaign(campaignId: number): Promise<SowingType[]> {
       },
     });
 
-    if (!response.ok) {
-      throw new Error("Error al obtener los registros de siembra");
-    }
-
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Error al obtener los registros de siembra",
+      );
+    }
     return data.map((sowing: any) => ({
       id: sowing.id,
       title: sowing.title,
@@ -170,8 +176,9 @@ async function createSowing(campaignId: number, sowingData: SowingType) {
       },
     );
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error("Error al crear el registro de siembra");
+      throw new Error(data.message || "Error al crear el registro de siembra");
     }
   } catch (error) {
     throw error;
@@ -196,11 +203,12 @@ async function getFertilizationsByCampaign(
       },
     );
 
-    if (!response.ok) {
-      throw new Error("Error al obtener los registros de fertilización");
-    }
-
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Error al obtener los registros de fertilización",
+      );
+    }
     return data.map((fertilization: any) => ({
       id: fertilization.id,
       campaignId: fertilization.campaign_id,
@@ -234,8 +242,11 @@ async function createFertilization(
       },
     );
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error("Error al crear el registro de fertilización");
+      throw new Error(
+        data.message || "Error al crear el registro de fertilización",
+      );
     }
   } catch (error) {
     throw error;
@@ -260,11 +271,12 @@ async function getSprayingsByCampaign(
       },
     );
 
-    if (!response.ok) {
-      throw new Error("Error al obtener los registros de pulverización");
-    }
-
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Error al obtener los registros de pulverización",
+      );
+    }
     return data.map((spraying: any) => ({
       id: spraying.id,
       campaignId: spraying.campaign_id,
@@ -296,8 +308,11 @@ async function createSpraying(campaignId: number, sprayingData: SprayingType) {
       },
     );
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error("Error al crear el registro de pulverización");
+      throw new Error(
+        data.message || "Error al crear el registro de pulverización",
+      );
     }
   } catch (error) {
     throw error;
@@ -322,11 +337,12 @@ async function getHarvestsByCampaign(
       },
     );
 
-    if (!response.ok) {
-      throw new Error("Error al obtener los registros de cosecha");
-    }
-
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Error al obtener los registros de cosecha",
+      );
+    }
     return data.map((harvest: any) => ({
       id: harvest.id,
       campaignId: harvest.campaign_id,
@@ -356,8 +372,9 @@ async function createHarvest(campaignId: number, harvestData: HarvestType) {
       },
     );
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error("Error al crear el registro de cosecha");
+      throw new Error(data.message || "Error al crear el registro de cosecha");
     }
   } catch (error) {
     throw error;
@@ -382,11 +399,10 @@ async function getObservationsByCampaign(
       },
     );
 
-    if (!response.ok) {
-      throw new Error("Error al obtener las observaciones");
-    }
-
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || "Error al obtener las observaciones");
+    }
     return data.map((observation: any) => ({
       id: observation.id,
       campaignId: observation.campaign_id,
@@ -417,8 +433,9 @@ async function createObservation(
       },
     );
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error("Error al crear la observación");
+      throw new Error(data.message || "Error al crear la observación");
     }
   } catch (error) {
     throw error;
@@ -439,11 +456,12 @@ async function getExpenseCategories(): Promise<
       },
     });
 
-    if (!response.ok) {
-      throw new Error("Error al obtener las categorías de gastos");
-    }
-
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Error al obtener las categorías de gastos",
+      );
+    }
     return data;
   } catch (error) {
     throw error;
@@ -481,8 +499,9 @@ async function registerExpense(
 
     console.log("Response status:", response.status);
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error("Error al registrar el gasto");
+      throw new Error(data.message || "Error al registrar el gasto");
     }
   } catch (error) {
     throw error;
@@ -503,11 +522,12 @@ async function getIncomeCategories(): Promise<
       },
     });
 
-    if (!response.ok) {
-      throw new Error("Error al obtener las categorías de ingresos");
-    }
-
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Error al obtener las categorías de ingresos",
+      );
+    }
     return data;
   } catch (error) {
     throw error;
@@ -543,8 +563,9 @@ async function registerIncome(
       },
     );
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error("Error al registrar el ingreso");
+      throw new Error(data.message || "Error al registrar el ingreso");
     }
   } catch (error) {
     throw error;

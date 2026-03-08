@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { View, Text, ScrollView, Pressable, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import EconomyFilterModal from "@/components/EconomyFilterModal";
 import { economyAPI } from "@/services/economyAPI";
 import { Transaction } from "@/types/economyTypes";
@@ -55,8 +56,14 @@ function Economy() {
           setTotalIncome(data.incomes);
           setTotalExpense(data.expenses);
           setTransactions(data.transactions);
-        } catch (error) {
-          console.error("Error fetching economy data:", error);
+        } catch (error: any) {
+          if (error.message === "SESSION_EXPIRED") {
+            setTimeout(() => {
+              router.push("/(auth)/login");
+            }, 2000);
+          } else {
+            console.error("Error fetching economy data:", error);
+          }
         }
     };
 

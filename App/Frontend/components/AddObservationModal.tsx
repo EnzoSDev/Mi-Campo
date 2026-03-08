@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { campaignAPI } from "@/services/campaignAPI";
 import { ObservationType } from "@/types/campaignTypes";
 
@@ -57,7 +57,14 @@ function AddObservationModal({
       fetchObservations();
       setShowAddModal(false);
     } catch (error: any) {
-      setError(error.message || "Error al crear la observación.");
+      if (error.message === "SESSION_EXPIRED") {
+        setError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        setTimeout(() => {
+          router.push("/(auth)/login");
+        }, 2000);
+      } else {
+        setError(error.message || "Error al crear la observación.");
+      }
     } finally {
       setLoading(false);
     }

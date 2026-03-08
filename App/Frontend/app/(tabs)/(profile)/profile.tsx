@@ -66,7 +66,20 @@ function Profile() {
         setProfileImageUrl(imageUrl); // Guardo la URL de la imagen del backend
       }
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Error al subir la foto de perfil");
+      if (error.message === "SESSION_EXPIRED") {
+        Alert.alert(
+          "Sesion expirada",
+          "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+        );
+        setTimeout(() => {
+          router.push("/(auth)/login");
+        }, 2000);
+      } else {
+        Alert.alert(
+          "Error",
+          error.message || "Error al subir la foto de perfil",
+        );
+      }
     } finally {
       setUploading(false);
     }
@@ -83,8 +96,14 @@ function Profile() {
           setProfileImageUrl(data.profile_image);
           console.log(data);
         }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+      } catch (error: any) {
+        if (error.message === "SESSION_EXPIRED") {
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        } else {
+          console.error("Error fetching user data:", error);
+        }
       }
     };
     fetchUserData();
