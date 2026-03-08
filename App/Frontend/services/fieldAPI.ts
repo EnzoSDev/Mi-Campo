@@ -28,8 +28,8 @@ async function getAllFields(): Promise<ResponseFieldType[]> {
     });
 
     const data = await res.json();
-
     if (!res.ok) {
+      // TODO: Es data.message??????????? Que devuelve el authmiddleware??????
       throw new Error(data.message || "Error al obtener los campos");
     }
 
@@ -79,6 +79,7 @@ async function deleteField(id: number) {
 
     const data = await response.json();
     if (!response.ok) {
+      // TODO: Es data.message o data.error???????????
       throw new Error(data.message || "Error al eliminar el campo");
     }
   } catch (error) {
