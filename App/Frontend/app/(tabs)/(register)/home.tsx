@@ -15,7 +15,7 @@ import { fieldAPI } from "../../../services/fieldAPI";
 import type { ResponseFieldType } from "@/types/fieldTypes";
 
 // Components
-import FieldCard from "../../../components/FieldCard";
+import FieldCard from "../../../components/fieldCard";
 
 export default function Home() {
   const [fields, setFields] = useState<ResponseFieldType[]>([]);
@@ -27,9 +27,17 @@ export default function Home() {
         const data = await fieldAPI.getAllFields();
         setFields(data);
         setErrorMsg(null);
-      } catch (error) {
-        console.error(error);
-        setErrorMsg("Error al cargar los campos.");
+      } catch (error: any) {
+        if (error.message === "SESSION_EXPIRED") {
+          setErrorMsg(
+            "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+          );
+          setTimeout(() => {
+            router.push("/(auth)/login");
+          }, 2000);
+        } else {
+          setErrorMsg("Error al cargar los campos.");
+        }
       }
     };
 
@@ -55,9 +63,18 @@ export default function Home() {
                 prevFields.filter((field) => field.id !== id),
               );
               setErrorMsg(null);
-            } catch (error) {
-              console.error(error);
-              setErrorMsg("Error al borrar el campo.");
+            } catch (error: any) {
+              console.log(error);
+              if (error.message === "SESSION_EXPIRED") {
+                setErrorMsg(
+                  "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+                );
+                setTimeout(() => {
+                  router.push("/(auth)/login");
+                }, 2000);
+              } else {
+                setErrorMsg("Error al eliminar el campo.");
+              }
             }
           },
         },

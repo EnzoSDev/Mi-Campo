@@ -30,7 +30,7 @@ async function getAllFields(): Promise<ResponseFieldType[]> {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.message);
+      throw new Error(data.message || "Error al obtener los campos");
     }
 
     const fields: ResponseFieldType[] = data.fields.map((field: any) => ({
@@ -77,8 +77,9 @@ async function deleteField(id: number) {
       },
     });
 
+    const data = await response.json();
     if (!response.ok) {
-      throw new Error("Error al borrar el campo");
+      throw new Error(data.message || "Error al eliminar el campo");
     }
   } catch (error) {
     throw error;
