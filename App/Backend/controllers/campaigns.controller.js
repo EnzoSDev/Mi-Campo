@@ -5,6 +5,7 @@ import utilModel from "../models/util.model.js";
 export const CampaignController = {
   handlerUnlinkLotFromCampaign,
   handlerCompleteCampaign,
+  handlerDeleteCampaign,
   handlerGetActivities,
   handlerGetSowings,
   handlerRegisterSowing,
@@ -52,7 +53,6 @@ async function handlerUnlinkLotFromCampaign(req, res) {
       res.status(500).json({ message: "Error al desvincular el lote" });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 }
@@ -77,6 +77,16 @@ async function handlerCompleteCampaign(req, res) {
   }
 }
 
+async function handlerDeleteCampaign(req, res) {
+  const { campaignId } = req.params;
+  try {
+    const result = await campaignModel.deleteCampaign(campaignId);
+    res.status(200).json({ message: "Camapaña eliminada con exito" });
+  } catch (error) {
+    res.status(500).json({ message: "Error interno del srevidor" });
+  }
+}
+
 async function handlerGetActivities(req, res) {
   const { campaignId } = req.params;
   const userId = req.user.id;
@@ -97,7 +107,6 @@ async function handlerGetActivities(req, res) {
       4,
       "desc",
     );
-    console.log("Activities retrieved from DB:", activities);
     res.status(200).json(activities);
   } catch (error) {
     res.status(500).json({ message: "Error interno del servidor" });
@@ -375,15 +384,7 @@ async function handlerGetExpenseCategories(req, res) {
 async function handlerRegisterExpense(req, res) {
   const { campaignId } = req.params;
   const { category_id, concept, amount, date, notes } = req.body;
-  console.log(req.user.id);
 
-  console.log("Received expense data:", {
-    category_id,
-    concept,
-    amount,
-    date,
-    notes,
-  });
 
   if (!category_id || !concept || !amount || !date) {
     return res.status(400).json({ message: "Faltan datos obligatorios" });
@@ -418,7 +419,6 @@ async function handlerRegisterExpense(req, res) {
       res.status(500).json({ message: "Error al registrar el gasto" });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 }
@@ -436,13 +436,6 @@ async function handlerRegisterIncome(req, res) {
   const { campaignId } = req.params;
   const { category_id, concept, amount, date, notes } = req.body;
 
-  console.log("Received income data:", {
-    category_id,
-    concept,
-    amount,
-    date,
-    notes,
-  });
 
   if (!category_id || !concept || !amount || !date) {
     return res.status(400).json({ message: "Faltan datos obligatorios" });
@@ -477,7 +470,6 @@ async function handlerRegisterIncome(req, res) {
       res.status(500).json({ message: "Error al registrar el ingreso" });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 }

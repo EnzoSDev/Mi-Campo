@@ -32,7 +32,6 @@ function Map() {
     const fetchFieldGeometryData = async () => {
       try {
         const data = await fieldAPI.getFieldGeometry(Number(id));
-        console.log("Field geometry data:", data);
         const latitude = Number(data.lat);
         const longitude = Number(data.lng);
         setLat(latitude);

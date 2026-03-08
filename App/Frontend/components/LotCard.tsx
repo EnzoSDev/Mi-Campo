@@ -2,9 +2,9 @@ import React from "react";
 import {
   View,
   Text,
-  ImageBackground,
   TouchableOpacity,
   Pressable,
+  ImageBackground,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Link } from "expo-router";
@@ -24,8 +24,16 @@ function LotCard({
   description,
   handleDelete,
 }: LotCardProps) {
-  const imageUrl =
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuAvH9zY17rUUVHCDpOx89TybToAqyo0riOR9kEMsSK0Kvxv6fB2NSIGCRr-kIoON-84KlThKPJTBD0ReCjvRHsFINpqypwwu_JEnE3p006b050sLoTGV7XN2hwDVl6g6B2osLuJ2QirqKawlZlLCCMqLqkfWexL10qiuBOBv-im5VkYiMRPcUFKqoESQUdN8GNNpKwmUAOzaGjddWwdzlqSjCPKMDxkR08OavkBGTEIO673qL9FztqMqhQDsFj8n-ymVr6JMM8lUR-G";
+  // Imagenes de campo/agricultura (consistentes por id de lote)
+  const fieldImages = [
+    require("../assets/images/lotes/lote1.jpg"),
+    require("../assets/images/lotes/lote2.jpg"),
+    require("../assets/images/lotes/lote3.jpg"),
+    require("../assets/images/lotes/lote4.jpg"),
+    require("../assets/images/lotes/lote5.jpg"),
+  ];
+
+  const selectedImage = fieldImages[id % fieldImages.length];
 
   return (
     <Link
@@ -39,18 +47,18 @@ function LotCard({
         <View className="flex-1">
           <View className="rounded-2xl overflow-hidden bg-slate-900 shadow-lg">
             <ImageBackground
-              source={{ uri: imageUrl }}
-              className="h-36 w-full"
-              imageStyle={{ resizeMode: "cover" }}
+              source={selectedImage}
+              style={{ height: 144, width: "100%" }}
+              resizeMode="cover"
             >
-              <View className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+              <View className="absolute inset-0 bg-black/45" />
 
               <View className="absolute bottom-4 left-4 right-4">
-                <Text className="text-white font-bold text-xl leading-6">
+                <Text className="text-white font-bold text-xl leading-6 drop-shadow-lg">
                   {lotName}
                 </Text>
                 <View className="flex-row items-center">
-                  <Text className="text-[#94a3b8] text-xs italic">
+                  <Text className="text-white text-xs italic drop-shadow">
                     {description}
                   </Text>
                 </View>

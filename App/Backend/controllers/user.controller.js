@@ -36,7 +36,6 @@ async function handlerValidateSession(req, res) {
 
 async function handlerLogin(req, res) {
   const { email, password } = req.body;
-  console.log("Login attempt:", email, password);
   if (!email || !password) {
     return res
       .status(400)
@@ -44,7 +43,6 @@ async function handlerLogin(req, res) {
   }
   try {
     const user = await userModel.findUserByEmail(email);
-    console.log("User found:", user);
     if (!user) {
       return res
         .status(401)

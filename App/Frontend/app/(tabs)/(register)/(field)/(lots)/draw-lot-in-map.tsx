@@ -7,6 +7,8 @@ import { fieldAPI } from "@/services/fieldAPI";
 import { lotAPI } from "@/services/lotAPI";
 import type { CreateLotType } from "@/types/fieldTypes";
 
+import * as turf from "@turf/turf";
+
 interface LatLng {
   latitude: number;
   longitude: number;
@@ -39,7 +41,6 @@ function DrawLotInMap() {
     const fetchFieldGeometryData = async () => {
       try {
         const data = await fieldAPI.getFieldGeometry(Number(fieldId));
-        console.log("Field geometry data:", data);
         const latitude = Number(data.lat);
         const longitude = Number(data.lng);
         setLatField(latitude);
@@ -207,17 +208,18 @@ function DrawLotInMap() {
   };
 
   const calculatePolygonAreaHa = (points: LatLng[]): number => {
-    let area = 0;
-    const n = points.length;
+    if (points.length < 3) return 0;
 
-    for (let i = 0; i < n; i++) {
-      const j = (i + 1) % n;
-      area +=
-        points[i].longitude * points[j].latitude -
-        points[j].longitude * points[i].latitude;
-    }
+    // copiar puntos
+    const closedPoints = [...points, points[0]];
 
-    return Math.abs(area / 2) * 12365.1613; // Conversión a hectáreas
+    const coordinates = closedPoints.map((p) => [p.longitude, p.latitude]);
+
+    const polygon = turf.polygon([coordinates]);
+
+    const areaMeters = turf.area(polygon);
+
+    return areaMeters / 10000; // hectáreas
   };
 
   function calculateCentroid(coordinates: LatLng[]) {
@@ -300,7 +302,6 @@ function DrawLotInMap() {
         coordinatesPolygon,
         areaHa,
       };
-      console.log("Creando lote con datos:", lot);
       await lotAPI.createLot(lot);
       router.back();
     } catch (error: any) {

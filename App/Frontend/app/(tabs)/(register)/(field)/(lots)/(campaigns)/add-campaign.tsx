@@ -120,7 +120,7 @@ function AddCampaign() {
               </Text>
               <TextInput
                 className="text-base text-text-bright border-b border-border-dark py-2"
-                placeholder="Ej: Lote 1"
+                placeholder="Ej: Campaña 2024"
                 placeholderTextColor="#96999E66"
                 onChangeText={setCampaignName}
               />

@@ -61,7 +61,6 @@ function Profile() {
     setUploading(true);
     try {
       const imageUrl = await userAPI.updateProfileImage(imageUri);
-      console.log(imageUrl);
       if (imageUrl) {
         setProfileImageUrl(imageUrl); // Guardo la URL de la imagen del backend
       }
@@ -94,7 +93,6 @@ function Profile() {
           setEmail(data.email || "");
           setCountryCode(data.country_code || "");
           setProfileImageUrl(data.profile_image);
-          console.log(data);
         }
       } catch (error: any) {
         if (error.message === "SESSION_EXPIRED") {

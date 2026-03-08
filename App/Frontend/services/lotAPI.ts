@@ -35,7 +35,6 @@ async function getAllLotsGeometryData(fieldId: number) {
         data.message || "Error al obtener la geometría de los lotes",
       );
     }
-    console.log("Datos de geometría de los lotes:", data);
     return data.lotsGeometryData;
   } catch (error) {
     throw error;
@@ -225,7 +224,6 @@ async function getCampaignsCompleted(lotId: number): Promise<CampaignType[]> {
 
     // Validar que completedCampaigns existe y es un array
     if (!data.completedCampaigns || !Array.isArray(data.completedCampaigns)) {
-      console.log("No hay campaña completada o formato incorrecto");
       return [];
     }
 

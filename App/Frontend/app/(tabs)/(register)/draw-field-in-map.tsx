@@ -13,6 +13,8 @@ import * as Location from "expo-location";
 import { fieldAPI } from "../../../services/fieldAPI";
 import { CreateFieldType } from "@/types/fieldTypes";
 
+import * as turf from "@turf/turf";
+
 interface LatLng {
   latitude: number;
   longitude: number;
@@ -77,17 +79,18 @@ function DrawFieldInMap() {
   };
 
   const calculatePolygonAreaHa = (points: LatLng[]): number => {
-    let area = 0;
-    const n = points.length;
+    if (points.length < 3) return 0;
 
-    for (let i = 0; i < n; i++) {
-      const j = (i + 1) % n;
-      area +=
-        points[i].longitude * points[j].latitude -
-        points[j].longitude * points[i].latitude;
-    }
+    // copiar puntos
+    const closedPoints = [...points, points[0]];
 
-    return Math.abs(area / 2) * 12365.1613; // Conversión a hectáreas
+    const coordinates = closedPoints.map((p) => [p.longitude, p.latitude]);
+
+    const polygon = turf.polygon([coordinates]);
+
+    const areaMeters = turf.area(polygon);
+
+    return areaMeters / 10000; // hectáreas
   };
 
   const calculatePolygonCenter = (points: LatLng[]): LatLng => {
@@ -127,9 +130,7 @@ function DrawFieldInMap() {
         });
         setSearchText("");
       }
-    } catch (error) {
-      console.log("Error buscando ubicación:", error);
-    }
+    } catch (error) {}
   };
 
   const handleMapPress = (e: any) => {
@@ -169,7 +170,6 @@ function DrawFieldInMap() {
         coordinatesPolygon,
         areaHa,
       };
-      console.log("Creando campo con datos:", field);
       await fieldAPI.createField(field);
       router.replace("/(tabs)/(register)/home");
     } catch (error: any) {

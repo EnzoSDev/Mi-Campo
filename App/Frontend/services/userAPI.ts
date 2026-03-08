@@ -30,11 +30,29 @@ async function checkSession() {
   if (!token) {
     return false;
   }
+
+  let res: Response;
   try {
-    const res = await fetch(`${API_URL}/user/validate-session`, {
+    res = await fetch(`${API_URL}/user/validate-session`, {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
+  } catch (error) {
+    // Error de red o backend temporalmente inaccesible: no cerrar sesion.
+    return true;
+  }
+
+  if (res.status === 401) {
+    await SecureStore.deleteItemAsync("access-token");
+    return false;
+  }
+
+  if (!res.ok) {
+    // Errores 5xx/otros no deben invalidar el token local.
+    return true;
+  }
+
+  try {
     const data = await res.json();
     if (!data.sessionActive) {
       await SecureStore.deleteItemAsync("access-token");
@@ -42,8 +60,8 @@ async function checkSession() {
     }
     return true;
   } catch (error) {
-    await SecureStore.deleteItemAsync("access-token");
-    return false;
+    // Si no se puede parsear la respuesta, no forzar logout.
+    return true;
   }
 }
 

@@ -64,7 +64,6 @@ export default function Home() {
               );
               setErrorMsg(null);
             } catch (error: any) {
-              console.log(error);
               if (error.message === "SESSION_EXPIRED") {
                 setErrorMsg(
                   "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
@@ -94,21 +93,14 @@ export default function Home() {
         </Text>
       </View>
 
-      {/* Search and Add Bar */}
+      {/* Section */}
       <View className="px-4 py-6">
-        <View className="flex-row gap-3">
-          <View className="flex-1 h-12 flex-row items-center bg-white dark:bg-[#2d3136] rounded-xl">
-            <View className="pl-4">
-              <MaterialIcons name="search" size={20} color="#94a3b8" />
-            </View>
-            <TextInput
-              className="flex-1 px-2 text-[#0f172a] dark:text-white"
-              placeholder="Buscar campo..."
-              placeholderTextColor="#94a3b8"
-            />
-          </View>
+        <View className="flex-row justify-between items-center">
+          <Text className="text-white text-2xl font-bold flex-1">
+            Mis Campos
+          </Text>
           <TouchableOpacity
-            className="w-12 h-12 rounded-xl bg-[#267366] items-center justify-center"
+            className="w-12 h-12 rounded-xl bg-[#267366] items-center justify-center ml-4"
             onPress={() => router.push("/(tabs)/(register)/add-field")}
           >
             <MaterialIcons name="add" size={24} color="white" />

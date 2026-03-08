@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Modal, TextInput } from "react-native";
+import { View, Text, Pressable, Modal, TextInput, Alert } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { CampaignType } from "@/types/campaignTypes";
@@ -149,7 +149,6 @@ function CampaignActive({
       setIsLoading(true);
       try {
         const activities = await campaignAPI.getRecentActivities(campaign.id);
-        console.log("Actividades recientes:", activities);
         setRecentActivities(activities);
       } catch (error: any) {
         if (error.message === "SESSION_EXPIRED") {
@@ -210,6 +209,48 @@ function CampaignActive({
     setUnlinkReason("");
     setModalError(null);
     setShowUnlinkModal(true);
+  };
+
+  const handleDeleteCampaign = () => {
+    Alert.alert(
+      "Eliminar campaña activa",
+      "¿Seguro que querés eliminar esta campaña?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: () => {
+            void confirmDeleteCampaign();
+          },
+        },
+      ],
+    );
+  };
+
+  const confirmDeleteCampaign = async () => {
+    try {
+      const res = await campaignAPI.deleteCampaign(campaign.id);
+      if (res) {
+        setCampaignActive(null);
+      } else {
+        setErrorMsg("Error al eliminar la campaña activa.");
+      }
+    } catch (error: any) {
+      if (error.message === "SESSION_EXPIRED") {
+        setErrorMsg(
+          "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+        );
+        setTimeout(() => {
+          router.push("/(auth)/login");
+        }, 2000);
+      } else {
+        setErrorMsg("Error al eliminar la campaña activa.");
+      }
+    }
   };
 
   const confirmUnlinkLot = async () => {
@@ -370,6 +411,15 @@ function CampaignActive({
             >
               <Text className="text-white font-bold text-sm">
                 Finalizar Campaña
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={handleDeleteCampaign}
+              className="mt-4 bg-red-600 rounded-lg py-3 items-center active:opacity-80"
+            >
+              <Text className="text-white font-bold text-sm">
+                Eliminar Campaña Activa
               </Text>
             </Pressable>
           </View>

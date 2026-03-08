@@ -59,4 +59,6 @@ router.post(
   CampaignController.handlerRegisterIncome,
 );
 
+router.delete("/:campaignId", CampaignController.handlerDeleteCampaign);
+
 export default router;

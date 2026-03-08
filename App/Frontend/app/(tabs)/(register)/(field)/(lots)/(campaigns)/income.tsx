@@ -87,14 +87,6 @@ function Income() {
     setError("");
     setIsLoading(true);
 
-    console.log("Attempting to register income with data:", {
-      campaignId,
-      category,
-      concept,
-      amount: parsed,
-      date,
-      notes,
-    });
     try {
       await campaignAPI.registerIncome(
         Number(campaignId),

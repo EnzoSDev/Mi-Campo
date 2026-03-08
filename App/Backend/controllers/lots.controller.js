@@ -95,7 +95,6 @@ async function handleCreateCampaign(req, res) {
       res.status(500).json({ message: "No se pudo crear la campaña" });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 }
@@ -142,7 +141,6 @@ async function handleJoinCampaign(req, res) {
       res.status(500).json({ message: "No se pudo unir a la campaña" });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 }

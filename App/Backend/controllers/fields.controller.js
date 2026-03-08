@@ -35,15 +35,6 @@ async function handleCreateField(req, res) {
     areaHa,
   } = req.body;
 
-  console.log("Datos recibidos para crear campo:", {
-    fieldName,
-    description,
-    locationName,
-    lat,
-    lng,
-    coordinatesPolygon,
-    areaHa,
-  });
 
   if (
     !fieldName ||
@@ -115,12 +106,6 @@ async function handleCreateLot(req, res) {
     return res.status(400).json({ message: "Faltan datos obligatorios" });
   }
 
-  console.log("Datos recibidos para crear lote:", {
-    lotName,
-    description,
-    coordinatesPolygon,
-    areaHa,
-  });
 
   if (!Array.isArray(coordinatesPolygon) || coordinatesPolygon.length < 3) {
     return res
@@ -142,7 +127,6 @@ async function handleCreateLot(req, res) {
       coordinatesPolygon,
       areaHa,
     });
-    console.log("Resultado de creación de lote:", result);
     if (result) {
       res.status(201).json({ message: "Lote creado exitosamente" });
     } else res.status(500).json({ message: "No se pudo crear el lote" });
@@ -173,7 +157,6 @@ async function handleGetFieldLotsGeometry(req, res) {
   const { fieldId } = req.params;
   try {
     const lotsGeometryData = await fieldsModel.getFieldLotsGeometry(fieldId);
-    console.log("Datos de geometría de los lotes:", lotsGeometryData);
     if (lotsGeometryData) {
       res.status(200).json({ lotsGeometryData });
     } else {

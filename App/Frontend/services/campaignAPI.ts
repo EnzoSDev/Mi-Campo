@@ -17,6 +17,7 @@ const API_URL =
 export const campaignAPI = {
   unlinkLotFromCampaign,
   completeCampaign,
+  deleteCampaign,
   getRecentActivities,
   getSowingsByCampaign,
   createSowing,
@@ -33,6 +34,30 @@ export const campaignAPI = {
   getIncomeCategories,
   registerIncome,
 };
+
+async function deleteCampaign(campaignId: number) {
+  try {
+    const token = await getToken();
+
+    const response = await fetch(`${API_URL}/campaigns/${campaignId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || "Error al eliminar la campaña");
+    }
+
+    return true;
+  } catch (error) {
+    throw error;
+  }
+}
 
 async function unlinkLotFromCampaign(
   campaignId: number,
@@ -497,7 +522,6 @@ async function registerExpense(
       },
     );
 
-    console.log("Response status:", response.status);
 
     const data = await response.json();
     if (!response.ok) {
