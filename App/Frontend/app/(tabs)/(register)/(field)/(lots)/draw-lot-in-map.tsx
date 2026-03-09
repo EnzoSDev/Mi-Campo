@@ -20,6 +20,7 @@ function DrawLotInMap() {
     lotName: string;
     description: string;
   };
+  const normalizedFieldId = Array.isArray(fieldId) ? fieldId[0] : fieldId;
 
   const [latField, setLatField] = useState<number>(0);
   const [lngField, setLngField] = useState<number>(0);
@@ -40,7 +41,7 @@ function DrawLotInMap() {
   useEffect(() => {
     const fetchFieldGeometryData = async () => {
       try {
-        const data = await fieldAPI.getFieldGeometry(Number(fieldId));
+        const data = await fieldAPI.getFieldGeometry(Number(normalizedFieldId));
         const latitude = Number(data.lat);
         const longitude = Number(data.lng);
         setLatField(latitude);
@@ -75,7 +76,9 @@ function DrawLotInMap() {
 
     const fetchLotsGeometryData = async () => {
       try {
-        const data = await lotAPI.getAllLotsGeometryData(Number(fieldId));
+        const data = await lotAPI.getAllLotsGeometryData(
+          Number(normalizedFieldId),
+        );
         setLotsCoordinates(data);
       } catch (error: any) {
         if (error.message === "SESSION_EXPIRED") {
@@ -92,7 +95,7 @@ function DrawLotInMap() {
     fetchLotsGeometryData();
 
     // TODO: fetchPaddocksGeometryData
-  }, [fieldId]);
+  }, [normalizedFieldId]);
 
   // ========== FUNCIONES DE GEOMETRÍA ==========
 
@@ -296,14 +299,34 @@ function DrawLotInMap() {
 
     try {
       const lot: CreateLotType = {
-        fieldId: Number(fieldId),
+        fieldId: Number(normalizedFieldId),
         lotName,
         description,
         coordinatesPolygon,
         areaHa,
       };
       await lotAPI.createLot(lot);
-      router.back();
+
+      // Volvemos en el stack (draw -> add -> field) para regresar a la pantalla previa real.
+      if (router.canGoBack()) {
+        router.back();
+
+        setTimeout(() => {
+          if (router.canGoBack()) {
+            router.back();
+          } else {
+            router.replace({
+              pathname: "/(tabs)/(register)/(field)/[fieldId]",
+              params: { fieldId: normalizedFieldId },
+            });
+          }
+        }, 0);
+      } else {
+        router.replace({
+          pathname: "/(tabs)/(register)/(field)/[fieldId]",
+          params: { fieldId: normalizedFieldId },
+        });
+      }
     } catch (error: any) {
       if (error.message === "SESSION_EXPIRED") {
         setError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");

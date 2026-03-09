@@ -28,6 +28,13 @@ async function handlerUnlinkLotFromCampaign(req, res) {
   const { unlinkDate, unlinkReason, lotId } = req.body;
 
   try {
+    const cantLotsInCampaign =
+      await campaignModel.getLotsInCampaign(campaignId);
+    if (cantLotsInCampaign.length <= 1) {
+      res.status(400).json({
+        message: "CAMPAIGN_WITHOUT_LOTS",
+      });
+    }
     const result = await campaignModel.unlinkLotFromCampaign(campaignId, lotId);
     if (result) {
       const lot = await lotsModel.getLotById(lotId);
@@ -385,7 +392,6 @@ async function handlerRegisterExpense(req, res) {
   const { campaignId } = req.params;
   const { category_id, concept, amount, date, notes } = req.body;
 
-
   if (!category_id || !concept || !amount || !date) {
     return res.status(400).json({ message: "Faltan datos obligatorios" });
   }
@@ -435,7 +441,6 @@ async function handlerGetIncomeCategories(req, res) {
 async function handlerRegisterIncome(req, res) {
   const { campaignId } = req.params;
   const { category_id, concept, amount, date, notes } = req.body;
-
 
   if (!category_id || !concept || !amount || !date) {
     return res.status(400).json({ message: "Faltan datos obligatorios" });

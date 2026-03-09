@@ -277,7 +277,12 @@ function CampaignActive({
             router.push("/(auth)/login");
           }, 2000);
         } else {
-          setModalError("Error al desvincular el lote.");
+          if (error.message === "CAMPAIGN_WITHOUT_LOTS") {
+            setModalError(
+              "No se puede desvincular el lote porque la campaña debe tener al menos un lote asociado.",
+            );
+          } else
+            setModalError(error.message || "Error al desvincular el lote.");
         }
       }
     } else {

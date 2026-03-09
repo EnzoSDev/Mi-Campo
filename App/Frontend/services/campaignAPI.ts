@@ -47,7 +47,6 @@ async function deleteCampaign(campaignId: number) {
       },
     });
 
-
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.message || "Error al eliminar la campaña");
@@ -83,6 +82,7 @@ async function unlinkLotFromCampaign(
       },
     );
     const data = await response.json();
+    console.log(data);
     if (!response.ok) {
       throw new Error(
         data.message || "Error al desvincular el lote de la campaña",
@@ -521,7 +521,6 @@ async function registerExpense(
         }),
       },
     );
-
 
     const data = await response.json();
     if (!response.ok) {

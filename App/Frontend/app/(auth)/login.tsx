@@ -126,7 +126,8 @@ export default function Login() {
               </Pressable>
             </View>
           </View>
-          {/* FORGOT */}
+          {/*
+            FORGOT
           <View className="items-end pt-1">
             <Pressable>
               <Text className="text-[#267366] text-sm font-medium">
@@ -134,6 +135,7 @@ export default function Login() {
               </Text>
             </Pressable>
           </View>
+          */}
           {/* LOGIN BUTTON */}
           {isLoading ? (
             <View className="pt-6 items-center">
@@ -151,7 +153,8 @@ export default function Login() {
           )}
         </View>
 
-        {/* REGISTER */}
+        {/*
+        {/* REGISTER
         <View className="mt-10 items-center">
           <Text className="text-slate-400 text-sm mb-4">
             ¿No tienes una cuenta?
@@ -165,6 +168,7 @@ export default function Login() {
             <Text className="text-white font-semibold">Regístrate</Text>
           </Pressable>
         </View>
+        */}
       </View>
     </ScrollView>
   );

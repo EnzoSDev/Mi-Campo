@@ -140,32 +140,39 @@ function EconomyFilterModal({
                   nestedScrollEnabled={true}
                   bounces={true}
                 >
-                  {fields.map((field, index) => (
-                    <Pressable
-                      key={field.id}
-                      className={`px-3 py-3 ${
-                        index !== fields.length - 1
-                          ? "border-b border-white/10"
-                          : ""
-                      }`}
-                      onPress={() => {
-                        // Solo resetear campaña si cambias de campo
-                        if (draftSelectedField?.id !== field.id) {
-                          setDraftSelectedCampaign(null);
-                        }
-                        setFilterError(null);
-                        setDraftSelectedField({
-                          id: field.id,
-                          fieldName: field.fieldName,
-                        });
-                        setShowFieldDropdown(false);
-                      }}
-                    >
-                      <Text className="text-white/80 text-sm">
-                        {field.fieldName}
+                  {fields.length > 0 ? (
+                    fields.map((field, index) => (
+                      <Pressable
+                        key={field.id}
+                        className={`px-3 py-3 ${
+                          index !== fields.length - 1
+                            ? "border-b border-white/10"
+                            : ""
+                        }`}
+                        onPress={() => {
+                          if (draftSelectedField?.id !== field.id) {
+                            setDraftSelectedCampaign(null);
+                          }
+                          setFilterError(null);
+                          setDraftSelectedField({
+                            id: field.id,
+                            fieldName: field.fieldName,
+                          });
+                          setShowFieldDropdown(false);
+                        }}
+                      >
+                        <Text className="text-white/80 text-sm">
+                          {field.fieldName}
+                        </Text>
+                      </Pressable>
+                    ))
+                  ) : (
+                    <View className="px-3 py-3">
+                      <Text className="text-white/60 text-sm">
+                        No hay campos
                       </Text>
-                    </Pressable>
-                  ))}
+                    </View>
+                  )}
                 </ScrollView>
               </View>
             )}
@@ -199,9 +206,11 @@ function EconomyFilterModal({
               >
                 {!draftSelectedField
                   ? "Primero selecciona un campo"
-                  : draftSelectedCampaign
-                    ? draftSelectedCampaign.campaignName
-                    : "Selecciona una campaña"}
+                  : campaigns.length === 0
+                    ? "No hay campañas"
+                    : draftSelectedCampaign
+                      ? draftSelectedCampaign.campaignName
+                      : "Selecciona una campaña"}
               </Text>
               <MaterialIcons
                 name={
@@ -222,28 +231,36 @@ function EconomyFilterModal({
                   nestedScrollEnabled={true}
                   bounces={true}
                 >
-                  {campaigns.map((campaign, index) => (
-                    <Pressable
-                      key={campaign.id}
-                      className={`px-3 py-3 ${
-                        index !== campaigns.length - 1
-                          ? "border-b border-white/10"
-                          : ""
-                      }`}
-                      onPress={() => {
-                        setFilterError(null);
-                        setDraftSelectedCampaign({
-                          id: campaign.id,
-                          campaignName: campaign.campaignName,
-                        });
-                        setShowCampaignDropdown(false);
-                      }}
-                    >
-                      <Text className="text-white/80 text-sm">
-                        {campaign.campaignName}
+                  {campaigns.length > 0 ? (
+                    campaigns.map((campaign, index) => (
+                      <Pressable
+                        key={campaign.id}
+                        className={`px-3 py-3 ${
+                          index !== campaigns.length - 1
+                            ? "border-b border-white/10"
+                            : ""
+                        }`}
+                        onPress={() => {
+                          setFilterError(null);
+                          setDraftSelectedCampaign({
+                            id: campaign.id,
+                            campaignName: campaign.campaignName,
+                          });
+                          setShowCampaignDropdown(false);
+                        }}
+                      >
+                        <Text className="text-white/80 text-sm">
+                          {campaign.campaignName}
+                        </Text>
+                      </Pressable>
+                    ))
+                  ) : (
+                    <View className="px-3 py-3">
+                      <Text className="text-white/60 text-sm">
+                        No hay campañas
                       </Text>
-                    </Pressable>
-                  ))}
+                    </View>
+                  )}
                 </ScrollView>
               </View>
             )}

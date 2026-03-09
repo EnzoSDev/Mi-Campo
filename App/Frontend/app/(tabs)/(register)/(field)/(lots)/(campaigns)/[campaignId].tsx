@@ -1,10 +1,23 @@
-import { View, Text, ScrollView, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  useWindowDimensions,
+} from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 
 function Campaign() {
   const { campaignId, campaignName, startDate, endDate, status } =
     useLocalSearchParams();
+  const { width } = useWindowDimensions();
+
+  const horizontalPadding = 32; // px-4 container
+  const columnGap = width < 380 ? 8 : 12;
+  const cardWidth = (width - horizontalPadding - columnGap) / 2;
+  const cardMinHeight = width < 380 ? 130 : 150;
+  const iconSize = width < 380 ? 18 : 20;
 
   const parseDate = (value?: string | string[]) => {
     if (!value) return null;
@@ -140,16 +153,18 @@ function Campaign() {
           <Text className="text-[10px] font-bold tracking-widest text-white/50 mb-3 uppercase">
             Actividades
           </Text>
-          <View className="flex-row flex-wrap gap-4 justify-center">
-            {options.map((option, index) => {
-              const isLastOdd =
-                options.length % 2 === 1 && index === options.length - 1;
+          <View className="flex-row flex-wrap justify-between">
+            {options.map((option) => {
+              const isObservations = option.key === "observations";
               return (
                 <Pressable
                   key={`campaign-${option.key}`}
-                  className={`${
-                    isLastOdd ? "w-full" : "w-[48%]"
-                  }  ${option.bg} border border-white/10 rounded-2xl p-4 py-12 items-center justify-center active:opacity-80`}
+                  className={`${option.bg} border border-white/10 rounded-2xl p-3 items-center justify-center active:opacity-80`}
+                  style={{
+                    width: isObservations ? "100%" : cardWidth,
+                    minHeight: cardMinHeight,
+                    marginBottom: columnGap,
+                  }}
                   onPress={() =>
                     router.push({
                       pathname: option.route as any,
@@ -157,10 +172,10 @@ function Campaign() {
                     })
                   }
                 >
-                  <View className="w-10 h-10 rounded-xl bg-white/20 items-center justify-center mb-2">
+                  <View className="w-9 h-9 rounded-xl bg-white/20 items-center justify-center mb-2">
                     <MaterialIcons
                       name={option.icon}
-                      size={20}
+                      size={iconSize}
                       color={option.iconColor}
                     />
                   </View>

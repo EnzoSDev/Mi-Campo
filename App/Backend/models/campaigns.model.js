@@ -2,6 +2,7 @@ import connection from "../database/databaseConfig.js";
 
 export const campaignModel = {
   unlinkLotFromCampaign,
+  getLotsInCampaign,
   completeCampaign,
   deleteCampaign,
   getSowingsByCampaignId,
@@ -27,6 +28,13 @@ async function unlinkLotFromCampaign(campaignId, lotId) {
   return result.affectedRows === 1;
 }
 
+async function getLotsInCampaign(campaignId) {
+  const query =
+    "SELECT l.id, l.lot_name, l.area_ha, l.description FROM lots l JOIN campaign_lots cl ON l.id = cl.lot_id WHERE cl.campaign_id = ? AND cl.is_active = 1";
+  const [rows] = await connection.execute(query, [campaignId]);
+  return rows;
+}
+
 async function completeCampaign(campaignId) {
   const query = "UPDATE campaigns SET status = 'completed' WHERE id = ?";
   const [result] = await connection.execute(query, [campaignId]);
@@ -41,7 +49,7 @@ async function deleteCampaign(campaignId) {
 
 async function getSowingsByCampaignId(campaignId) {
   const query =
-    "SELECT id, crop_type, variety, sowing_date, density, row_spacing, method, notes FROM sowings WHERE campaign_id = ?";
+    "SELECT id, crop_type, variety, sowing_date, density, row_spacing, method, notes FROM sowings WHERE campaign_id = ? AND l.is_active = 1";
   const [rows] = await connection.execute(query, [campaignId]);
   return rows;
 }
